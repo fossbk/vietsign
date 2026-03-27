@@ -23,6 +23,8 @@ import { ReactMediaRecorder } from "react-media-recorder-2";
 import Webcam from "react-webcam";
 import * as XLSX from "xlsx";
 import { fetchAllTopics, fetchVocabulariesByTopic } from "@/services/topicService";
+import { uploadFile as uploadMediaFile } from "@/services/uploadService";
+import { predictAiPractice } from "@/services/aiPracticeService";
 const formatTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -254,31 +256,59 @@ const PracticeData: React.FC = () => {
     [showModalPreview],
   );
 
-  const uploadVideo = async (mediaBlobUrl: any) => {
-    const formData = new FormData();
+  const convertBlobUrlToFile = async (mediaBlobUrl: string) => {
     const response = await fetch(mediaBlobUrl);
     const blob: any = await response.blob();
     const metadata = { type: blob.type, lastModified: blob.lastModified };
-    const file = new File([blob], `volunteer_${Date.now()}.mp4`, metadata);
-    formData.append("file", file);
-    formData.append("folder", "exam");
-    return await UploadModel.uploadFile(formData);
+    return new File([blob], `volunteer_${Date.now()}.mp4`, metadata);
+  };
+
+  const uploadVideo = async (mediaBlobUrl: string) => {
+    const file = await convertBlobUrlToFile(mediaBlobUrl);
+    return await uploadMediaFile(file, "exam");
   };
 
   const [selectedAIModel, setSelectedAIModel] = useState("model1");
 
   // Kiểm tra AI
   const mutationDetectAI = useMutation({
-    mutationFn: async (data: { videoUrl: string }) => {
+    mutationFn: async (data: { videoUrl?: string; file?: File }) => {
       console.log("Gửi dữ liệu đến AI model:", data);
       if (selectedAIModel === "model1") {
         console.log("Sử dụng model1...");
-        return await UploadModel.checkAI(data);
+        if (!data.file) {
+          throw new Error("Thiếu file đầu vào cho AI Model 1");
+        }
+
+        const aiResponse = await predictAiPractice({
+          file: data.file,
+          mode: "free",
+          targetText: filterParams?.vocabularyName || "",
+          vocabularyId: filterParams?.vocabulary || undefined,
+          topicId: filterParams?.topic || undefined,
+        });
+
+        const actionName =
+          aiResponse?.data?.action_name ||
+          aiResponse?.data?.predicted_label ||
+          (aiResponse?.data?.raw_response as any)?.action_name ||
+          (aiResponse?.data?.raw_response as any)?.label ||
+          (aiResponse?.data?.raw_response as any)?.label_id?.toString?.() ||
+          "";
+
+        return {
+          action_name: actionName,
+          fileLocation: data.videoUrl,
+          raw: aiResponse,
+        };
       } else if (selectedAIModel === "model2") {
         console.log("Sử dụng model2...");
+        if (!data.videoUrl) {
+          throw new Error("Thiếu videoUrl cho AI Model 2");
+        }
         const response = await axios.post(
           "https://wesign.ibme.edu.vn/ai/t2/ai/detection",
-          data,
+          { videoUrl: data.videoUrl },
           {
             headers: {
               "Content-Type": "application/json",
@@ -288,9 +318,12 @@ const PracticeData: React.FC = () => {
         return response.data;
       } else if (selectedAIModel === "model3") {
         // Gửi videoUrl tới API model 3
+        if (!data.videoUrl) {
+          throw new Error("Thiếu videoUrl cho AI Model 3");
+        }
         const response = await axios.post(
           "https://wesign.ibme.edu.vn/ai/t3/ai/detection",
-          data,
+          { videoUrl: data.videoUrl },
           {
             headers: {
               "Content-Type": "application/json",
@@ -392,30 +425,32 @@ const PracticeData: React.FC = () => {
 
     try {
       setUploadLoading(true); // Set loading state
-      const formData = new FormData();
-      formData.append("file", uploadedVideo);
-      formData.append("folder", "exam");
-      const response = await UploadModel.uploadFile(formData);
-
-      console.log("Phản hồi từ API upload:", response);
-      if (!response || typeof response !== "string") {
-        throw new Error("Phản hồi từ API không hợp lệ hoặc thiếu URL video.");
-      }
-
-      const videoUrl = response; // Lấy URL từ response (response.data là chuỗi)
-      console.log("Video đã được tải lên. URL:", videoUrl);
-
-      // Gửi video đến AI model
-      mutationDetectAI.mutate(
-        { videoUrl },
-        {
-          onSettled: () => {
-            setUploadLoading(false); // Reset loading state
-            setUploadModalVisible(false);
-            setUploadedVideo(null);
+      if (selectedAIModel === "model1") {
+        mutationDetectAI.mutate(
+          { file: uploadedVideo },
+          {
+            onSettled: () => {
+              setUploadLoading(false);
+              setUploadModalVisible(false);
+              setUploadedVideo(null);
+            },
           },
-        },
-      );
+        );
+      } else {
+        const videoUrl = await uploadMediaFile(uploadedVideo, "exam");
+        console.log("Video đã được tải lên. URL:", videoUrl);
+
+        mutationDetectAI.mutate(
+          { videoUrl },
+          {
+            onSettled: () => {
+              setUploadLoading(false);
+              setUploadModalVisible(false);
+              setUploadedVideo(null);
+            },
+          },
+        );
+      }
 
       message.success("Video đã được tải lên thành công.");
     } catch (error) {
@@ -685,9 +720,20 @@ const PracticeData: React.FC = () => {
                           onClick={async () => {
                             try {
                               console.log("Bắt đầu kiểm tra video...");
-                              const link = await uploadVideo(mediaBlobUrl);
-                              console.log("URL video gửi đến AI:", link);
-                              mutationDetectAI.mutate({ videoUrl: link });
+                              const capturedFile = await convertBlobUrlToFile(
+                                mediaBlobUrl,
+                              );
+
+                              if (selectedAIModel === "model1") {
+                                mutationDetectAI.mutate({ file: capturedFile });
+                              } else {
+                                const link = await uploadMediaFile(
+                                  capturedFile,
+                                  "exam",
+                                );
+                                console.log("URL video gửi đến AI:", link);
+                                mutationDetectAI.mutate({ videoUrl: link });
+                              }
                             } catch (error) {
                               console.error("Lỗi khi kiểm tra video:", error);
                             }

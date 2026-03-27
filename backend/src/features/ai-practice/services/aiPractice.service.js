@@ -172,64 +172,64 @@ const callModelApi = async (file) => {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const callModelApiOnce = async () => {
-  const modelBaseUrl =
-    process.env.AI_MODEL_BASE_URL || "https://vietsign.ibme.edu.vn/vsl-api";
-  const endpoint = `${modelBaseUrl.replace(/\/$/, "")}/predict`;
-  const timeoutMs = Number(process.env.AI_MODEL_TIMEOUT_MS || 20000);
+    const modelBaseUrl =
+      process.env.AI_MODEL_BASE_URL || "https://vietsign.ibme.edu.vn/vsl-api";
+    const endpoint = `${modelBaseUrl.replace(/\/$/, "")}/predict`;
+    const timeoutMs = Number(process.env.AI_MODEL_TIMEOUT_MS || 20000);
 
-  const formData = new FormData();
-  const blob = new Blob([file.buffer], {
-    type: file.mimetype || "application/octet-stream",
-  });
-  formData.append("file", blob, file.originalname || `practice-${Date.now()}.bin`);
+    const formData = new FormData();
+    const blob = new Blob([file.buffer], {
+      type: file.mimetype || "application/octet-stream",
+    });
+    formData.append("file", blob, file.originalname || `practice-${Date.now()}.bin`);
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  try {
-    let response;
     try {
-      response = await fetch(endpoint, {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      });
-    } catch (fetchError) {
-      const err = new Error(
-        fetchError?.name === "AbortError"
-          ? "AI model request timed out"
-          : "Could not connect to AI model service",
-      );
-      err.status = fetchError?.name === "AbortError" ? 504 : 503;
-      err.code = fetchError?.name === "AbortError" ? "AI_TIMEOUT" : "AI_NETWORK";
-      throw err;
-    }
-
-    const rawText = await response.text();
-    let jsonBody = null;
-
-    if (rawText) {
+      let response;
       try {
-        jsonBody = JSON.parse(rawText);
-      } catch (error) {
-        jsonBody = { rawText };
+        response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        });
+      } catch (fetchError) {
+        const err = new Error(
+          fetchError?.name === "AbortError"
+            ? "AI model request timed out"
+            : "Could not connect to AI model service",
+        );
+        err.status = fetchError?.name === "AbortError" ? 504 : 503;
+        err.code = fetchError?.name === "AbortError" ? "AI_TIMEOUT" : "AI_NETWORK";
+        throw err;
       }
-    }
 
-    if (!response.ok) {
-      const message =
-        jsonBody?.detail || jsonBody?.message || `AI model request failed with status ${response.status}`;
-      const err = new Error(message);
-      err.status = response.status;
-      err.code = "AI_UPSTREAM_ERROR";
-      err.payload = jsonBody;
-      throw err;
-    }
+      const rawText = await response.text();
+      let jsonBody = null;
 
-    return jsonBody || {};
-  } finally {
-    clearTimeout(timeoutId);
-  }
+      if (rawText) {
+        try {
+          jsonBody = JSON.parse(rawText);
+        } catch (error) {
+          jsonBody = { rawText };
+        }
+      }
+
+      if (!response.ok) {
+        const message =
+          jsonBody?.detail || jsonBody?.message || `AI model request failed with status ${response.status}`;
+        const err = new Error(message);
+        err.status = response.status;
+        err.code = "AI_UPSTREAM_ERROR";
+        err.payload = jsonBody;
+        throw err;
+      }
+
+      return jsonBody || {};
+    } finally {
+      clearTimeout(timeoutId);
+    }
   };
 
   let lastError;
