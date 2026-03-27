@@ -4,8 +4,12 @@ import { ClassItem } from "@/data/classesData";
 export async function fetchAllClasses(query?: any): Promise<ClassItem[]> {
   try {
     const response = await ClassModel.getAllClasses(query);
+    console.log("📋 [fetchAllClasses] Raw response from ClassModel:", response);
+    
     // Backend returns { data: [...], page, limit, total }
     const data = response.data || response;
+    console.log("📋 [fetchAllClasses] Parsed data:", data);
+    console.log("📋 [fetchAllClasses] Is data array?", Array.isArray(data));
 
     // Handle different response structures
     let items: any[] = [];
@@ -16,6 +20,8 @@ export async function fetchAllClasses(query?: any): Promise<ClassItem[]> {
     } else if (data.classes && Array.isArray(data.classes)) {
       items = data.classes;
     }
+    
+    console.log("📋 [fetchAllClasses] Items count:", items.length);
 
     // Map items - Backend now returns proper camelCase format
     return items.map((item: any) => ({
@@ -36,7 +42,7 @@ export async function fetchAllClasses(query?: any): Promise<ClassItem[]> {
       thumbnail: item.thumbnailPath,
     }));
   } catch (error) {
-    console.error("Error fetching classes:", error);
+    console.error("❌ [fetchAllClasses] Error fetching classes:", error);
     return [];
   }
 }

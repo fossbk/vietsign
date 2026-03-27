@@ -7,6 +7,7 @@ const organizationRoutes = require("./routes/organization.routes");
 const organizationManagerRoutes = require("./routes/organizationManager.routes");
 const teachingManagementRoutes = require("./features/teaching-management");
 const learnRoutes = require("./features/learn");
+const aiPracticeRoutes = require("./features/ai-practice/routes/aiPractice.routes");
 const { authRequired } = require("./middleware/auth.middleware");
 const { specs, swaggerUi } = require("./swagger/index");
 const { initMinio, minioClient, bucketName } = require("./utils/minio");
@@ -30,31 +31,61 @@ app.use("/organizations", organizationRoutes);
 app.use("/organization-managers", organizationManagerRoutes);
 app.use("/teaching-management", teachingManagementRoutes);
 app.use("/learn", learnRoutes);
+app.use("/ai-practice", aiPracticeRoutes);
 app.use("/upload", uploadRoutes);
 const path = require("path");
+const fs = require("fs");
 
-// Proxy /uploads to MinIO or serve local files (for transition)
-app.get("/uploads/:filename", async (req, res) => {
-  const filename = req.params.filename;
-  const localPath = path.join(__dirname, "../uploads", filename);
+const streamUploadedObject = async (res, objectKey) => {
+  const localPath = path.join(__dirname, "../uploads", objectKey);
 
   // Try local first (existing files)
-  const fs = require("fs");
   if (fs.existsSync(localPath)) {
     return res.sendFile(localPath);
   }
 
   // Then try MinIO
   try {
-    const dataStream = await minioClient.getObject(bucketName, filename);
+    const stat = await minioClient.statObject(bucketName, objectKey);
+    if (stat && stat.metaData && stat.metaData["content-type"]) {
+      res.setHeader("Content-Type", stat.metaData["content-type"]);
+    }
+
+    const dataStream = await minioClient.getObject(bucketName, objectKey);
     dataStream.pipe(res);
   } catch (err) {
-    if (err.code === "NoSuchKey") {
+    if (err.code === "NoSuchKey" || err.code === "NotFound") {
       return res.status(404).send("File not found");
     }
     console.error("MinIO retrieval error:", err);
-    res.status(500).send("Error retrieving file");
+    return res.status(500).send("Error retrieving file");
   }
+};
+
+// Proxy /uploads/<objectKey> to MinIO or local files.
+// Supports nested keys like /uploads/question/123-file.png.
+app.get(/^\/uploads\/(.+)/, async (req, res) => {
+  const objectKey = req.params[0];
+  return streamUploadedObject(res, objectKey);
+});
+
+// Backward compatibility for legacy URLs saved as /upload/<bucket>/<objectKey>.
+app.get(/^\/upload\/([^/]+)\/(.+)/, async (req, res) => {
+  const reqBucket = req.params[0];
+  const objectKey = req.params[1];
+
+  if (reqBucket !== bucketName) {
+    return res.status(404).send("Bucket not found");
+  }
+
+  return streamUploadedObject(res, objectKey);
+});
+
+// Backward compatibility for URLs like /<bucket>/<objectKey>
+// (when MINIO_PUBLIC_URL was configured as backend domain).
+app.get(new RegExp(`^/${bucketName}/(.+)`), async (req, res) => {
+  const objectKey = req.params[0];
+  return streamUploadedObject(res, objectKey);
 });
 
 //router login

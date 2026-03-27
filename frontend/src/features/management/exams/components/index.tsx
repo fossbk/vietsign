@@ -36,6 +36,7 @@ import { Modal } from "@/shared/components/common/Modal";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
 import { ModalChooseQuestions } from "./ModalChooseQuestions";
 import { QuestionItem } from "@/data/questionsData";
+import { repairVietnameseMojibake } from "@/shared/utils/text";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -79,13 +80,32 @@ export function ExamsManagement() {
 
       setFacilities(facilitiesData || []);
 
-      // Ensure unique classes by id
-      const uniqueClasses = Array.isArray(classesData)
-        ? classesData.filter(
-            (c: any, index: number, self: any[]) =>
-              index === self.findIndex((t) => t.id === c.id),
-          )
-        : [];
+      // Deduplicate classes by id, prioritising entries where teacherId matches the current user
+      const uniqueClasses: any[] = [];
+      const seenClassIds = new Set<number>();
+      if (isTeacher && userId) {
+        // First pass: add entries where teacherId matches current user
+        (classesData as any[]).forEach((c: any) => {
+          if (Number(c.teacherId) === Number(userId) && !seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+        // Second pass: add remaining classes not yet added
+        (classesData as any[]).forEach((c: any) => {
+          if (!seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+      } else {
+        (classesData as any[]).forEach((c: any) => {
+          if (!seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+      }
       setClasses(uniqueClasses);
 
       // Build class maps
@@ -105,10 +125,23 @@ export function ExamsManagement() {
         let allowedClassIds: number[] = [];
 
         if (isTeacher && userId) {
-          // TEACHER: get classes they teach
-          allowedClassIds = classesData
-            .filter((c: any) => c.teacherId === Number(userId))
+          // TEACHER: get classes they teach (from class_teacher table)
+          allowedClassIds = (classesData as any[])
+            .filter((c: any) => Number(c.teacherId) === Number(userId))
             .map((c: any) => c.id);
+
+          // Fallback: if not assigned to any class via class_teacher, use org-based classes
+          if (allowedClassIds.length === 0 && userOrgId) {
+            allowedClassIds = (classesData as any[])
+              .filter(
+                (c: any) =>
+                  Number(c.organizationId || c.organization_id) ===
+                  Number(userOrgId),
+              )
+              .map((c: any) => c.id);
+          }
+          // Deduplicate
+          allowedClassIds = [...new Set(allowedClassIds)];
         } else if (isFacilityManager && userOrgId) {
           // FACILITY_MANAGER: get classes in their org hierarchy
           const userOrg = facilitiesData.find((f: any) => f.id === userOrgId);
@@ -437,13 +470,28 @@ function CreateExamForm({
   const userRole = user?.role?.role || user?.code;
   const isTeacher = userRole === "Teacher" || userRole === "TEACHER";
   const userId = user?.id || (user as any)?.user_id;
+  const userOrgId = user?.organizationId || (user as any)?.organization_id;
 
   const filteredClasses = useMemo(() => {
     if (isTeacher && userId) {
-      return classes.filter((c: any) => Number(c.teacherId) === Number(userId));
+      // First: filter by teacherId (classes directly assigned to the teacher)
+      const teacherClasses = classes.filter(
+        (c: any) => Number(c.teacherId) === Number(userId),
+      );
+      if (teacherClasses.length > 0) {
+        return teacherClasses;
+      }
+      // Fallback: filter by the teacher's organisation (for teachers not yet
+      // assigned to a specific class via the class_teacher table)
+      if (userOrgId) {
+        return classes.filter(
+          (c: any) =>
+            Number(c.organizationId || c.organization_id) === Number(userOrgId),
+        );
+      }
     }
     return classes;
-  }, [classes, isTeacher, userId]);
+  }, [classes, isTeacher, userId, userOrgId]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -515,7 +563,9 @@ function CreateExamForm({
               
             data = rawItems.map((t: any) => ({
               id: t.topic_id || t.id,
-              name: t.name || t.content || t.title || "Không có tên",
+              name: repairVietnameseMojibake(
+                t.name || t.content || t.title || "Không có tên",
+              ),
             }));
           }
         } catch (e) {
@@ -548,7 +598,9 @@ function CreateExamForm({
             const rawItems = Array.isArray(res) ? res : res.data || [];
             data = rawItems.map((v: any) => ({
               id: v.vocabulary_id || v.id,
-              word: v.word || v.content || "Không có nội dung",
+              word: repairVietnameseMojibake(
+                v.word || v.content || "Không có nội dung",
+              ),
             }));
           }
         } catch (e) {

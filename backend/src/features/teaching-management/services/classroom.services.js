@@ -494,13 +494,13 @@ async function addStudentToClassroom(classroomId, studentId, userId) {
 
     // 2. Get student organization (from organization_manager)
     const [studentRows] = await db.query(
-      "SELECT organization_id FROM organization_manager WHERE user_id = ? AND is_primary = 1",
+      "SELECT organization_id FROM organization_manager WHERE user_id = ? ORDER BY is_primary DESC, id DESC LIMIT 1",
       [studentId],
     );
     const studentOrgId = studentRows[0]?.organization_id;
 
     // 3. Enforce match if class belongs to an organization
-    if (classOrgId && Number(classOrgId) !== Number(studentOrgId)) {
+    if (classOrgId && studentOrgId && Number(classOrgId) !== Number(studentOrgId)) {
       throw {
         status: 400,
         message:

@@ -97,6 +97,11 @@ export const API_ENDPOINTS = {
   // Me route
   ME: "/me",
 
+  AI_PRACTICE: {
+    PREDICT: "/ai-practice/predict",
+    HISTORY: "/ai-practice/history",
+  },
+
   // Swagger docs
   SWAGGER: "/api-docs",
 };

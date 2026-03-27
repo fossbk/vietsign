@@ -190,7 +190,7 @@ export function WordPractice() {
             aiResult={aiResult}
             onResetResult={() => setAiResult(null)}
             onCheckAi={() =>
-              checkSignWithAI(selectedItem.word, "match", isCameraOn)
+              checkSignWithAI(selectedItem.word, "match", isCameraOn, cameraRef)
             }
             checkButtonText="Kiểm tra với AI"
             accentColor="blue"

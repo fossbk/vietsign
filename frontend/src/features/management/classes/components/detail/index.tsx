@@ -612,7 +612,7 @@ export function ClassManagementDetail() {
               <div className="space-y-2">
                 {classMembers.map((member) => (
                   <div
-                    key={member.id}
+                    key={`member-${member.userId}`}
                     className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">

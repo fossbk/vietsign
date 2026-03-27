@@ -12,7 +12,7 @@ services:
       # Map thư mục chứa file .sql vào đây để tự động chạy khi khởi tạo DB lần đầu
       - ./database:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
 
@@ -25,6 +25,8 @@ services:
       - "8080:5000"
     environment:
       PORT: 5000
+      JWT_SECRET: vietsign-dev-secret-change-me
+      JWT_EXPIRES_IN: 1d
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: root
@@ -36,6 +38,11 @@ services:
       MINIO_SECRET_KEY: vulinh3122001
       MINIO_BUCKET_NAME: vietsign
       MINIO_USE_SSL: "false"
+      AI_MODEL_BASE_URL: https://vietsign.ibme.edu.vn/vsl-api
+      AI_MODEL_TIMEOUT_MS: 20000
+      AI_MODEL_RETRY_COUNT: 1
+      AI_MODEL_RETRY_DELAY_MS: 250
+      AI_MODEL_MAX_FILE_SIZE_BYTES: 10485760
     depends_on:
       db:
         condition: service_healthy

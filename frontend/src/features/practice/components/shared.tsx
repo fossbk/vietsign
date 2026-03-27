@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Camera, CameraOff, Sparkles, ThumbsUp, XCircle } from "lucide-react";
+import { predictAiPractice } from "@/services/aiPracticeService";
 
 // AI Check Result Type
 export interface AiCheckResult {
@@ -62,11 +63,55 @@ export function useAiCheck() {
   const [aiResult, setAiResult] = useState<AiCheckResult | null>(null);
   const [aiRecognizedWord, setAiRecognizedWord] = useState<string>("");
 
+  const captureFrameFromCamera = useCallback(
+    (cameraRef: React.RefObject<HTMLVideoElement | null>): Promise<File> => {
+      return new Promise((resolve, reject) => {
+        const videoElement = cameraRef.current;
+
+        if (!videoElement) {
+          reject(new Error("Camera chưa sẵn sàng"));
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = videoElement.videoWidth || 640;
+        canvas.height = videoElement.videoHeight || 480;
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          reject(new Error("Không thể tạo ảnh từ camera"));
+          return;
+        }
+
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Không thể chụp khung hình"));
+              return;
+            }
+
+            resolve(
+              new File([blob], `practice-${Date.now()}.jpg`, {
+                type: "image/jpeg",
+              }),
+            );
+          },
+          "image/jpeg",
+          0.92,
+        );
+      });
+    },
+    [],
+  );
+
   const checkSignWithAI = useCallback(
-    (
+    async (
       target: string,
       type: "match" | "spell" | "free" = "match",
-      isCameraOn: boolean
+      isCameraOn: boolean,
+      cameraRef: React.RefObject<HTMLVideoElement | null>,
     ) => {
       if (!isCameraOn) {
         alert("Vui lòng bật camera trước khi kiểm tra!");
@@ -77,41 +122,57 @@ export function useAiCheck() {
       setAiResult(null);
       setAiRecognizedWord("");
 
-      setTimeout(() => {
-        const isSuccess = Math.random() > 0.3;
-        const confidence = 0.7 + Math.random() * 0.29;
+      try {
+        const imageFile = await captureFrameFromCamera(cameraRef);
+        const response = await predictAiPractice({
+          file: imageFile,
+          mode: type,
+          targetText: target,
+        });
 
-        if (type === "free") {
-          const randomWords = [
-            "Xin chào",
-            "Cảm ơn",
-            "Tạm biệt",
-            "Yêu",
-            "Gia đình",
-            "Bạn",
-            "Tôi",
-          ];
-          const recognized =
-            randomWords[Math.floor(Math.random() * randomWords.length)];
-          setAiRecognizedWord(recognized);
-          setIsAiProcessing(false);
-          return;
+        if (!response.success || !response.data) {
+          throw new Error(response.message || "Không nhận được kết quả từ AI");
         }
 
+        const recognized =
+          response.data.action_name ||
+          response.data.predicted_label ||
+          "Không nhận diện rõ";
+
+        if (type === "free") {
+          setAiRecognizedWord(recognized);
+        }
+
+        const confidence = response.data.confidence || 0;
+        const isCorrect =
+          typeof response.data.is_match === "boolean"
+            ? response.data.is_match
+            : type === "free";
+
         const result: AiCheckResult = {
-          correct: isSuccess,
-          confidence: confidence,
-          message: isSuccess
+          correct: isCorrect,
+          confidence,
+          message: isCorrect
             ? "Tuyệt vời! Động tác rất chính xác."
             : "Chưa chính xác lắm. Hãy thử lại nhé!",
-          recognized: isSuccess ? target : "Không rõ",
+          recognized,
         };
 
         setAiResult(result);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Không thể kết nối AI";
+        setAiResult({
+          correct: false,
+          confidence: 0,
+          message,
+          recognized: "Không rõ",
+        });
+      } finally {
         setIsAiProcessing(false);
-      }, 2000);
+      }
     },
-    []
+    [captureFrameFromCamera],
   );
 
   const resetAiResult = () => {

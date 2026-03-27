@@ -4482,6 +4482,68 @@ const swaggerDocs = {
       },
     },
   },
+  "/ai-practice/predict": {
+    post: {
+      tags: ["AI Practice"],
+      summary: "Predict sign from uploaded file and save attempt history",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              required: ["file"],
+              properties: {
+                file: { type: "string", format: "binary" },
+                mode: {
+                  type: "string",
+                  enum: ["match", "spell", "free"],
+                  default: "match",
+                },
+                target_text: { type: "string", example: "Xin chao" },
+                vocabulary_id: { type: "integer", example: 101 },
+                topic_id: { type: "integer", example: 12 },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: "Prediction success" },
+        400: { description: "Invalid input" },
+        401: { description: "Unauthorized" },
+        413: { description: "File too large" },
+        415: { description: "Unsupported media type" },
+        422: { description: "Model rejected request" },
+        502: { description: "Upstream AI service failed" },
+        504: { description: "Upstream AI service timeout" },
+      },
+    },
+  },
+  "/ai-practice/history": {
+    get: {
+      tags: ["AI Practice"],
+      summary: "Get authenticated user's AI practice history",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 20 },
+        },
+      ],
+      responses: {
+        200: { description: "Success" },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
 };
 
 module.exports = swaggerDocs;

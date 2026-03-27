@@ -921,6 +921,104 @@ async function createUser(payload, createdBy) {
   }
 }
 
+async function updateUser(userId, body, modifiedBy) {
+  try {
+    const raw = body || {};
+    const updates = [];
+    const values = [];
+
+    const has = (k) => Object.prototype.hasOwnProperty.call(raw, k);
+
+    const setIf = (key, column) => {
+      if (has(key)) {
+        updates.push(`${column} = ?`);
+        values.push(raw[key]);
+      }
+    };
+
+    setIf("name", "name");
+    setIf("email", "email");
+    setIf("phone_number", "phone_number");
+    setIf("gender", "gender");
+    setIf("birth_day", "birth_day");
+    setIf("address", "address");
+    setIf("avatar_location", "avatar_location");
+    setIf("status", "status");
+
+    if (has("organization_id")) {
+      const newOrgId = raw.organization_id;
+      const [exists] = await db.query(
+        "SELECT * FROM organization_manager WHERE user_id = ?",
+        [userId],
+      );
+      if (exists.length > 0) {
+        await db.query(
+          "UPDATE organization_manager SET organization_id = ? WHERE user_id = ?",
+          [newOrgId, userId],
+        );
+      } else {
+        const [userDb] = await db.query("SELECT code FROM user WHERE user_id = ?", [userId]);
+        const role = userDb[0]?.code || 'USER';
+        await db.query(
+          "INSERT INTO organization_manager (user_id, organization_id, role_in_org) VALUES (?, ?, ?)",
+          [userId, newOrgId, role],
+        );
+      }
+    }
+
+    setIf("code", "code");
+    if (has("role")) {
+      updates.push("code = ?");
+      values.push(raw.role);
+    }
+    
+    if (has("is_deleted")) {
+      updates.push("is_deleted = ?");
+      values.push(raw.is_deleted ? 1 : 0);
+    }
+    if (has("isDeleted")) {
+      updates.push("is_deleted = ?");
+      values.push(raw.isDeleted ? 1 : 0);
+    }
+
+    if (updates.length > 0) {
+      updates.push("modified_by = ?");
+      values.push(modifiedBy || "system");
+      updates.push("modified_date = NOW()");
+      values.push(userId);
+
+      const [result] = await db.query(
+        `UPDATE user SET ${updates.join(", ")} WHERE user_id = ?`,
+        values,
+      );
+    }
+
+    return await getUserById(userId);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function changeUserRole(userId, roleCode, modifiedBy) {
+  try {
+    const [user] = await db.query("SELECT * FROM user WHERE user_id = ?", [userId]);
+    if (user.length === 0) {
+      throw { status: 404, message: "User not found" };
+    }
+
+    await db.query("UPDATE user SET code = ?, modified_by = ?, modified_date = NOW() WHERE user_id = ?", [roleCode, modifiedBy, userId]);
+
+    const [orgManager] = await db.query("SELECT * FROM organization_manager WHERE user_id = ?", [userId]);
+    if (orgManager.length > 0) {
+      await db.query("UPDATE organization_manager SET role_in_org = ? WHERE user_id = ?", [roleCode, userId]);
+    }
+
+    return { message: "Role changed successfully", role: roleCode };
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   createTeacher,
   getTeachers,
@@ -938,4 +1036,6 @@ module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateUser,
+  changeUserRole,
 };

@@ -81,7 +81,7 @@ export function AiPractice() {
           </div>
 
           <button
-            onClick={() => checkSignWithAI("", "free", isCameraOn)}
+            onClick={() => checkSignWithAI("", "free", isCameraOn, cameraRef)}
             disabled={!isCameraOn || isAiProcessing}
             className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:from-purple-700 hover:to-pink-700 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
           >

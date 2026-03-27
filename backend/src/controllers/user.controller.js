@@ -48,8 +48,7 @@ async function updateProfile(req, res) {
       school_id,
     } = req.body;
 
-    await db.query(
-      `UPDATE user
+    await db.query(`UPDATE user
             SET 
                 name = COALESCE(?, name),
                 email = COALESCE(?, email),
@@ -59,7 +58,6 @@ async function updateProfile(req, res) {
                 avatar_location = COALESCE(?, avatar_location),
                 birth_day = COALESCE(?, birth_day),
                 code = COALESCE(?, code),
-                school_id = COALESCE(?, school_id),
                 modified_by = ?,
                 modified_date = NOW()
             WHERE user_id = ? AND is_deleted = 0`,
@@ -72,10 +70,9 @@ async function updateProfile(req, res) {
         avatar_location || null,
         birth_day || null,
         code || null,
-        school_id || null,
         req.user?.email || "anonymousUser",
         userId,
-      ],
+      ]
     );
     return res.json({
       message: "Profile updated successfully: ",
@@ -345,6 +342,33 @@ async function createUser(req, res) {
   }
 }
 
+async function updateUser(req, res) {
+  try {
+    const payload = req.body || {};
+    const modifiedBy = req.user?.email || "anonymousUser";
+    const result = await services.updateUser(req.params.id, payload, modifiedBy);
+    return res.status(200).json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({ message: err.message });
+  }
+}
+
+async function changeUserRole(req, res) {
+  try {
+    const { role } = req.body || {};
+    const modifiedBy = req.user?.email || "anonymousUser";
+    if (!role) {
+      return res.status(400).json({ message: "Role is required" });
+    }
+    const result = await services.changeUserRole(req.params.id, role, modifiedBy);
+    return res.status(200).json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({ message: err.message });
+  }
+}
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -365,4 +389,6 @@ module.exports = {
   getUsers,
   getUserById,
   getUserStatistics,
+  updateUser,
+  changeUserRole,
 };

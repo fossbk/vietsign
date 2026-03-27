@@ -7,6 +7,12 @@ const { minioClient, bucketName } = require("../utils/minio");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const buildBackendProxyUrl = (req, objectName) => {
+  // Serve uploaded objects through backend `/uploads/...` endpoint.
+  // This avoids direct MinIO URL dependency and works in local Docker setup.
+  return `${req.protocol}://${req.get("host")}/uploads/${objectName}`;
+};
+
 router.post("/", upload.single("file"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -38,10 +44,8 @@ router.post("/", upload.single("file"), async (req, res) => {
     // Return the relative path and information
     const relativePath = `/uploads/${objectName}`;
 
-    // Full external URL
-    const publicUrl = process.env.MINIO_PUBLIC_URL
-      ? `${process.env.MINIO_PUBLIC_URL}/${bucketName}/${objectName}`
-      : `${req.protocol}://${req.get("host")}/upload/${bucketName}/${objectName}`;
+    // Public URL should always point to backend proxy endpoint.
+    const publicUrl = buildBackendProxyUrl(req, objectName);
 
     res.json({
       message: "File uploaded successfully to MinIO",

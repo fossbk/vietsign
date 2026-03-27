@@ -1,5 +1,6 @@
 import Topics from "@/domain/entities/Topic";
 import Dictionary from "@/domain/entities/Dictionary";
+import { repairVietnameseMojibake } from "@/shared/utils/text";
 
 export interface TopicItem {
   id: number;
@@ -17,7 +18,7 @@ export async function fetchAllTopics(query: any = {}): Promise<TopicItem[]> {
     return Array.isArray(items)
       ? items.map((t: any) => ({
           id: t.topic_id || t.id,
-          name: t.name || t.content,
+          name: repairVietnameseMojibake(t.name || t.content || ""),
           classroomId: t.classroom_id,
         }))
       : [];
@@ -38,7 +39,7 @@ export async function fetchTopicsByClassroom(
     return Array.isArray(items)
       ? items.map((t: any) => ({
           id: t.topic_id || t.id,
-          name: t.name || t.content,
+          name: repairVietnameseMojibake(t.name || t.content || ""),
           classroomId: t.classroom_id,
         }))
       : [];
@@ -59,7 +60,7 @@ export async function fetchVocabulariesByTopic(
     return Array.isArray(items)
       ? items.map((v: any) => ({
           id: v.vocabulary_id || v.id,
-          word: v.word || v.content,
+          word: repairVietnameseMojibake(v.word || v.content || ""),
           vocabularyImageResList: v.vocabularyImageResList || [],
           vocabularyVideoResList: v.vocabularyVideoResList || [],
           imageUrl: v.images_path || v.imageUrl,

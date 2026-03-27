@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS ai_practice_attempt (
+  attempt_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  mode VARCHAR(20) NOT NULL DEFAULT 'match',
+  target_text VARCHAR(255) DEFAULT NULL,
+  predicted_label VARCHAR(255) DEFAULT NULL,
+  action_name VARCHAR(255) DEFAULT NULL,
+  confidence DECIMAL(7,6) DEFAULT NULL,
+  is_match TINYINT(1) DEFAULT NULL,
+  vocabulary_id BIGINT DEFAULT NULL,
+  topic_id BIGINT DEFAULT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'SUCCESS',
+  error_message TEXT DEFAULT NULL,
+  raw_response JSON DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (attempt_id),
+  KEY idx_ai_practice_attempt_user_created (user_id, created_at),
+  KEY idx_ai_practice_attempt_topic (topic_id),
+  KEY idx_ai_practice_attempt_vocab (vocabulary_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

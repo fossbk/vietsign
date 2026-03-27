@@ -142,7 +142,9 @@ export function SpellingPractice() {
           isAiProcessing={isAiProcessing}
           aiResult={aiResult}
           onResetResult={() => setAiResult(null)}
-          onCheckAi={() => checkSignWithAI(spellingWord, "spell", isCameraOn)}
+          onCheckAi={() =>
+            checkSignWithAI(spellingWord, "spell", isCameraOn, cameraRef)
+          }
           checkButtonText="Kiểm tra đánh vần"
           accentColor="purple"
           icon={<Keyboard className="w-16 h-16 mb-4 opacity-50" />}

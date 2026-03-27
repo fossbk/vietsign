@@ -75,19 +75,49 @@ export function QuestionsManagement() {
     try {
       // First load facilities and classes to build query params
       const [facilitiesData, classesData] = await Promise.all([
-        fetchAllOrganizations().catch(() => []),
-        fetchAllClasses().catch(() => []),
+        fetchAllOrganizations().catch((err) => {
+          console.error("❌ [loadData] Fetch organizations failed:", err);
+          return [];
+        }),
+        fetchAllClasses().catch((err) => {
+          console.error("❌ [loadData] Fetch classes failed:", err);
+          return [];
+        }),
       ]);
+
+      console.log("📋 [loadData] classesData received:", classesData);
+      console.log("📋 [loadData] classesData length:", classesData?.length);
+      console.log("📋 [loadData] User role:", userRole, "| userId:", userId, "| isTeacher:", isTeacher);
 
       setFacilities(facilitiesData || []);
 
-      // Ensure unique classes by id
-      const uniqueClasses = Array.isArray(classesData)
-        ? classesData.filter(
-            (c: any, index: number, self: any[]) =>
-              index === self.findIndex((t) => t.id === c.id),
-          )
-        : [];
+      // Deduplicate classes by id, prioritising entries where teacherId matches the current user
+      const uniqueClasses: any[] = [];
+      const seenClassIds = new Set<number>();
+      if (isTeacher && userId) {
+        // First pass: add entries where teacherId matches current user
+        (classesData as any[]).forEach((c: any) => {
+          if (Number(c.teacherId) === Number(userId) && !seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+        // Second pass: add remaining classes not yet added
+        (classesData as any[]).forEach((c: any) => {
+          if (!seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+      } else {
+        (classesData as any[]).forEach((c: any) => {
+          if (!seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+      }
+      console.log("📋 [loadData] uniqueClasses to set:", uniqueClasses.length, uniqueClasses.map((c: any) => ({ id: c.id, name: c.name })));      
       setClasses(uniqueClasses);
 
       // Build class maps
@@ -107,10 +137,23 @@ export function QuestionsManagement() {
         let allowedClassIds: number[] = [];
 
         if (isTeacher && userId) {
-          // TEACHER: get classes they teach
-          allowedClassIds = classesData
-            .filter((c: any) => c.teacherId === Number(userId))
+          // TEACHER: get classes they teach (from class_teacher table)
+          allowedClassIds = (classesData as any[])
+            .filter((c: any) => Number(c.teacherId) === Number(userId))
             .map((c: any) => c.id);
+
+          // Fallback: if not assigned to any class via class_teacher, use org-based classes
+          if (allowedClassIds.length === 0 && userOrgId) {
+            allowedClassIds = (classesData as any[])
+              .filter(
+                (c: any) =>
+                  Number(c.organizationId || c.organization_id) ===
+                  Number(userOrgId),
+              )
+              .map((c: any) => c.id);
+          }
+          // Deduplicate
+          allowedClassIds = [...new Set(allowedClassIds)];
         } else if (isFacilityManager && userOrgId) {
           // FACILITY_MANAGER: get classes in their org hierarchy
           const userOrg = facilitiesData.find((f: any) => f.id === userOrgId);

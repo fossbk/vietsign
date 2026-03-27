@@ -244,6 +244,7 @@ export async function updateUser(userId: number, data: any): Promise<any> {
       ...data,
       phone_number: data.phone, // Map phone -> phone_number for update
       avatar_location: data.avatar, // Map avatar -> avatar_location
+      organization_id: data.organizationId ?? data.organization_id, // Map organizationId -> organization_id
     };
     return await UserModel.updateUser(userId, payload);
   } catch (error) {

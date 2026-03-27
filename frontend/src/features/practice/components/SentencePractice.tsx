@@ -120,7 +120,12 @@ export function SentencePractice() {
             aiResult={aiResult}
             onResetResult={() => setAiResult(null)}
             onCheckAi={() =>
-              checkSignWithAI(selectedSentence.sentence, "match", isCameraOn)
+              checkSignWithAI(
+                selectedSentence.sentence,
+                "match",
+                isCameraOn,
+                cameraRef,
+              )
             }
             checkButtonText="Kiểm tra câu với AI"
             accentColor="green"
