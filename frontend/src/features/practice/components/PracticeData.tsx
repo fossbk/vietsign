@@ -720,6 +720,10 @@ const PracticeData: React.FC = () => {
                           onClick={async () => {
                             try {
                               console.log("Bắt đầu kiểm tra video...");
+                              if (!mediaBlobUrl) {
+                                return;
+                              }
+
                               const capturedFile = await convertBlobUrlToFile(
                                 mediaBlobUrl,
                               );
