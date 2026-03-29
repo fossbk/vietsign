@@ -91,31 +91,35 @@ export function QuestionsManagement() {
 
       setFacilities(facilitiesData || []);
 
-      // Deduplicate classes by id, prioritising entries where teacherId matches the current user
+      // Deduplicate classes by id and keep teacher scope aligned with server-side filtering.
       const uniqueClasses: any[] = [];
       const seenClassIds = new Set<number>();
+      const pushUnique = (items: any[]) => {
+        items.forEach((c: any) => {
+          if (!seenClassIds.has(c.id)) {
+            uniqueClasses.push(c);
+            seenClassIds.add(c.id);
+          }
+        });
+      };
+
       if (isTeacher && userId) {
-        // First pass: add entries where teacherId matches current user
-        (classesData as any[]).forEach((c: any) => {
-          if (Number(c.teacherId) === Number(userId) && !seenClassIds.has(c.id)) {
-            uniqueClasses.push(c);
-            seenClassIds.add(c.id);
-          }
-        });
-        // Second pass: add remaining classes not yet added
-        (classesData as any[]).forEach((c: any) => {
-          if (!seenClassIds.has(c.id)) {
-            uniqueClasses.push(c);
-            seenClassIds.add(c.id);
-          }
-        });
+        const teacherClasses = (classesData as any[]).filter(
+          (c: any) => Number(c.teacherId) === Number(userId),
+        );
+
+        if (teacherClasses.length > 0) {
+          pushUnique(teacherClasses);
+        } else if (userOrgId) {
+          const orgClasses = (classesData as any[]).filter(
+            (c: any) =>
+              Number(c.organizationId || c.organization_id) ===
+              Number(userOrgId),
+          );
+          pushUnique(orgClasses);
+        }
       } else {
-        (classesData as any[]).forEach((c: any) => {
-          if (!seenClassIds.has(c.id)) {
-            uniqueClasses.push(c);
-            seenClassIds.add(c.id);
-          }
-        });
+        pushUnique(classesData as any[]);
       }
       console.log("📋 [loadData] uniqueClasses to set:", uniqueClasses.length, uniqueClasses.map((c: any) => ({ id: c.id, name: c.name })));      
       setClasses(uniqueClasses);
@@ -137,23 +141,8 @@ export function QuestionsManagement() {
         let allowedClassIds: number[] = [];
 
         if (isTeacher && userId) {
-          // TEACHER: get classes they teach (from class_teacher table)
-          allowedClassIds = (classesData as any[])
-            .filter((c: any) => Number(c.teacherId) === Number(userId))
-            .map((c: any) => c.id);
-
-          // Fallback: if not assigned to any class via class_teacher, use org-based classes
-          if (allowedClassIds.length === 0 && userOrgId) {
-            allowedClassIds = (classesData as any[])
-              .filter(
-                (c: any) =>
-                  Number(c.organizationId || c.organization_id) ===
-                  Number(userOrgId),
-              )
-              .map((c: any) => c.id);
-          }
-          // Deduplicate
-          allowedClassIds = [...new Set(allowedClassIds)];
+          // Keep teacher visibility identical between class dropdown and question query.
+          allowedClassIds = uniqueClasses.map((c: any) => c.id);
         } else if (isFacilityManager && userOrgId) {
           // FACILITY_MANAGER: get classes in their org hierarchy
           const userOrg = facilitiesData.find((f: any) => f.id === userOrgId);
