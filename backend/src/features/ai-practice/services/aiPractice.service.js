@@ -392,8 +392,62 @@ const getHistoryByUser = async ({ userId, page, limit }) => {
   };
 };
 
+// ---------------------------------------------------------------
+// Model 3: gọi AI model chạy trên cùng máy chủ (localhost:30081)
+// Frontend không thể gọi trực tiếp nên phải đi qua backend này
+// ---------------------------------------------------------------
+const predictModel3 = async ({ file, topK = 5 }) => {
+  const baseUrl = (process.env.AI_MODEL3_BASE_URL || "http://localhost:30081").replace(/\/$/, "");
+  const endpoint = `${baseUrl}/predict?top_k=${topK}`;
+  const timeoutMs = Number(process.env.AI_MODEL_TIMEOUT_MS || 20000);
+
+  const formData = new FormData();
+  const blob = new Blob([file.buffer], {
+    type: file.mimetype || "application/octet-stream",
+  });
+  formData.append("file", blob, file.originalname || `practice-${Date.now()}.bin`);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    const rawText = await response.text();
+    let jsonBody = null;
+    try {
+      jsonBody = JSON.parse(rawText);
+    } catch {
+      jsonBody = { rawText };
+    }
+
+    if (!response.ok) {
+      const err = new Error(jsonBody?.detail || `Model3 API error: ${response.status}`);
+      err.status = response.status;
+      throw err;
+    }
+
+    // Response: { "top_k": [ { "rank":1, "class_id":43, "probability":0.01, "label":"đất" }, ... ] }
+    const top1 = jsonBody?.top_k?.[0];
+    return {
+      label_name: top1?.label || null,
+      label_id: top1?.class_id ?? null,
+      action_name: top1?.label || null,
+      confidence: top1?.probability ?? null,
+      top_k: jsonBody?.top_k || [],
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 module.exports = {
   ALLOWED_MODES,
   predictAndSave,
+  predictModel3,
   getHistoryByUser,
 };

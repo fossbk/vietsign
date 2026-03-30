@@ -24,7 +24,7 @@ import Webcam from "react-webcam";
 import * as XLSX from "xlsx";
 import { fetchAllTopics, fetchVocabulariesByTopic } from "@/services/topicService";
 import { uploadFile as uploadMediaFile } from "@/services/uploadService";
-import { predictAiPractice } from "@/services/aiPracticeService";
+import { predictAiPractice, predictAiPracticeModel3 } from "@/services/aiPracticeService";
 const formatTime = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -337,29 +337,23 @@ const PracticeData: React.FC = () => {
         );
         return response.data;
       } else if (selectedAIModel === "model3") {
-        // Gửi videoUrl tới API model 3
-        if (!data.videoUrl) {
-          throw new Error("Thiếu videoUrl cho AI Model 3");
+        if (!data.file) {
+          throw new Error("Thiếu file cho AI Model 3");
         }
-        const response = await axios.post(
-          "https://wesign.ibme.edu.vn/ai/t3/ai/detection",
-          { videoUrl: data.videoUrl },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        );
-        // Kết quả trả về dạng:
-        // {
-        //   "predicted_label": 5,
-        //   "action_name": "ClassIndex_5",
-        //   "confidence": 0.054673030972480774,
-        //   ...
-        // }
-        console.log("data", data);
-        console.log("res", response.data);
-        return response.data;
+        
+        const response3 = await predictAiPracticeModel3(data.file);
+        
+        // Response format is handled by our backend now
+        const top1 = response3.data?.top_k?.[0];
+        console.log("model3 top1:", top1);
+        
+        return {
+          action_name: top1?.label || "",
+          label_name: top1?.label || "",
+          label_id: top1?.class_id ?? null,
+          confidence: top1?.probability ?? null,
+          top_k: response3.data?.top_k || [],
+        };
       }
     },
     onSuccess: async (res: any) => {
@@ -452,7 +446,8 @@ const PracticeData: React.FC = () => {
 
     try {
       setUploadLoading(true); // Set loading state
-      if (selectedAIModel === "model1") {
+      if (selectedAIModel === "model1" || selectedAIModel === "model3") {
+        // Model 1 & Model 3: gửi file trực tiếp, không upload cloud
         mutationDetectAI.mutate(
           { file: uploadedVideo },
           {
@@ -755,7 +750,8 @@ const PracticeData: React.FC = () => {
                                 mediaBlobUrl,
                               );
 
-                              if (selectedAIModel === "model1") {
+                              if (selectedAIModel === "model1" || selectedAIModel === "model3") {
+                                // Gửi file trực tiếp cho model1 và model3
                                 mutationDetectAI.mutate({ file: capturedFile });
                               } else {
                                 const link = await uploadMediaFile(

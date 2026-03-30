@@ -99,6 +99,7 @@ export const API_ENDPOINTS = {
 
   AI_PRACTICE: {
     PREDICT: "/ai-practice/predict",
+    PREDICT_MODEL3: "/ai-practice/predict-model3",
     HISTORY: "/ai-practice/history",
   },
 

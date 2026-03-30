@@ -1,5 +1,5 @@
 const aiPracticeService = require("../services/aiPractice.service");
-const { ALLOWED_MODES } = aiPracticeService;
+const { ALLOWED_MODES, predictModel3: _predictModel3 } = aiPracticeService;
 
 const MAX_FILE_SIZE_BYTES = Number(
   process.env.AI_MODEL_MAX_FILE_SIZE_BYTES || 10 * 1024 * 1024,
@@ -133,7 +133,33 @@ const getHistory = async (req, res) => {
   }
 };
 
+const predictModel3Controller = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: "File is required" });
+  }
+
+  if (!ALLOWED_MIME_TYPES.has(req.file.mimetype || "")) {
+    return res.status(415).json({ success: false, message: "Unsupported file type" });
+  }
+
+  try {
+    const result = await _predictModel3({ file: req.file });
+    return res.status(200).json({
+      success: true,
+      message: "Model3 prediction completed",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Model3 prediction error:", error);
+    return res.status(502).json({
+      success: false,
+      message: error.message || "Model3 prediction failed",
+    });
+  }
+};
+
 module.exports = {
   predict,
+  predictModel3: predictModel3Controller,
   getHistory,
 };

@@ -39,6 +39,7 @@ services:
       MINIO_BUCKET_NAME: vietsign
       MINIO_USE_SSL: "false"
       AI_MODEL_BASE_URL: https://vietsign.ibme.edu.vn/vsl-api
+      AI_MODEL3_BASE_URL: http://localhost:30081
       AI_MODEL_TIMEOUT_MS: 20000
       AI_MODEL_RETRY_COUNT: 1
       AI_MODEL_RETRY_DELAY_MS: 250

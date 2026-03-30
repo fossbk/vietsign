@@ -26,6 +26,18 @@ export interface PredictAiPracticeResponse {
   };
 }
 
+export interface PredictModel3Response {
+  success: boolean;
+  message: string;
+  data?: {
+    label_name: string | null;
+    label_id: number | null;
+    action_name: string | null;
+    confidence: number | null;
+    top_k: Array<{ rank: number; class_id: number; probability: number; label: string }>;
+  };
+}
+
 export const predictAiPractice = async (
   payload: PredictAiPracticePayload,
 ): Promise<PredictAiPracticeResponse> => {
@@ -50,6 +62,21 @@ export const predictAiPractice = async (
 
   const response = await http.post<PredictAiPracticeResponse>(
     API_ENDPOINTS.AI_PRACTICE.PREDICT,
+    formData,
+  );
+
+  return response.data;
+};
+
+// Model 3: gọi qua backend (backend sẽ proxy sang localhost:30081 trên máy chủ)
+export const predictAiPracticeModel3 = async (
+  file: File,
+): Promise<PredictModel3Response> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await http.post<PredictModel3Response>(
+    API_ENDPOINTS.AI_PRACTICE.PREDICT_MODEL3,
     formData,
   );
 

@@ -39,6 +39,13 @@ router.post(
   aiPracticeController.predict,
 );
 
+router.post(
+  "/predict-model3",
+  authRequired,
+  uploadSingleFile,
+  aiPracticeController.predictModel3,
+);
+
 router.get("/history", authRequired, aiPracticeController.getHistory);
 
 module.exports = router;
