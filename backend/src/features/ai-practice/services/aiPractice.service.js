@@ -56,34 +56,60 @@ const toNullableNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const lookupLabelName = async (labelId) => {
+  if (!labelId) return null;
+  try {
+    const numericId = parseInt(labelId, 10);
+    if (!Number.isFinite(numericId)) return null;
+    const [rows] = await db.execute(
+      "SELECT word FROM vocabulary WHERE vocabulary_id = ? LIMIT 1",
+      [numericId],
+    );
+    return rows[0]?.word || null;
+  } catch {
+    return null;
+  }
+};
+
 const normalizeModelPayload = (payload, targetText, mode) => {
-  const predictedLabel =
-    payload?.predicted_label ||
-    payload?.predictedLabel ||
-    payload?.label ||
-    payload?.class ||
-    payload?.class_name ||
+  const source = payload?.data && typeof payload.data === "object" ? payload.data : payload;
+
+  const labelId =
+    source?.label_id ||
+    source?.labelId ||
+    source?.predicted_label ||
+    source?.predictedLabel ||
+    source?.label ||
+    source?.class ||
+    source?.class_name ||
     null;
 
-  const actionName =
-    payload?.action_name ||
-    payload?.actionName ||
-    payload?.recognized ||
-    payload?.word ||
+  // label_name từ AI (ưu tiên), nếu không có sẽ được lookup từ DB sau
+  const labelName =
+    source?.label_name ||
+    source?.labelName ||
+    source?.recognized ||
+    source?.word ||
+    // action_name chỉ dùng nếu KHÔNG phải là số (tránh lấy label_id)
+    (source?.action_name && isNaN(Number(source.action_name)) ? source.action_name : null) ||
+    (source?.actionName && isNaN(Number(source.actionName)) ? source.actionName : null) ||
     null;
+
+  const predictedLabel = labelId;
+  const actionName = labelName;
 
   const confidence =
-    toNullableNumber(payload?.confidence) ??
-    toNullableNumber(payload?.score) ??
-    toNullableNumber(payload?.probability);
+    toNullableNumber(source?.confidence) ??
+    toNullableNumber(source?.score) ??
+    toNullableNumber(source?.probability);
 
   const normalizedTarget = normalizeText(targetText);
   const normalizedPredicted = normalizeText(actionName || predictedLabel);
 
   let isMatch = null;
   if (mode === "match" || mode === "spell") {
-    if (typeof payload?.is_match === "boolean") {
-      isMatch = payload.is_match;
+    if (typeof source?.is_match === "boolean") {
+      isMatch = source.is_match;
     } else if (normalizedTarget && normalizedPredicted) {
       isMatch = normalizedTarget === normalizedPredicted;
     } else {
@@ -94,6 +120,8 @@ const normalizeModelPayload = (payload, targetText, mode) => {
   return {
     predictedLabel,
     actionName,
+    labelId,
+    labelName,
     confidence,
     isMatch,
     rawResponse: payload,
@@ -265,12 +293,20 @@ const predictAndSave = async ({
     const modelPayload = await callModelApi(file);
     const normalized = normalizeModelPayload(modelPayload, targetText, normalizedMode);
 
+    // Nếu AI không trả về label_name, lookup trong DB theo label_id
+    let resolvedLabelName = normalized.labelName;
+    if (!resolvedLabelName && normalized.labelId) {
+      resolvedLabelName = await lookupLabelName(normalized.labelId);
+    }
+
+    const resolvedActionName = resolvedLabelName || normalized.actionName;
+
     const attemptId = await insertAttempt({
       userId,
       mode: normalizedMode,
       targetText,
       predictedLabel: normalized.predictedLabel,
-      actionName: normalized.actionName,
+      actionName: resolvedActionName,
       confidence: normalized.confidence,
       isMatch: normalized.isMatch,
       vocabularyId,
@@ -285,7 +321,9 @@ const predictAndSave = async ({
       mode: normalizedMode,
       target_text: targetText || null,
       predicted_label: normalized.predictedLabel,
-      action_name: normalized.actionName,
+      action_name: resolvedActionName,
+      label_id: normalized.labelId,
+      label_name: resolvedLabelName,
       confidence: normalized.confidence,
       is_match: normalized.isMatch,
       raw_response: normalized.rawResponse,

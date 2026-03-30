@@ -135,6 +135,7 @@ export function useAiCheck() {
         }
 
         const recognized =
+          response.data.label_name ||
           response.data.action_name ||
           response.data.predicted_label ||
           "Không nhận diện rõ";

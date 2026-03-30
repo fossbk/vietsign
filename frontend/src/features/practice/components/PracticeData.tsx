@@ -288,16 +288,36 @@ const PracticeData: React.FC = () => {
           topicId: filterParams?.topic || undefined,
         });
 
+        const rawResponse = aiResponse?.data?.raw_response as any;
+        let nestedLabelName =
+          aiResponse?.data?.label_name ||
+          rawResponse?.label_name ||
+          rawResponse?.labelName ||
+          "";
+
+        // Some backends persist raw_response as stringified JSON.
+        if (!nestedLabelName && typeof rawResponse === "string") {
+          try {
+            const parsed = JSON.parse(rawResponse);
+            nestedLabelName = parsed?.label_name || parsed?.labelName || "";
+          } catch {
+            // ignore parse error and fallback below
+          }
+        }
+
         const actionName =
+          nestedLabelName ||
+          aiResponse?.data?.label_name ||
           aiResponse?.data?.action_name ||
           aiResponse?.data?.predicted_label ||
+          (aiResponse?.data?.raw_response as any)?.label_name ||
           (aiResponse?.data?.raw_response as any)?.action_name ||
           (aiResponse?.data?.raw_response as any)?.label ||
-          (aiResponse?.data?.raw_response as any)?.label_id?.toString?.() ||
           "";
 
         return {
           action_name: actionName,
+          label_name: nestedLabelName,
           fileLocation: data.videoUrl,
           raw: aiResponse,
         };
@@ -345,15 +365,22 @@ const PracticeData: React.FC = () => {
     onSuccess: async (res: any) => {
       console.log("Kết quả AI detect thành công:", res);
 
+      const explicitLabelName =
+        (typeof res?.label_name === "string" && res.label_name.trim()) ||
+        (typeof res?.raw?.data?.label_name === "string" &&
+          res.raw.data.label_name.trim()) ||
+        (typeof res?.raw?.data?.raw_response?.label_name === "string" &&
+          res.raw.data.raw_response.label_name.trim()) ||
+        "";
+
       const vocabularyName =
         typeof filterParams?.vocabularyName === "string"
           ? filterParams.vocabularyName.toLowerCase().trim()
           : null;
 
-      // Model 3 trả về action_name là tên nhãn
       const content =
-        typeof res?.action_name === "string"
-          ? res.action_name.toLowerCase().trim()
+        typeof (explicitLabelName || res?.action_name) === "string"
+          ? String(explicitLabelName || res?.action_name).toLowerCase().trim()
           : null;
 
       // Loại bỏ phần mô tả trong ngoặc (nếu có)
@@ -380,9 +407,9 @@ const PracticeData: React.FC = () => {
         console.log("Kết quả AI không khớp với từ vựng.");
       }
 
-      if (res?.action_name) {
+      if (explicitLabelName || res?.action_name) {
         setResultContent({
-          content: res.action_name,
+          content: explicitLabelName || res.action_name,
           fileLocation: res.fileLocation, // Nếu model 3 trả về fileLocation, nếu không thì bỏ dòng này
         });
         setShowModalResult(true);

@@ -18,6 +18,8 @@ export interface PredictAiPracticeResponse {
     target_text: string | null;
     predicted_label: string | null;
     action_name: string | null;
+    label_id?: string | number | null;
+    label_name?: string | null;
     confidence: number | null;
     is_match: boolean | null;
     raw_response: Record<string, unknown>;
