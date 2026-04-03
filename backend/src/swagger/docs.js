@@ -2811,6 +2811,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get all exams with pagination and filtering",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "limit",
@@ -2857,6 +2858,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get exam statistics",
+      security: [{ bearerAuth: [] }],
       parameters: [
         { name: "classroom_id", in: "query", schema: { type: "integer" } },
         { name: "exam_type", in: "query", schema: { type: "string" } },
@@ -2892,6 +2894,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get exams by classroom",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "classroom_id",
@@ -2922,6 +2925,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get exams by creator",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "creator_id",
@@ -2952,6 +2956,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get exams by type",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "exam_type",
@@ -3076,6 +3081,7 @@ const swaggerDocs = {
     get: {
       tags: ["Exam Management"],
       summary: "Get exam by ID",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "exam_id",
