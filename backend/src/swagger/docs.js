@@ -4603,6 +4603,77 @@ const swaggerDocs = {
       },
     },
   },
+  "/ai-practice/predict-model3": {
+    post: {
+      tags: ["AI Practice"],
+      summary: "Predict sign using Model 3 (M3-SLR)",
+      description:
+        "Gửi file ảnh/video lên Model 3 để nhận dạng ngôn ngữ ký hiệu. Trả về top-K kết quả dự đoán.",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              required: ["file"],
+              properties: {
+                file: {
+                  type: "string",
+                  format: "binary",
+                  description: "File ảnh hoặc video cần nhận dạng",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Prediction success",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: true },
+                  message: {
+                    type: "string",
+                    example: "Model3 prediction completed",
+                  },
+                  data: {
+                    type: "object",
+                    properties: {
+                      label_name: { type: "string", example: "xin chào" },
+                      label_id: { type: "integer", example: 42 },
+                      action_name: { type: "string", example: "xin chào" },
+                      confidence: { type: "number", example: 0.95 },
+                      top_k: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            rank: { type: "integer" },
+                            class_id: { type: "integer" },
+                            probability: { type: "number" },
+                            label: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "File is required" },
+        401: { description: "Unauthorized" },
+        415: { description: "Unsupported media type" },
+        502: { description: "Model3 prediction failed" },
+      },
+    },
+  },
   "/ai-practice/history": {
     get: {
       tags: ["AI Practice"],

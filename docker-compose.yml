@@ -39,7 +39,9 @@ services:
       MINIO_BUCKET_NAME: vietsign
       MINIO_USE_SSL: "false"
       AI_MODEL_BASE_URL: https://vietsign.ibme.edu.vn/vsl-api
-      AI_MODEL3_BASE_URL: http://m3-slr-infer.m3-slr.svc.cluster.local
+      # Local Docker default: call model3 running on host machine port 30081.
+      # You can override by exporting AI_MODEL3_BASE_URL before docker compose up.
+      AI_MODEL3_BASE_URL: ${AI_MODEL3_BASE_URL:-https://vietsign.ibme.edu.vn/m3-api}
       AI_MODEL_TIMEOUT_MS: 20000
       AI_MODEL_RETRY_COUNT: 1
       AI_MODEL_RETRY_DELAY_MS: 250
@@ -50,6 +52,8 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
