@@ -51,7 +51,7 @@ router.post("/", upload.single("file"), async (req, res) => {
       message: "File uploaded successfully to MinIO",
       path: relativePath,
       filename: objectName,
-      url: publicUrl,
+      url: relativePath,   // relative path, frontend tự prepend base URL
     });
   } catch (error) {
     console.error("MinIO upload error:", error);

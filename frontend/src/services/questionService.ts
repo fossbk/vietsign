@@ -1,5 +1,6 @@
 import QuestionModel from "@/domain/entities/Question";
 import { QuestionItem } from "@/data/questionsData";
+import { normalizeFileUrl } from "@/services/uploadService";
 
 // Helper to normalize question data from API
 function normalizeQuestion(q: any): any {
@@ -10,11 +11,12 @@ function normalizeQuestion(q: any): any {
     content: q.content,
     explanation: q.explanation,
     classId: q.class_room_id || q.classId,
-    image: q.image_location,
-    video: q.video_location,
+    image: normalizeFileUrl(q.image_location),
+    video: normalizeFileUrl(q.video_location),
     createdAt: q.created_date || q.created_at || q.createdAt,
   };
 }
+
 
 export async function fetchAllQuestions(query?: any): Promise<QuestionItem[]> {
   try {

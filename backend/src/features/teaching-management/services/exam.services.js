@@ -554,13 +554,42 @@ async function getStudentExamAttempts(studentId, limit, offset) {
 
 async function submitExam(examId, studentId, score, answers, timeSpent) {
   const connection = await db.getConnection();
+  let transactionStarted = false;
   try {
+    const normalizedExamId = parseInt(examId);
+    const normalizedStudentId = parseInt(studentId);
+
+    if (!normalizedExamId || isNaN(normalizedExamId)) {
+      throw { status: 400, message: "Invalid exam ID" };
+    }
+
+    if (!normalizedStudentId || isNaN(normalizedStudentId)) {
+      throw { status: 400, message: "Invalid student ID" };
+    }
+
+    const [examRows] = await connection.execute(
+      "SELECT exam_id FROM exam WHERE exam_id = ? LIMIT 1",
+      [normalizedExamId],
+    );
+    if (examRows.length === 0) {
+      throw { status: 404, message: "Exam not found" };
+    }
+
+    const [userRows] = await connection.execute(
+      "SELECT user_id FROM `user` WHERE user_id = ? LIMIT 1",
+      [normalizedStudentId],
+    );
+    if (userRows.length === 0) {
+      throw { status: 400, message: "Invalid student ID" };
+    }
+
     await connection.beginTransaction();
+    transactionStarted = true;
 
     // Insert into exam_attempt (always create a new attempt)
     const [attemptResult] = await connection.execute(
       "INSERT INTO exam_attempt (exam_id, user_id, score, started_at, finished_at) VALUES (?, ?, ?, NOW(), NOW())",
-      [examId, studentId, score || 0],
+      [normalizedExamId, normalizedStudentId, score || 0],
     );
 
     const attemptId = attemptResult.insertId;
@@ -568,7 +597,7 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
     // Also update user_exam_mapping for overall progress tracking
     const [mappingExists] = await connection.execute(
       "SELECT user_exam_id FROM user_exam_mapping WHERE exam_id = ? AND user_id = ?",
-      [examId, studentId],
+      [normalizedExamId, normalizedStudentId],
     );
 
     if (mappingExists.length > 0) {
@@ -579,7 +608,7 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
     } else {
       await connection.execute(
         "INSERT INTO user_exam_mapping (exam_id, user_id, score, is_finish) VALUES (?, ?, ?, 1)",
-        [examId, studentId, score || 0],
+        [normalizedExamId, normalizedStudentId, score || 0],
       );
     }
 
@@ -592,9 +621,9 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
            (exam_id, question_id, user_id, attempt_id, is_correct, score) 
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
-            examId,
+            normalizedExamId,
             ans.questionId || ans.id,
-            studentId,
+            normalizedStudentId,
             attemptId,
             ans.isCorrect ? 1 : 0,
             ans.score || 0,
@@ -606,8 +635,10 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
     await connection.commit();
     return { success: true, attemptId, score };
   } catch (err) {
-    await connection.rollback();
-    throw { status: 500, message: err.message };
+    if (transactionStarted) {
+      await connection.rollback();
+    }
+    throw { status: err.status || 500, message: err.message };
   } finally {
     connection.release();
   }

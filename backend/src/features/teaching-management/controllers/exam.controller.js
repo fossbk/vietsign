@@ -360,6 +360,7 @@ const submitExam = async (req, res) => {
   try {
     const examId = parseInt(req.params.exam_id);
     const { student_id, score, answers, time_spent } = req.body;
+    const tokenUserId = req.user?.user_id ? parseInt(req.user.user_id) : null;
 
     if (!examId || isNaN(examId)) {
       return res.status(400).json({
@@ -369,17 +370,25 @@ const submitExam = async (req, res) => {
       });
     }
 
-    if (!student_id) {
-      return res.status(400).json({
+    if (!tokenUserId || isNaN(tokenUserId)) {
+      return res.status(401).json({
         success: false,
-        error: "Student ID is required",
-        message: "ID học sinh là bắt buộc",
+        error: "Unauthorized",
+        message: "Không xác định được người dùng đăng nhập",
+      });
+    }
+
+    if (student_id && parseInt(student_id) !== tokenUserId) {
+      return res.status(403).json({
+        success: false,
+        error: "student_id does not match authenticated user",
+        message: "ID học sinh không khớp với tài khoản đăng nhập",
       });
     }
 
     const result = await examService.submitExam(
       examId,
-      student_id,
+      tokenUserId,
       score,
       answers,
       time_spent,
@@ -392,10 +401,11 @@ const submitExam = async (req, res) => {
     });
   } catch (error) {
     console.error("Submit exam error:", error);
-    return res.status(500).json({
+    const status = error.status || 500;
+    return res.status(status).json({
       success: false,
       error: error.message,
-      message: "Error submitting exam",
+      message: status >= 500 ? "Error submitting exam" : error.message,
     });
   }
 };

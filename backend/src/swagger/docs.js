@@ -3002,12 +3002,88 @@ const swaggerDocs = {
           "application/json": {
             schema: {
               type: "object",
-              required: ["student_id"],
+              required: ["answers"],
               properties: {
-                student_id: { type: "integer" },
-                score: { type: "number" },
-                answers: { type: "object" },
-                time_spent: { type: "integer" },
+                student_id: {
+                  type: "integer",
+                  nullable: true,
+                  example: 123,
+                  description:
+                    "Optional. Nếu gửi thì phải trùng user_id trong token; backend ưu tiên user_id từ token",
+                },
+                score: {
+                  type: "number",
+                  example: 8.5,
+                  description: "Điểm tổng hợp phía client tính (tuỳ luồng)",
+                },
+                answers: {
+                  type: "array",
+                  description: "Danh sách câu trả lời của học sinh",
+                  items: {
+                    type: "object",
+                    required: ["questionId", "selectedAnswers"],
+                    properties: {
+                      questionId: { type: "integer", example: 1001 },
+                      selectedAnswers: {
+                        type: "array",
+                        items: { type: "integer" },
+                        example: [2],
+                      },
+                      isCorrect: { type: "boolean", example: true },
+                      score: { type: "number", example: 1 },
+                    },
+                  },
+                },
+                time_spent: {
+                  type: "string",
+                  example: "00:10:20",
+                  description: "Thời gian làm bài theo định dạng HH:MM:SS",
+                },
+              },
+              // Keep the default sample compact for quick Swagger testing.
+              example: {
+                answers: [
+                  {
+                    questionId: 1001,
+                    selectedAnswers: [2],
+                  },
+                ],
+                time_spent: "00:10:20",
+              },
+            },
+            examples: {
+              minimal: {
+                summary: "Minimal payload (recommended)",
+                value: {
+                  answers: [
+                    {
+                      questionId: 1001,
+                      selectedAnswers: [2],
+                    },
+                  ],
+                  time_spent: "00:10:20",
+                },
+              },
+              full: {
+                summary: "Detailed payload",
+                value: {
+                  score: 8.5,
+                  answers: [
+                    {
+                      questionId: 1001,
+                      selectedAnswers: [2],
+                      isCorrect: true,
+                      score: 1,
+                    },
+                    {
+                      questionId: 1002,
+                      selectedAnswers: [5],
+                      isCorrect: false,
+                      score: 0,
+                    },
+                  ],
+                  time_spent: "00:10:20",
+                },
               },
             },
           },

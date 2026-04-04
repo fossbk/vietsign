@@ -25,7 +25,7 @@ import {
 import { fetchAllClasses } from "@/services/classService";
 import { fetchAllOrganizations } from "@/services/organizationService";
 import { OrganizationItem } from "@/data";
-import { uploadFile } from "@/services/uploadService";
+import { uploadFile, normalizeFileUrl } from "@/services/uploadService";
 import {
   Pagination,
   usePagination,
@@ -554,7 +554,7 @@ export function QuestionsManagement() {
                   Hình ảnh minh họa
                 </label>
                 <img
-                  src={selectedItem.image}
+                  src={normalizeFileUrl(selectedItem.image)}
                   alt="Minh họa"
                   className="mt-2 max-h-48 rounded-lg border border-gray-200"
                 />
@@ -567,7 +567,7 @@ export function QuestionsManagement() {
                   controls
                   className="mt-2 w-full max-h-48 rounded-lg border border-gray-200"
                 >
-                  <source src={selectedItem.video} />
+                  <source src={normalizeFileUrl(selectedItem.video)} />
                 </video>
               </div>
             )}
