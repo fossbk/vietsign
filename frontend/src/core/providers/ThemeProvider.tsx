@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { ConfigProvider } from "antd";
 
 type Theme = "light" | "dark";
 
@@ -64,7 +65,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-            {children}
+            <ConfigProvider theme={{ token: { fontFamily: 'var(--font-inter), ui-sans-serif, system-ui, sans-serif' } }}>
+                {children}
+            </ConfigProvider>
         </ThemeContext.Provider>
     );
 };
