@@ -1,4 +1,5 @@
 const db = require("../../../db");
+const { convertToMp4, needsConversion } = require("../../../utils/videoConverter");
 
 let historyTableEnsured = false;
 const ALLOWED_MODES = new Set(["match", "spell", "free"]);
@@ -401,11 +402,27 @@ const predictModel3 = async ({ file, topK = 5 }) => {
   const endpoint = `${baseUrl}/predict?top_k=${topK}`;
   const timeoutMs = Number(process.env.AI_MODEL_TIMEOUT_MS || 20000);
 
+  // Convert video to MP4 with proper metadata to avoid "broken metadata" errors
+  let fileBuffer = file.buffer;
+  let fileMimetype = file.mimetype || "application/octet-stream";
+  let fileName = file.originalname || `practice-${Date.now()}.mp4`;
+
+  if (needsConversion(fileMimetype, fileName)) {
+    try {
+      console.log(`Converting video (${fileMimetype}) to MP4 before sending to Model3...`);
+      fileBuffer = await convertToMp4(fileBuffer, fileName);
+      fileMimetype = "video/mp4";
+      fileName = fileName.replace(/\.[^.]+$/, ".mp4");
+      console.log(`Video converted successfully (${fileBuffer.length} bytes)`);
+    } catch (convErr) {
+      console.error("Video conversion failed, sending original:", convErr.message);
+      // Fall through with original file if conversion fails
+    }
+  }
+
   const formData = new FormData();
-  const blob = new Blob([file.buffer], {
-    type: file.mimetype || "application/octet-stream",
-  });
-  formData.append("file", blob, file.originalname || `practice-${Date.now()}.bin`);
+  const blob = new Blob([fileBuffer], { type: fileMimetype });
+  formData.append("file", blob, fileName);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
