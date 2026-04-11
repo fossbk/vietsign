@@ -8,7 +8,7 @@ import Webcam from "react-webcam";
 import Handsigns from "@/utils/handsigns";
 import "@tensorflow/tfjs-backend-webgl";
 import { Button, Col, Image, Layout, Row, Space, Typography } from "antd";
-import { RiCameraFill, RiCameraOffFill } from "react-icons/ri";
+import { Camera, CameraOff } from "lucide-react";
 import { drawHand } from "./drawHand";
 import { Signimage, Signpass } from "../assets/handimage";
 
@@ -277,9 +277,9 @@ export default function LearningData() {
           <Button
             icon={
               camState === "on" ? (
-                <RiCameraFill size={20} />
+                <Camera size={20} />
               ) : (
-                <RiCameraOffFill size={20} />
+                <CameraOff size={20} />
               )
             }
             onClick={turnOffCamera}

@@ -1,5 +1,17 @@
+import dynamic from "next/dynamic";
+import Loading from "@/app/loading";
 import { DashboardLayout } from "@/shared/components/layout";
-import { WordPractice } from "@/features/practice";
+
+const WordPractice = dynamic(
+  () =>
+    import("@/features/practice/components/WordPractice").then((mod) => ({
+      default: mod.WordPractice,
+    })),
+  {
+    loading: () => <Loading />,
+
+  }
+);
 
 export const metadata = {
   title: "Luyện tập theo từ - Luyện tập - VietSignSchool",

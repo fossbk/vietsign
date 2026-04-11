@@ -259,19 +259,6 @@ export function OrganizationDetail() {
     enabled: !!userId && isFacilityManager,
   });
 
-  // Debug logging (can be removed later)
-  React.useEffect(() => {
-    if (isFacilityManager) {
-      console.log("[RBAC Debug]", {
-        userId,
-        userRole,
-        userManagedOrgIds,
-        currentPageOrgId: id,
-        isOwnOrg: userManagedOrgIds.includes(id),
-      });
-    }
-  }, [userId, userRole, userManagedOrgIds, id, isFacilityManager]);
-
   // Fetch all organizations early to determine access
   const { data: allOrgsForAccess = [] } = useOrganizations();
 

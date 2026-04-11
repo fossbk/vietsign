@@ -3,7 +3,7 @@
 
 import Learning from "@/model/Learning";
 import UploadModel from "@/model/UploadModel";
-import { WarningFilled } from "@ant-design/icons";
+import { AlertTriangle } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Button,
@@ -273,9 +273,7 @@ const PracticeData: React.FC = () => {
   // Kiểm tra AI
   const mutationDetectAI = useMutation({
     mutationFn: async (data: { videoUrl?: string; file?: File }) => {
-      console.log("Gửi dữ liệu đến AI model:", data);
       if (selectedAIModel === "model1") {
-        console.log("Sử dụng model1...");
         if (!data.file) {
           throw new Error("Thiếu file đầu vào cho AI Model 1");
         }
@@ -322,7 +320,6 @@ const PracticeData: React.FC = () => {
           raw: aiResponse,
         };
       } else if (selectedAIModel === "model2") {
-        console.log("Sử dụng model2...");
         if (!data.videoUrl) {
           throw new Error("Thiếu videoUrl cho AI Model 2");
         }
@@ -345,8 +342,7 @@ const PracticeData: React.FC = () => {
         
         // Response format is handled by our backend now
         const top1 = response3.data?.top_k?.[0];
-        console.log("model3 top1:", top1);
-        
+
         return {
           action_name: top1?.label || "",
           label_name: top1?.label || "",
@@ -357,8 +353,6 @@ const PracticeData: React.FC = () => {
       }
     },
     onSuccess: async (res: any) => {
-      console.log("Kết quả AI detect thành công:", res);
-
       const explicitLabelName =
         (typeof res?.label_name === "string" && res.label_name.trim()) ||
         (typeof res?.raw?.data?.label_name === "string" &&
@@ -391,14 +385,11 @@ const PracticeData: React.FC = () => {
         normalizedVocabularyName &&
         normalizedContent === normalizedVocabularyName
       ) {
-        console.log("Kết quả AI khớp với từ vựng:", normalizedVocabularyName);
         const body = {
           dataLocation: filterParams.file,
           vocabularyId: filterParams.vocabulary,
         };
         await Learning.sendData(body);
-      } else {
-        console.log("Kết quả AI không khớp với từ vựng.");
       }
 
       if (explicitLabelName || res?.action_name) {
@@ -429,8 +420,6 @@ const PracticeData: React.FC = () => {
       return;
     }
 
-    console.log("Loại file được upload:", uploadedVideo.type);
-
     const isVideo = uploadedVideo.type.startsWith("video/");
     const isLt10M = uploadedVideo.size / 1024 / 1024 < 10;
 
@@ -460,7 +449,6 @@ const PracticeData: React.FC = () => {
         );
       } else {
         const videoUrl = await uploadMediaFile(uploadedVideo, "exam");
-        console.log("Video đã được tải lên. URL:", videoUrl);
 
         mutationDetectAI.mutate(
           { videoUrl },
@@ -695,7 +683,7 @@ const PracticeData: React.FC = () => {
                               trigger="hover"
                               color="#4096ff"
                             >
-                              <WarningFilled style={{ color: "#4096ff" }} />
+                              <AlertTriangle size={16} color="#4096ff" />
                             </Tooltip>
                           }
                         >
@@ -741,7 +729,6 @@ const PracticeData: React.FC = () => {
                           className="text-center"
                           onClick={async () => {
                             try {
-                              console.log("Bắt đầu kiểm tra video...");
                               if (!mediaBlobUrl) {
                                 return;
                               }
@@ -758,7 +745,6 @@ const PracticeData: React.FC = () => {
                                   capturedFile,
                                   "exam",
                                 );
-                                console.log("URL video gửi đến AI:", link);
                                 mutationDetectAI.mutate({ videoUrl: link });
                               }
                             } catch (error) {

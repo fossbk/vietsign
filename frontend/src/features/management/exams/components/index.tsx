@@ -537,7 +537,6 @@ function CreateExamForm({
 
   const loadTopics = async () => {
     try {
-      console.log("Loading common topics for practice exam...");
       let data: any[] = [];
 
       // 1. Fetch only common topics as requested
@@ -545,7 +544,6 @@ function CreateExamForm({
 
       // 2. Fallback to all topics if common topics are empty (safety check)
       if (!data || data.length === 0) {
-        console.log("Common topics empty, trying all topics...");
         data = await fetchAllTopics();
       }
 
@@ -573,7 +571,6 @@ function CreateExamForm({
         }
       }
 
-      console.log("Final loaded topics count:", data?.length || 0);
       setTopics(data || []);
     } catch (error) {
       console.error("Total failure loading topics:", error);
@@ -585,7 +582,6 @@ function CreateExamForm({
     if (vocabMap[tid] && vocabMap[tid].length > 0) return;
     
     try {
-      console.log(`Loading vocabularies for topic ${tid}...`);
       let data = await fetchVocabulariesByTopic(tid);
 
       // Fallback to learning service for vocabularies if empty
@@ -608,7 +604,6 @@ function CreateExamForm({
         }
       }
 
-      console.log(`Loaded ${data?.length || 0} vocabularies for topic ${tid}`);
       setVocMap((prev) => ({ ...prev, [tid]: data || [] }));
     } catch (error) {
       console.error(`Failed to load vocabularies for topic ${tid}:`, error);
@@ -691,7 +686,6 @@ function CreateExamForm({
         vocabularyId: pq.vocabularyId ? Number(pq.vocabularyId) : null,
       }));
 
-      console.log("Submitting exam:", formData, cleanedPracticeQuestions);
       await createExam({
         name: formData.title,
         description: "",
@@ -710,7 +704,6 @@ function CreateExamForm({
     } catch (error: any) {
       console.error("Exam creation failed:", error);
       const responseData = error?.response?.data;
-      console.log("Error response data:", responseData);
 
       const detailedError =
         responseData?.error ||

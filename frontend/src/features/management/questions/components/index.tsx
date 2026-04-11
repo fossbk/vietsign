@@ -85,10 +85,6 @@ export function QuestionsManagement() {
         }),
       ]);
 
-      console.log("📋 [loadData] classesData received:", classesData);
-      console.log("📋 [loadData] classesData length:", classesData?.length);
-      console.log("📋 [loadData] User role:", userRole, "| userId:", userId, "| isTeacher:", isTeacher);
-
       setFacilities(facilitiesData || []);
 
       // Deduplicate classes by id and keep teacher scope aligned with server-side filtering.
@@ -121,7 +117,6 @@ export function QuestionsManagement() {
       } else {
         pushUnique(classesData as any[]);
       }
-      console.log("📋 [loadData] uniqueClasses to set:", uniqueClasses.length, uniqueClasses.map((c: any) => ({ id: c.id, name: c.name })));      
       setClasses(uniqueClasses);
 
       // Build class maps
@@ -709,8 +704,6 @@ function CreateQuestionForm({
         (c) => String(c.id) === String(formData.classId),
       );
       const organizationId = selectedClass?.organizationId || null;
-
-      console.log("Submitting question form data:", formData);
 
       if (!formData.content?.trim()) {
         alert("Nội dung câu hỏi là bắt buộc!");

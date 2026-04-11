@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
-import { MailOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
 import { AlertCircle, Mail, ArrowLeft } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
@@ -132,7 +131,7 @@ export const ForgotPassword: React.FC = () => {
             <Input
               placeholder="you@example.com"
               className="py-2"
-              prefix={<MailOutlined className="text-gray-400" />}
+              prefix={<Mail className="text-gray-400" size={16} />}
             />
           </Form.Item>
 

@@ -4,12 +4,9 @@ import { ClassItem } from "@/data/classesData";
 export async function fetchAllClasses(query?: any): Promise<ClassItem[]> {
   try {
     const response = await ClassModel.getAllClasses(query);
-    console.log("📋 [fetchAllClasses] Raw response from ClassModel:", response);
-    
+
     // Backend returns { data: [...], page, limit, total }
     const data = response.data || response;
-    console.log("📋 [fetchAllClasses] Parsed data:", data);
-    console.log("📋 [fetchAllClasses] Is data array?", Array.isArray(data));
 
     // Handle different response structures
     let items: any[] = [];
@@ -21,8 +18,6 @@ export async function fetchAllClasses(query?: any): Promise<ClassItem[]> {
       items = data.classes;
     }
     
-    console.log("📋 [fetchAllClasses] Items count:", items.length);
-
     // Map items - Backend now returns proper camelCase format
     return items.map((item: any) => ({
       id: item.id,
@@ -105,7 +100,6 @@ function convertItemToApiPayload(data: any): any {
 
 export async function createClass(data: any) {
   const payload = convertItemToApiPayload(data);
-  console.log("[createClass] Sending payload:", payload);
   return await ClassModel.createClass(payload);
 }
 

@@ -16,11 +16,7 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowLeftOutlined,
-  PlayCircleOutlined,
-  PictureOutlined,
-} from "@ant-design/icons";
+import { ArrowLeft, PlayCircle, ImageIcon } from "lucide-react";
 import { fetchExamById, submitExam } from "@/services/examService";
 import { API_BASE_URL } from "@/core/config/api"; // Ensure this exists or use relative path if needed
 
@@ -133,7 +129,7 @@ export default function QuestionsPage() {
         <div className="flex items-center gap-2">
           <Button
             type="link"
-            icon={vLoc ? <PlayCircleOutlined /> : <PictureOutlined />}
+            icon={vLoc ? <PlayCircle size={16} /> : <ImageIcon size={16} />}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -157,7 +153,7 @@ export default function QuestionsPage() {
           <Button
             type="link"
             size="small"
-            icon={vLoc ? <PlayCircleOutlined /> : <PictureOutlined />}
+            icon={vLoc ? <PlayCircle size={16} /> : <ImageIcon size={16} />}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -292,7 +288,7 @@ export default function QuestionsPage() {
           {
             title: (
               <span className="cursor-pointer" onClick={() => router.back()}>
-                <ArrowLeftOutlined /> Quay lại
+                <ArrowLeft size={16} /> Quay lại
               </span>
             ),
           },

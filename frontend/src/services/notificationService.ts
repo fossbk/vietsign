@@ -6,16 +6,13 @@ export async function fetchAllNotifications(): Promise<NotificationItem[]> {
 }
 
 export async function markAsRead(id: number): Promise<void> {
-  // Mock
-  console.log(`Marked notification ${id} as read`);
+  // Mock - TODO: implement actual API call
 }
 
 export async function markAllAsRead(): Promise<void> {
-  // Mock
-  console.log("Marked all notifications as read");
+  // Mock - TODO: implement actual API call
 }
 
 export async function deleteNotification(id: number): Promise<void> {
-  // Mock
-  console.log(`Deleted notification ${id}`);
+  // Mock - TODO: implement actual API call
 }

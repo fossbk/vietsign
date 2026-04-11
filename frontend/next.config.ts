@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  /* config options here */
+  experimental: {
+    optimizePackageImports: ["lucide-react", "antd"],
+  },
 };
 
 export default nextConfig;

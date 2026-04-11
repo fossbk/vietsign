@@ -77,11 +77,8 @@ export function ClassManagementDetail() {
       setIsLoading(true); // Start loading
 
       try {
-        console.log("[ClassDetail] Fetching class ID:", id);
-
         // 1. Fetch Class Content FIRST
         const fetchedClass = await fetchClassById(id);
-        console.log("[ClassDetail] Fetched class:", fetchedClass);
 
         if (fetchedClass) {
           setClassItem(fetchedClass);

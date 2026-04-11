@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { login } from "@/core/store/slices/adminSlice";
-import { Copy, CheckCircle, AlertCircle } from "lucide-react";
-import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Copy, CheckCircle, AlertCircle, Lock, Mail } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
 import UserModel, { mapRoleCode } from "@/domain/entities/User";
 import { Button, Form, Input, message } from "antd";
@@ -26,8 +25,6 @@ const Login: React.FC = () => {
     mutationFn: Auth.login,
     onSuccess: async (res: any) => {
       setIsRedirecting(true);
-      console.log("Login response:", res); // Debug
-
       try {
         // Backend chỉ trả về accessToken
         const accessToken = res.accessToken || res.access_token;
@@ -36,7 +33,6 @@ const Login: React.FC = () => {
 
         // Lấy thông tin profile từ backend
         const userProfile = await UserModel.getProfile();
-        console.log("User profile:", userProfile); // Debug
 
         // Map role code từ backend sang frontend role format
         const userData = {
@@ -112,7 +108,7 @@ const Login: React.FC = () => {
             <Input
               placeholder="Nhập email hoặc tên tài khoản"
               className="py-2"
-              prefix={<MailOutlined className="text-gray-400" size={16} />}
+              prefix={<Mail className="text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -124,7 +120,7 @@ const Login: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<LockOutlined className="text-gray-400" size={16} />}
+              prefix={<Lock className="text-gray-400" size={16} />}
             />
           </Form.Item>
 

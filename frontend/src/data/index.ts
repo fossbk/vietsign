@@ -4,8 +4,6 @@ export * from "./classesData";
 export * from "./examsData";
 export * from "./gamesData";
 export * from "./learnData";
-export * from "./vietnamLocationsData";
-export * from "./statisticsData";
 export * from "./usersData";
 export * from "./organizationsData"; // Organizations (thay thế Facilities)
 export * from "./notificationsData";

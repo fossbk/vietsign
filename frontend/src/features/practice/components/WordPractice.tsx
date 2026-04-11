@@ -42,7 +42,6 @@ export function WordPractice() {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        console.log("Loading practice items from general dictionary...");
         // Fetch published public words
         const [wordsData, questionsData] = await Promise.all([
           fetchAllWords({ is_private: 0 }),
@@ -76,7 +75,6 @@ export function WordPractice() {
           }));
 
         const combined = [...fromDictionary, ...fromQuestions];
-        console.log(`Loaded ${combined.length} practice items total`);
         setPracticeItems(combined);
       } catch (error) {
         console.error("Failed to load practice items", error);

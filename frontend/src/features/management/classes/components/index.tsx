@@ -147,7 +147,6 @@ export function ClassesManagement() {
           orgId,
           "TEACHER",
         );
-        console.log("Teachers for org", orgId, ":", result);
         setFormTeachers(result.users || []);
       } catch (error) {
         console.error("Error loading teachers for organization:", error);
@@ -685,7 +684,6 @@ export function ClassesManagement() {
                 status: "ongoing", // Default status
               };
 
-              console.log("[ClassForm] Submitting payload:", payload);
               await createClass(payload);
               // Refresh data
               const [classesRes] = await Promise.allSettled([

@@ -1,5 +1,17 @@
+import dynamic from "next/dynamic";
+import Loading from "@/app/loading";
 import { DashboardLayout } from "@/shared/components/layout";
-import { PracticeModeSelection } from "@/features/practice";
+
+const PracticeModeSelection = dynamic(
+  () =>
+    import("@/features/practice").then((mod) => ({
+      default: mod.PracticeModeSelection,
+    })),
+  {
+    loading: () => <Loading />,
+
+  }
+);
 
 export const metadata = {
   title: "Luyện tập - VietSignSchool",

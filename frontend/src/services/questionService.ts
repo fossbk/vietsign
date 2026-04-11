@@ -82,7 +82,6 @@ export async function createQuestion(data: any) {
     organization_id: data.organization_id || data.organizationId,
   };
 
-  console.log("Creating question with payload:", payload);
   return await QuestionModel.createQuestion(payload);
 }
 

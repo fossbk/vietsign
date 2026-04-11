@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { LockOutlined } from "@ant-design/icons";
+import { Lock } from "lucide-react";
 import { Button, Form, Input, message } from "antd";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
@@ -197,7 +197,7 @@ export const ResetPassword: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<LockOutlined className="text-gray-400" />}
+              prefix={<Lock className="text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -222,7 +222,7 @@ export const ResetPassword: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<LockOutlined className="text-gray-400" />}
+              prefix={<Lock className="text-gray-400" size={16} />}
             />
           </Form.Item>
 

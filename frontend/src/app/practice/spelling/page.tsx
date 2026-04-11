@@ -1,5 +1,17 @@
+import dynamic from "next/dynamic";
+import Loading from "@/app/loading";
 import { DashboardLayout } from "@/shared/components/layout";
-import { SpellingPractice } from "@/features/practice";
+
+const SpellingPractice = dynamic(
+  () =>
+    import("@/features/practice/components/SpellingPractice").then((mod) => ({
+      default: mod.SpellingPractice,
+    })),
+  {
+    loading: () => <Loading />,
+
+  }
+);
 
 export const metadata = {
   title: "Luyện tập đánh vần - Luyện tập - VietSignSchool",

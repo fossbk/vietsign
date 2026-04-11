@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Copy, CheckCircle } from "lucide-react";
-import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { Copy, CheckCircle, Lock, Mail, User } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
 import { Button, Form, Input, message } from "antd";
 
@@ -31,8 +30,6 @@ export const Register: React.FC = () => {
           },
         });
 
-      console.log("Supabase SignUp Debug:", { supabaseData, supabaseError });
-
       if (supabaseError) {
         // Nếu lỗi do email đã tồn tại bên Supabase hoặc lỗi khác
         throw new Error(supabaseError.message);
@@ -44,8 +41,6 @@ export const Register: React.FC = () => {
       return { backendRes, supabaseData };
     },
     onSuccess: async ({ backendRes, supabaseData }) => {
-      console.log("Register Success:", backendRes);
-
       if (supabaseData.session) {
         // Trường hợp đã tắt Email Confirmation hoặc auto-confirm
         message.success("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
@@ -103,7 +98,7 @@ export const Register: React.FC = () => {
             <Input
               placeholder="Nguyen Van A"
               className="py-2"
-              prefix={<UserOutlined className="text-gray-400" />}
+              prefix={<User className="text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -118,7 +113,7 @@ export const Register: React.FC = () => {
             <Input
               placeholder="you@example.com"
               className="py-2"
-              prefix={<MailOutlined className="text-gray-400" />}
+              prefix={<Mail className="text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -130,7 +125,7 @@ export const Register: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<LockOutlined className="text-gray-400" />}
+              prefix={<Lock className="text-gray-400" size={16} />}
             />
           </Form.Item>
 
