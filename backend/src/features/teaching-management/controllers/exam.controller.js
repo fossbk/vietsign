@@ -359,7 +359,7 @@ const deleteExamsByClassroom = async (req, res) => {
 const submitExam = async (req, res) => {
   try {
     const examId = parseInt(req.params.exam_id);
-    const { student_id, score, answers, time_spent } = req.body;
+    const { student_id, score: _clientScore, answers, time_spent } = req.body;
     const tokenUserId = req.user?.user_id ? parseInt(req.user.user_id) : null;
 
     if (!examId || isNaN(examId)) {
@@ -389,7 +389,6 @@ const submitExam = async (req, res) => {
     const result = await examService.submitExam(
       examId,
       tokenUserId,
-      score,
       answers,
       time_spent,
     );
@@ -509,22 +508,46 @@ const getStudentExamAttempts = async (req, res) => {
 
 const submitPracticeExam = async (req, res) => {
   try {
-    const { examId, userId } = req.body;
+    // Bug fix: always take userId from the JWT token (not req.body) for security + correctness
+    const userId = req.user?.user_id ? String(req.user.user_id) : null;
+    const { examId, vocabularyIds } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    if (!examId) {
+      return res.status(400).json({ success: false, message: "examId is required" });
+    }
     if (!req.files || req.files.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No videos uploaded" });
     }
 
+    // vocabularyIds can be sent as a repeated form field  (one per video, in order)
+    // e.g. FormData: vocabularyIds[]=42&vocabularyIds[]=55  OR  vocabularyIds=42,55
+    let vocabIdList = [];
+    if (vocabularyIds) {
+      vocabIdList = Array.isArray(vocabularyIds)
+        ? vocabularyIds
+        : String(vocabularyIds).split(",");
+    }
+
     // Create attempt
     const attempt = await examService.createPracticeAttempt(examId, userId);
 
     const results = [];
-    for (const file of req.files) {
-      const parts = file.originalname.split("-");
-      let vocabularyId = null;
-      if (parts.length >= 4) {
-        vocabularyId = parts[3];
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+
+      // Primary: use explicit vocabularyIds field; fallback: parse from filename
+      let vocabularyId = vocabIdList[i] || null;
+      if (!vocabularyId) {
+        const parts = file.originalname.split("-");
+        if (parts.length >= 4) {
+          // Remove file extension from last part
+          vocabularyId = parts[3].replace(/\.[^.]+$/, "");
+        }
       }
 
       const rawExt = path.extname(file.originalname);
@@ -557,6 +580,7 @@ const submitPracticeExam = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 const getPracticeSubmission = async (req, res) => {
   try {

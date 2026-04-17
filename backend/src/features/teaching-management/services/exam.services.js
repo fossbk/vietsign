@@ -552,7 +552,54 @@ async function getStudentExamAttempts(studentId, limit, offset) {
   }
 }
 
-async function submitExam(examId, studentId, score, answers, timeSpent) {
+function normalizeInt(value) {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function normalizeSelectedAnswers(rawSelectedAnswers) {
+  if (Array.isArray(rawSelectedAnswers)) {
+    return [...new Set(rawSelectedAnswers.map((v) => normalizeInt(v)).filter((v) => v !== null))];
+  }
+
+  if (typeof rawSelectedAnswers === "number") {
+    return [rawSelectedAnswers];
+  }
+
+  if (typeof rawSelectedAnswers === "string") {
+    const trimmed = rawSelectedAnswers.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return [...new Set(parsed.map((v) => normalizeInt(v)).filter((v) => v !== null))];
+      }
+      const maybeSingle = normalizeInt(parsed);
+      return maybeSingle !== null ? [maybeSingle] : [];
+    } catch {
+      return [...new Set(trimmed.split(",").map((v) => normalizeInt(v)).filter((v) => v !== null))];
+    }
+  }
+
+  return [];
+}
+
+function bitToBoolean(value) {
+  if (Buffer.isBuffer(value)) return value[0] === 1;
+  if (typeof value === "number") return value === 1;
+  return !!value;
+}
+
+function areSameIdSets(left, right) {
+  if (left.size !== right.size) return false;
+  for (const item of left) {
+    if (!right.has(item)) return false;
+  }
+  return true;
+}
+
+async function submitExam(examId, studentId, answers, _timeSpent) {
   const connection = await db.getConnection();
   let transactionStarted = false;
   try {
@@ -583,18 +630,110 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
       throw { status: 400, message: "Invalid student ID" };
     }
 
+    const [examQuestionRows] = await connection.execute(
+      "SELECT question_id FROM question_exam_mapping WHERE exam_id = ? ORDER BY question_exam_id ASC",
+      [normalizedExamId],
+    );
+
+    if (examQuestionRows.length === 0) {
+      throw {
+        status: 400,
+        message: "Exam has no question mappings for grading",
+      };
+    }
+
+    const examQuestionIds = examQuestionRows.map((row) => row.question_id);
+    const examQuestionIdSet = new Set(examQuestionIds);
+
+    const submittedAnswers = Array.isArray(answers) ? answers : [];
+    const submittedByQuestion = new Map();
+
+    for (const item of submittedAnswers) {
+      const questionId =
+        normalizeInt(item?.questionId) ||
+        normalizeInt(item?.question_id) ||
+        normalizeInt(item?.id);
+
+      if (!questionId) {
+        throw {
+          status: 400,
+          message: "Each answer item must include questionId",
+        };
+      }
+
+      if (!examQuestionIdSet.has(questionId)) {
+        throw {
+          status: 400,
+          message: `Question ${questionId} does not belong to exam ${normalizedExamId}`,
+        };
+      }
+
+      const selectedAnswers = normalizeSelectedAnswers(
+        item?.selectedAnswers ||
+          item?.selected_answers ||
+          item?.answerIds ||
+          item?.answer_ids ||
+          item?.answerId ||
+          item?.answer_id ||
+          [],
+      );
+
+      submittedByQuestion.set(questionId, selectedAnswers);
+    }
+
+    const placeholders = examQuestionIds.map(() => "?").join(",");
+    const [answerRows] = await connection.execute(
+      `SELECT question_id, answer_id, is_correct FROM answer WHERE question_id IN (${placeholders})`,
+      examQuestionIds,
+    );
+
+    const correctAnswersByQuestion = new Map();
+    for (const qid of examQuestionIds) {
+      correctAnswersByQuestion.set(qid, new Set());
+    }
+
+    for (const row of answerRows) {
+      if (bitToBoolean(row.is_correct)) {
+        correctAnswersByQuestion.get(row.question_id)?.add(row.answer_id);
+      }
+    }
+
+    const questionWeight = 10 / examQuestionIds.length;
+    const gradedAnswers = [];
+    let finalScoreRaw = 0;
+
+    for (const questionId of examQuestionIds) {
+      const selectedAnswers = submittedByQuestion.get(questionId) || [];
+      const selectedSet = new Set(selectedAnswers);
+      const correctSet = correctAnswersByQuestion.get(questionId) || new Set();
+
+      const isCorrect = correctSet.size > 0 && areSameIdSets(selectedSet, correctSet);
+      const questionScoreRaw = isCorrect ? questionWeight : 0;
+      finalScoreRaw += questionScoreRaw;
+
+      gradedAnswers.push({
+        questionId,
+        selectedAnswers,
+        isCorrect,
+        score: Number(questionScoreRaw.toFixed(2)),
+      });
+    }
+
+    const finalScore = Number(finalScoreRaw.toFixed(2));
+
     await connection.beginTransaction();
     transactionStarted = true;
 
     // Insert into exam_attempt (always create a new attempt)
     const [attemptResult] = await connection.execute(
       "INSERT INTO exam_attempt (exam_id, user_id, score, started_at, finished_at) VALUES (?, ?, ?, NOW(), NOW())",
-      [normalizedExamId, normalizedStudentId, score || 0],
+      [normalizedExamId, normalizedStudentId, finalScore],
     );
 
     const attemptId = attemptResult.insertId;
 
     // Also update user_exam_mapping for overall progress tracking
+    // Schema: (user_exam_id, exam_id, is_finish, score, user_id)
     const [mappingExists] = await connection.execute(
       "SELECT user_exam_id FROM user_exam_mapping WHERE exam_id = ? AND user_id = ?",
       [normalizedExamId, normalizedStudentId],
@@ -603,37 +742,41 @@ async function submitExam(examId, studentId, score, answers, timeSpent) {
     if (mappingExists.length > 0) {
       await connection.execute(
         "UPDATE user_exam_mapping SET score = ?, is_finish = 1 WHERE user_exam_id = ?",
-        [score || 0, mappingExists[0].user_exam_id],
+        [finalScore, mappingExists[0].user_exam_id],
       );
     } else {
+      // Column order must match schema: exam_id, is_finish, score, user_id
       await connection.execute(
-        "INSERT INTO user_exam_mapping (exam_id, user_id, score, is_finish) VALUES (?, ?, ?, 1)",
-        [normalizedExamId, normalizedStudentId, score || 0],
+        "INSERT INTO user_exam_mapping (exam_id, is_finish, score, user_id) VALUES (?, 1, ?, ?)",
+        [normalizedExamId, finalScore, normalizedStudentId],
       );
     }
 
-    // Save individual question responses if provided
-    if (Array.isArray(answers)) {
-      for (const ans of answers) {
-        // ans expected to have questionId, isCorrect, score, selectedAnswers (array of IDs)
-        await connection.execute(
-          `INSERT INTO question_exam_user_mapping 
-           (exam_id, question_id, user_id, attempt_id, is_correct, score) 
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [
-            normalizedExamId,
-            ans.questionId || ans.id,
-            normalizedStudentId,
-            attemptId,
-            ans.isCorrect ? 1 : 0,
-            ans.score || 0,
-          ],
-        );
-      }
+    for (const item of gradedAnswers) {
+      await connection.execute(
+        `INSERT INTO question_exam_user_mapping
+         (exam_id, question_id, user_id, attempt_id, selected_answers, is_correct, score)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          normalizedExamId,
+          item.questionId,
+          normalizedStudentId,
+          attemptId,
+          Buffer.from(JSON.stringify(item.selectedAnswers), "utf8"),
+          item.isCorrect ? 1 : 0,
+          item.score,
+        ],
+      );
     }
 
     await connection.commit();
-    return { success: true, attemptId, score };
+    return {
+      success: true,
+      attemptId,
+      score: finalScore,
+      totalQuestions: examQuestionIds.length,
+      correctAnswers: gradedAnswers.filter((item) => item.isCorrect).length,
+    };
   } catch (err) {
     if (transactionStarted) {
       await connection.rollback();
@@ -755,9 +898,10 @@ async function markPracticeExam(examId, userId, score, details) {
         [score || 0, mappingExists[0].user_exam_id],
       );
     } else {
+      // Column order must match schema: exam_id, is_finish, score, user_id
       await connection.execute(
-        "INSERT INTO user_exam_mapping (exam_id, user_id, score, is_finish) VALUES (?, ?, ?, 1)",
-        [examId, userId, score || 0],
+        "INSERT INTO user_exam_mapping (exam_id, is_finish, score, user_id) VALUES (?, 1, ?, ?)",
+        [examId, score || 0, userId],
       );
     }
 

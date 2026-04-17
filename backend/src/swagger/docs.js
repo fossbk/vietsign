@@ -3014,7 +3014,8 @@ const swaggerDocs = {
                 score: {
                   type: "number",
                   example: 8.5,
-                  description: "Điểm tổng hợp phía client tính (tuỳ luồng)",
+                  description:
+                    "Optional legacy field. Backend tự chấm điểm từ answers và sẽ bỏ qua score do client gửi",
                 },
                 answers: {
                   type: "array",
@@ -3029,8 +3030,18 @@ const swaggerDocs = {
                         items: { type: "integer" },
                         example: [2],
                       },
-                      isCorrect: { type: "boolean", example: true },
-                      score: { type: "number", example: 1 },
+                      isCorrect: {
+                        type: "boolean",
+                        example: true,
+                        description:
+                          "Optional legacy field. Backend tự tính đúng/sai từ selectedAnswers",
+                      },
+                      score: {
+                        type: "number",
+                        example: 1,
+                        description:
+                          "Optional legacy field. Backend tự tính điểm cho từng câu",
+                      },
                     },
                   },
                 },
