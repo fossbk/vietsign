@@ -4,6 +4,57 @@ const path = require("path");
 const os = require("os");
 const crypto = require("crypto");
 
+const runCommand = (cmd, args, timeout = 30000) =>
+  new Promise((resolve, reject) => {
+    execFile(cmd, args, { timeout }, (error, stdout, stderr) => {
+      if (error) {
+        reject(
+          new Error(
+            `${cmd} failed: ${error.message}${stderr ? ` | ${stderr}` : ""}`,
+          ),
+        );
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+
+const verifyMp4Metadata = async (filePath) => {
+  const args = [
+    "-v",
+    "error",
+    "-select_streams",
+    "v:0",
+    "-show_entries",
+    "stream=codec_name,duration,nb_frames",
+    "-of",
+    "json",
+    filePath,
+  ];
+
+  const { stdout } = await runCommand("ffprobe", args, 15000);
+  let parsed;
+  try {
+    parsed = JSON.parse(stdout || "{}");
+  } catch {
+    throw new Error("ffprobe output is not valid JSON");
+  }
+
+  const stream = parsed?.streams?.[0];
+  if (!stream) {
+    throw new Error("No video stream found after conversion");
+  }
+
+  const duration = Number(stream.duration);
+  const nbFrames = Number(stream.nb_frames);
+  const hasDuration = Number.isFinite(duration) && duration > 0;
+  const hasFrames = Number.isFinite(nbFrames) && nbFrames > 0;
+
+  if (!hasDuration && !hasFrames) {
+    throw new Error("Converted MP4 still has invalid duration/frame metadata");
+  }
+};
+
 /**
  * Convert video buffer to MP4 with proper metadata using ffmpeg.
  * This fixes "broken metadata" errors from AI models that expect
@@ -29,32 +80,46 @@ const convertToMp4 = (inputBuffer, originalName = "input.webm") => {
     fs.writeFileSync(inputPath, inputBuffer);
 
     const args = [
+      "-hide_banner",
+      "-loglevel",
+      "error",
       "-y",
-      "-i", inputPath,
-      "-c:v", "libx264",
-      "-preset", "ultrafast",
-      "-movflags", "+faststart",
-      "-an",            // strip audio — AI models only need video
-      "-t", "30",       // cap at 30s to avoid huge files
+      "-fflags",
+      "+genpts",
+      "-i",
+      inputPath,
+      "-map",
+      "0:v:0",
+      "-c:v",
+      "libx264",
+      "-pix_fmt",
+      "yuv420p",
+      "-profile:v",
+      "baseline",
+      "-level",
+      "3.1",
+      "-movflags",
+      "+faststart",
+      "-r",
+      "25",
+      "-an", // strip audio — AI models only need video
+      "-t",
+      "30", // cap at 30s to avoid huge files
       outputPath,
     ];
 
-    execFile("ffmpeg", args, { timeout: 30000 }, (error, _stdout, stderr) => {
-      if (error) {
-        cleanup();
-        reject(new Error(`ffmpeg conversion failed: ${error.message}`));
-        return;
-      }
-
+    (async () => {
       try {
+        await runCommand("ffmpeg", args, 45000);
+        await verifyMp4Metadata(outputPath);
         const outputBuffer = fs.readFileSync(outputPath);
         cleanup();
         resolve(outputBuffer);
-      } catch (readErr) {
+      } catch (err) {
         cleanup();
-        reject(new Error(`Failed to read converted file: ${readErr.message}`));
+        reject(new Error(`Video conversion/validation failed: ${err.message}`));
       }
-    });
+    })();
   });
 };
 
@@ -63,12 +128,10 @@ const convertToMp4 = (inputBuffer, originalName = "input.webm") => {
  */
 const needsConversion = (mimetype, originalName) => {
   const ext = path.extname(originalName || "").toLowerCase();
-  // WebM from browsers always needs conversion
-  if (mimetype === "video/webm" || ext === ".webm") return true;
-  // Generic binary or unknown type — convert to be safe
-  if (mimetype === "application/octet-stream") return true;
-  // Even MP4 may have broken metadata from MediaRecorder, so convert
-  if (mimetype === "video/mp4" || ext === ".mp4") return true;
+  if ((mimetype || "").startsWith("video/")) return true;
+  if (ext === ".mp4" || ext === ".webm" || ext === ".mov") return true;
+  // Generic binary/unknown type from some browsers/clients
+  if (mimetype === "application/octet-stream" || !mimetype) return true;
   return false;
 };
 

@@ -413,6 +413,9 @@ const predictModel3 = async ({ file, topK = 5 }) => {
       fileBuffer = await convertToMp4(fileBuffer, fileName);
       fileMimetype = "video/mp4";
       fileName = fileName.replace(/\.[^.]+$/, ".mp4");
+      if (!fileName.toLowerCase().endsWith(".mp4")) {
+        fileName = `${fileName}.mp4`;
+      }
       console.log(`Video converted successfully (${fileBuffer.length} bytes)`);
     } catch (convErr) {
       console.error("Video conversion failed:", convErr.message);
