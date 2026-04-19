@@ -393,6 +393,67 @@ const getHistoryByUser = async ({ userId, page, limit }) => {
   };
 };
 
+const ensureMp4FileName = (name) => {
+  const safe = name || `practice-${Date.now()}.mp4`;
+  const replaced = safe.replace(/\.[^.]+$/, ".mp4");
+  return replaced.toLowerCase().endsWith(".mp4") ? replaced : `${replaced}.mp4`;
+};
+
+const isMetadataLikeError = (message) => {
+  const text = String(message || "").toLowerCase();
+  return /(broken\s*metadata|metadata|moov|duration|invalid\s*data|decode|corrupt|stream)/i.test(text);
+};
+
+const postToModel3 = async ({ endpoint, timeoutMs, fileBuffer, fileMimetype, fileName }) => {
+  const formData = new FormData();
+  const blob = new Blob([fileBuffer], { type: fileMimetype });
+  formData.append("file", blob, fileName);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      const err = new Error(
+        fetchError?.name === "AbortError"
+          ? "Model3 request timed out"
+          : "Could not connect to Model3 service",
+      );
+      err.status = fetchError?.name === "AbortError" ? 504 : 503;
+      err.code = fetchError?.name === "AbortError" ? "AI_TIMEOUT" : "AI_NETWORK";
+      throw err;
+    }
+
+    const rawText = await response.text();
+    let jsonBody = null;
+    try {
+      jsonBody = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      jsonBody = { rawText };
+    }
+
+    if (!response.ok) {
+      const err = new Error(
+        jsonBody?.detail || jsonBody?.message || `Model3 API error: ${response.status}`,
+      );
+      err.status = response.status;
+      err.payload = jsonBody;
+      throw err;
+    }
+
+    return jsonBody || {};
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 // ---------------------------------------------------------------
 // Model 3: gọi AI model chạy trên cùng máy chủ (localhost:30081)
 // Frontend không thể gọi trực tiếp nên phải đi qua backend này
@@ -403,19 +464,18 @@ const predictModel3 = async ({ file, topK = 5 }) => {
   const timeoutMs = Number(process.env.AI_MODEL_TIMEOUT_MS || 20000);
 
   // Convert video to MP4 with proper metadata to avoid "broken metadata" errors
-  let fileBuffer = file.buffer;
+  const originalBuffer = file.buffer;
+  let fileBuffer = originalBuffer;
   let fileMimetype = file.mimetype || "application/octet-stream";
   let fileName = file.originalname || `practice-${Date.now()}.mp4`;
+  const converted = needsConversion(fileMimetype, fileName);
 
-  if (needsConversion(fileMimetype, fileName)) {
+  if (converted) {
     try {
       console.log(`Converting video (${fileMimetype}) to MP4 before sending to Model3...`);
       fileBuffer = await convertToMp4(fileBuffer, fileName);
       fileMimetype = "video/mp4";
-      fileName = fileName.replace(/\.[^.]+$/, ".mp4");
-      if (!fileName.toLowerCase().endsWith(".mp4")) {
-        fileName = `${fileName}.mp4`;
-      }
+      fileName = ensureMp4FileName(fileName);
       console.log(`Video converted successfully (${fileBuffer.length} bytes)`);
     } catch (convErr) {
       console.error("Video conversion failed:", convErr.message);
@@ -427,32 +487,34 @@ const predictModel3 = async ({ file, topK = 5 }) => {
     }
   }
 
-  const formData = new FormData();
-  const blob = new Blob([fileBuffer], { type: fileMimetype });
-  formData.append("file", blob, fileName);
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  let strictRetried = false;
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      body: formData,
-      signal: controller.signal,
+    let jsonBody = await postToModel3({
+      endpoint,
+      timeoutMs,
+      fileBuffer,
+      fileMimetype,
+      fileName,
     });
 
-    const rawText = await response.text();
-    let jsonBody = null;
-    try {
-      jsonBody = JSON.parse(rawText);
-    } catch {
-      jsonBody = { rawText };
-    }
-
-    if (!response.ok) {
-      const err = new Error(jsonBody?.detail || `Model3 API error: ${response.status}`);
-      err.status = response.status;
-      throw err;
+    // Retry once with stricter conversion profile if upstream still reports metadata errors.
+    if (!jsonBody?.top_k && converted) {
+      // Some Model3 deployments return 200 with error payload instead of non-2xx.
+      const softErrorMessage = jsonBody?.detail || jsonBody?.message || "";
+      if (isMetadataLikeError(softErrorMessage)) {
+        strictRetried = true;
+        fileBuffer = await convertToMp4(originalBuffer, fileName, { strict: true });
+        fileMimetype = "video/mp4";
+        fileName = ensureMp4FileName(fileName);
+        jsonBody = await postToModel3({
+          endpoint,
+          timeoutMs,
+          fileBuffer,
+          fileMimetype,
+          fileName,
+        });
+      }
     }
 
     // Response: { "top_k": [ { "rank":1, "class_id":43, "probability":0.01, "label":"đất" }, ... ] }
@@ -464,8 +526,38 @@ const predictModel3 = async ({ file, topK = 5 }) => {
       confidence: top1?.probability ?? null,
       top_k: jsonBody?.top_k || [],
     };
-  } finally {
-    clearTimeout(timeoutId);
+  } catch (error) {
+    if (converted && !strictRetried && isMetadataLikeError(error?.message)) {
+      console.warn("Model3 returned metadata-like error, retrying with strict conversion profile...");
+      try {
+        strictRetried = true;
+        fileBuffer = await convertToMp4(originalBuffer, fileName, { strict: true });
+        fileMimetype = "video/mp4";
+        fileName = ensureMp4FileName(fileName);
+
+        const retriedBody = await postToModel3({
+          endpoint,
+          timeoutMs,
+          fileBuffer,
+          fileMimetype,
+          fileName,
+        });
+
+        const top1 = retriedBody?.top_k?.[0];
+        return {
+          label_name: top1?.label || null,
+          label_id: top1?.class_id ?? null,
+          action_name: top1?.label || null,
+          confidence: top1?.probability ?? null,
+          top_k: retriedBody?.top_k || [],
+        };
+      } catch (retryError) {
+        retryError.status = retryError?.status || 422;
+        throw retryError;
+      }
+    }
+
+    throw error;
   }
 };
 
