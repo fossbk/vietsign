@@ -3109,6 +3109,140 @@ const swaggerDocs = {
     },
   },
 
+  "/teaching-management/exams/practice/submit": {
+    post: {
+      tags: ["Exam Management"],
+      summary: "Submit practical exam videos (Student only)",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              required: ["examId", "videos"],
+              properties: {
+                examId: {
+                  type: "integer",
+                  example: 110,
+                },
+                vocabularyIds: {
+                  oneOf: [
+                    {
+                      type: "array",
+                      items: { type: "integer" },
+                    },
+                    {
+                      type: "string",
+                      example: "2670,2671",
+                    },
+                  ],
+                  description:
+                    "Optional nhưng khuyến nghị. Map theo thứ tự videos[]",
+                },
+                videos: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                    format: "binary",
+                  },
+                  description:
+                    "Danh sách video nộp bài. Có thể gửi 1 hoặc nhiều file",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: "Practice videos submitted successfully" },
+        400: { description: "Missing examId or no videos uploaded" },
+        401: { description: "Unauthorized" },
+        500: { description: "Internal server error" },
+      },
+    },
+  },
+
+  "/teaching-management/exams/practice-submission/{examId}/{studentId}": {
+    get: {
+      tags: ["Exam Management"],
+      summary: "Get practical submission detail by exam and student",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "examId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+        },
+        {
+          name: "studentId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+        },
+      ],
+      responses: {
+        200: { description: "Practice submission retrieved successfully" },
+        400: { description: "Missing examId or studentId" },
+        401: { description: "Unauthorized" },
+        500: { description: "Internal server error" },
+      },
+    },
+  },
+
+  "/teaching-management/exams/practical-submissions": {
+    get: {
+      tags: ["Exam Management"],
+      summary: "Get all pending practical submissions for grading",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: { description: "Practical submissions retrieved successfully" },
+        401: { description: "Unauthorized" },
+        500: { description: "Internal server error" },
+      },
+    },
+  },
+
+  "/teaching-management/exams/mark-practice": {
+    post: {
+      tags: ["Exam Management"],
+      summary: "Mark practical exam (Teacher)",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["examId", "userId"],
+              properties: {
+                examId: { type: "integer", example: 110 },
+                userId: { type: "integer", example: 1 },
+                score: { type: "number", example: 8.5 },
+                details: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      isCorrect: { type: "boolean", example: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: "Marked successfully" },
+        400: { description: "Missing param" },
+        401: { description: "Unauthorized" },
+        500: { description: "Internal server error" },
+      },
+    },
+  },
+
   "/teaching-management/exams/{exam_id}/results": {
     get: {
       tags: ["Exam Management"],

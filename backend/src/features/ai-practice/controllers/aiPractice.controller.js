@@ -151,7 +151,14 @@ const predictModel3Controller = async (req, res) => {
     });
   } catch (error) {
     console.error("Model3 prediction error:", error);
-    return res.status(502).json({
+    const status =
+      typeof error?.status === "number"
+        ? error.status
+        : error?.code === "AI_TIMEOUT"
+          ? 504
+          : 502;
+
+    return res.status(status).json({
       success: false,
       message: error.message || "Model3 prediction failed",
     });

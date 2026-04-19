@@ -415,8 +415,12 @@ const predictModel3 = async ({ file, topK = 5 }) => {
       fileName = fileName.replace(/\.[^.]+$/, ".mp4");
       console.log(`Video converted successfully (${fileBuffer.length} bytes)`);
     } catch (convErr) {
-      console.error("Video conversion failed, sending original:", convErr.message);
-      // Fall through with original file if conversion fails
+      console.error("Video conversion failed:", convErr.message);
+      const err = new Error(
+        "Video preprocessing failed before Model3 predict. Please verify ffmpeg is installed and retry.",
+      );
+      err.status = 422;
+      throw err;
     }
   }
 
