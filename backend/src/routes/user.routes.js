@@ -21,7 +21,9 @@ const {
   getUserStatistics,
   updateUser,
   changeUserRole,
+  resetUserPassword,
 } = require("../controllers/user.controller");
+
 const { authRequired } = require("../middleware/auth.middleware");
 const checkOrgRole = require("../middleware/orgRole.middleware");
 const checkOrgScope = require("../middleware/orgScope.middleware");
@@ -171,6 +173,14 @@ router.put(
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN"]),
   changeUserRole
+);
+
+// PUT /users/:id/reset-password — Admin đặt lại mật khẩu cho học sinh/giáo viên
+router.put(
+  "/:id/reset-password",
+  authRequired,
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
+  resetUserPassword
 );
 
 router.put(

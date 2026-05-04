@@ -1,5 +1,7 @@
 const db = require("../db");
 const services = require("../services/user.services");
+const bcrypt = require("bcrypt");
+
 
 // GET user/profile
 
@@ -369,6 +371,41 @@ async function changeUserRole(req, res) {
   }
 }
 
+// PUT /users/:id/reset-password — Admin đặt lại mật khẩu cho người dùng bất kỳ
+async function resetUserPassword(req, res) {
+  try {
+    const targetId = req.params.id;
+    const { newPassword } = req.body || {};
+
+    if (!newPassword || newPassword.trim().length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu mới phải có ít nhất 6 ký tự" });
+    }
+
+    // Kiểm tra user tồn tại
+    const [rows] = await db.query(
+      "SELECT user_id FROM `user` WHERE user_id = ? AND is_deleted = 0 LIMIT 1",
+      [targetId],
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword.trim(), 10);
+    await db.query(
+      "UPDATE `user` SET password = ?, modified_by = ?, modified_date = NOW() WHERE user_id = ?",
+      [hashed, req.user?.email || "admin", targetId],
+    );
+
+    return res.json({ success: true, message: "Đặt lại mật khẩu thành công" });
+  } catch (err) {
+    console.error("resetUserPassword error:", err);
+    return res.status(500).json({ message: "Lỗi server", error: err.message });
+  }
+}
+
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -391,4 +428,5 @@ module.exports = {
   getUserStatistics,
   updateUser,
   changeUserRole,
+  resetUserPassword,
 };
