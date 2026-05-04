@@ -524,30 +524,66 @@ const submitPracticeExam = async (req, res) => {
         .json({ success: false, message: "No videos uploaded" });
     }
 
-    // vocabularyIds can be sent as a repeated form field  (one per video, in order)
-    // e.g. FormData: vocabularyIds[]=42&vocabularyIds[]=55  OR  vocabularyIds=42,55
+    // vocabularyIds can be sent as a repeated form field (one per video, in order)
+    // Accepted formats:
+    //   FormData: vocabularyIds[]=42&vocabularyIds[]=55
+    //   FormData: vocabularyIds=42,55
+    //   FormData: vocabularyIds=42  (single value, still works)
     let vocabIdList = [];
     if (vocabularyIds) {
       vocabIdList = Array.isArray(vocabularyIds)
-        ? vocabularyIds
-        : String(vocabularyIds).split(",");
+        ? vocabularyIds.map(String)
+        : String(vocabularyIds).split(",").map((v) => v.trim());
     }
+
+    console.log(
+      `[submitPracticeExam] examId=${examId} userId=${userId} files=${req.files.length} vocabIds=[${vocabIdList}]`,
+    );
 
     // Create attempt
     const attempt = await examService.createPracticeAttempt(examId, userId);
 
     const results = [];
+    const skipped = [];
+
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
 
       // Primary: use explicit vocabularyIds field; fallback: parse from filename
-      let vocabularyId = vocabIdList[i] || null;
+      // Filename convention: <prefix>-<prefix>-<prefix>-<vocabularyId>.<ext>
+      let vocabularyId = (vocabIdList[i] && vocabIdList[i] !== "" && vocabIdList[i] !== "null")
+        ? vocabIdList[i]
+        : null;
+
       if (!vocabularyId) {
         const parts = file.originalname.split("-");
         if (parts.length >= 4) {
-          // Remove file extension from last part
-          vocabularyId = parts[3].replace(/\.[^.]+$/, "");
+          const parsed = parts[3].replace(/\.[^.]+$/, "").trim();
+          if (parsed && !isNaN(parseInt(parsed, 10))) {
+            vocabularyId = parsed;
+          }
         }
+      }
+
+      if (!vocabularyId) {
+        console.warn(
+          `[submitPracticeExam] Cannot determine vocabularyId for file[${i}]: "${file.originalname}". Skipping DB save but still uploading.`,
+        );
+        // Still upload to MinIO so the video is not lost, but skip the DB mapping
+        const rawExt = path.extname(file.originalname);
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const filename = uniqueSuffix + rawExt;
+        await minioClient.putObject(
+          bucketName,
+          filename,
+          file.buffer,
+          file.size,
+          { "Content-Type": file.mimetype },
+        );
+        const minioPath = `${process.env.MINIO_PUBLIC_URL || "http://localhost:9000"}/${bucketName}/${filename}`;
+        skipped.push({ index: i, filename: file.originalname, minioPath });
+        results.push(minioPath);
+        continue;
       }
 
       const rawExt = path.extname(file.originalname);
@@ -574,7 +610,22 @@ const submitPracticeExam = async (req, res) => {
       results.push(minioPath);
     }
 
-    res.json({ success: true, videos: results });
+    if (skipped.length > 0) {
+      console.warn(
+        `[submitPracticeExam] ${skipped.length} file(s) uploaded to MinIO but NOT saved to DB due to missing vocabularyId:`,
+        skipped,
+      );
+    }
+
+    res.json({
+      success: true,
+      videos: results,
+      attemptId: attempt.attemptId,
+      ...(skipped.length > 0 && {
+        warning: `${skipped.length} video(s) uploaded but could not be linked to questions (missing vocabularyId). Provide vocabularyIds in the request.`,
+        skipped: skipped.map((s) => s.index),
+      }),
+    });
   } catch (error) {
     console.error("Submit practice error:", error);
     res.status(500).json({ success: false, message: error.message });
