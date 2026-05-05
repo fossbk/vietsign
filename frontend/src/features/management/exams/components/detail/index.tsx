@@ -589,18 +589,28 @@ export function ExamManagementDetail() {
                   className={`p-4 rounded-2xl border transition-all ${isEditing ? "bg-gray-50/50 border-gray-100 relative group" : "bg-white border-gray-100 shadow-sm"}`}
                 >
                   {isEditing ? (
-                    <div className="flex items-center gap-3">
+                    <div className="space-y-2">
+                      {/* Read-only context: topic / vocabulary */}
+                      {(q.topic_name || q.vocabulary_content) && (
+                        <p className="text-xs text-gray-400 px-1">
+                          Chủ đề: <span className="font-medium text-gray-600">{q.topic_name || "—"}</span>
+                          {q.vocabulary_content && (
+                            <> • Từ vựng: <span className="font-medium text-gray-600">{q.vocabulary_content}</span></>
+                          )}
+                        </p>
+                      )}
                       <input
                         placeholder="Nhập nội dung câu hỏi thực hành..."
-                        value={q.content}
+                        value={q.content || q.contentFromExamVocabulary || ""}
                         onChange={(e) => {
                           const list = [...(editForm.practiceQuestions || [])];
-                          list[idx].content = e.target.value;
+                          list[idx] = { ...list[idx], content: e.target.value };
                           setEditForm({ ...editForm, practiceQuestions: list });
                         }}
                         className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                       />
                     </div>
+
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">

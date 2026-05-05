@@ -15,6 +15,18 @@ function normalizeExam(exam: any): any {
     friendlyType = "Thực hành";
   }
 
+  // Normalize practice questions so every item has a stable `content` field
+  // Backend may return: contentFromExamVocabulary | content | vocabulary_content
+  const rawPQ: any[] = exam.practiceQuestions || exam.practice_questions || [];
+  const practiceQuestions = rawPQ.map((pq: any) => ({
+    ...pq,
+    content:
+      pq.content ||
+      pq.contentFromExamVocabulary ||
+      pq.vocabulary_content ||
+      "",
+  }));
+
   return {
     ...exam,
     id: exam.exam_id || exam.id,
@@ -40,6 +52,7 @@ function normalizeExam(exam: any): any {
       exam.isPrivate === true,
     isSubmitted: exam.is_submitted === 1 || exam.isSubmitted === true,
     userScore: exam.user_score !== undefined ? exam.user_score : exam.userScore,
+    practiceQuestions,
   };
 }
 
