@@ -42,8 +42,20 @@ const createExam = async (req, res) => {
 // Get all exams with pagination and filtering
 const getExams = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 1000;
-    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    // Support both page-based and offset-based pagination for mobile compatibility
+    let page;
+    if (req.query.page) {
+      page = parseInt(req.query.page);
+    } else if (req.query.offset !== undefined) {
+      // Convert offset -> page: page = floor(offset / limit) + 1
+      const offset = parseInt(req.query.offset) || 0;
+      page = Math.floor(offset / limit) + 1;
+    } else {
+      page = 1;
+    }
+
     const class_room_id = req.query.class_room_id
       ? parseInt(req.query.class_room_id)
       : null;
@@ -60,12 +72,15 @@ const getExams = async (req, res) => {
       class_room_ids,
     });
 
+    const totalPages = Math.ceil(result.total / limit);
+
     return res.status(200).json({
       success: true,
       data: result.data,
       total: result.total,
-      limit: result.limit,
+      limit,
       page: result.page,
+      totalPages,
       message: "Exams retrieved successfully",
     });
   } catch (error) {
