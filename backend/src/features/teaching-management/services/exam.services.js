@@ -788,19 +788,18 @@ async function submitExam(examId, studentId, answers, _timeSpent) {
 }
 
 async function createPracticeAttempt(examId, studentId) {
-  const connection = await db.getConnection();
+  // Bug fix: simplified - no need for manual connection pool management for single INSERT
   try {
-    const [attemptResult] = await connection.execute(
+    const [result] = await db.execute(
       "INSERT INTO exam_attempt (exam_id, user_id, score, started_at, finished_at) VALUES (?, ?, NULL, NOW(), NOW())",
       [examId, studentId],
     );
-    return { attemptId: attemptResult.insertId };
+    return { attemptId: result.insertId };
   } catch (err) {
     throw { status: 500, message: err.message };
-  } finally {
-    connection.release();
   }
 }
+
 
 async function savePracticeQuestionVideo(
   examId,
@@ -844,14 +843,15 @@ async function getPracticeSubmission(examId, studentId) {
     const [rows] = await db.execute(
       `SELECT 
          q.question_exam_user_id as id,
-         v.content as contentFromVocabulary,
+         COALESCE(vem.content, v.content) as contentFromVocabulary,
          q.minio_path as studentVideoUrl,
          q.ai_answer as aiAnswer,
          q.is_correct as isCorrect,
          q.score as score,
          q.question_id as vocabularyId
        FROM question_exam_user_mapping q
-       JOIN vocabulary v ON v.vocabulary_id = q.question_id
+       LEFT JOIN vocabulary v ON v.vocabulary_id = q.question_id
+       LEFT JOIN vocabulary_exam_mapping vem ON vem.exam_id = q.exam_id AND vem.vocabulary_id = q.question_id
        WHERE q.exam_id = ? AND q.user_id = ?
        ORDER BY q.question_exam_user_id ASC`,
       [examId, studentId],
@@ -862,13 +862,15 @@ async function getPracticeSubmission(examId, studentId) {
   }
 }
 
+
 async function markPracticeExam(examId, userId, score, details) {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
 
+    // Bug fix: get the LATEST attempt (not oldest) when multiple submissions exist
     const [existing] = await connection.execute(
-      "SELECT attempt_id FROM exam_attempt WHERE exam_id = ? AND user_id = ?",
+      "SELECT attempt_id FROM exam_attempt WHERE exam_id = ? AND user_id = ? ORDER BY attempt_id DESC LIMIT 1",
       [examId, userId],
     );
     let attemptId;
@@ -906,10 +908,11 @@ async function markPracticeExam(examId, userId, score, details) {
     }
 
     if (details && details.length > 0) {
+      // Bug fix: query only mappings that belong to the current (latest) attempt
       const [mappings] = await connection.execute(
         `SELECT question_exam_user_id FROM question_exam_user_mapping 
-         WHERE exam_id = ? AND user_id = ? ORDER BY question_exam_user_id ASC`,
-        [examId, userId],
+         WHERE exam_id = ? AND user_id = ? AND attempt_id = ? ORDER BY question_exam_user_id ASC`,
+        [examId, userId, attemptId],
       );
       for (let i = 0; i < Math.min(details.length, mappings.length); i++) {
         if (details[i] && typeof details[i].isCorrect === "boolean") {

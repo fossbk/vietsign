@@ -180,30 +180,44 @@ const QuestionsPractice: React.FC = () => {
       formData.append("examId", String(examId));
       formData.append("userId", String(user.id || user.user_id));
 
+      // Build the list of vocabularyIds in order (parallel with videos)
+      const vocabIds: string[] = [];
+
       videoList.forEach((item, index) => {
         if (item?.file) {
-          const now = new Date();
+          const question = practiceQuestions[index];
+          // vocabularyId can be in different fields depending on API response shape
+          const vocabId =
+            question?.vocabularyId ??
+            question?.vocabulary_id ??
+            question?.vocabulary_exam_id ??
+            "";
 
-          // ISO-like timestamp without symbols: 20250610_062955716Z
+          vocabIds.push(String(vocabId));
+
+          const now = new Date();
           const isoPart = now
             .toISOString()
-            .replace(/[-:.]/g, "") // remove hyphens, colons, and dots
-            .replace("T", "_") // replace 'T' with underscore
-            .replace("Z", "Z"); // keep Z at the end
-
-          // Milliseconds timestamp: 1749536994495
+            .replace(/[-:.]/g, "")
+            .replace("T", "_")
+            .replace("Z", "Z");
           const msPart = now.getTime();
+          const timestamp = `${isoPart}_${msPart}`;
 
-          const timestamp = `${isoPart}_${msPart}`; // full timestamp
-
-          const fileName = `${examId}-${user.id || user.user_id}-${index + 1}-${practiceQuestions[index]?.vocabularyId}-${timestamp}.webm`;
-
+          // Include vocabId in filename as fallback for backend
+          const fileName = `${examId}-${user.id || user.user_id}-${index + 1}-${vocabId || "0"}-${timestamp}.webm`;
           const file = new File([item.file], fileName, {
             type: item.file.type,
           });
           formData.append("videos", file);
         }
       });
+
+      // Bug fix: explicitly send vocabularyIds so backend doesn't rely on filename parsing
+      // Send as comma-separated string (backend handles both array and comma-separated)
+      if (vocabIds.length > 0) {
+        formData.append("vocabularyIds", vocabIds.join(","));
+      }
 
       await submitPracticeExam(formData);
       message.success("Nộp bài thành công!");
@@ -215,6 +229,7 @@ const QuestionsPractice: React.FC = () => {
     setLoading(false);
     setConfirmModal(false);
   };
+
 
   return (
     <Spin spinning={loading}>
