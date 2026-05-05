@@ -436,12 +436,15 @@ export function ExamsManagement() {
         title="Tạo bài kiểm tra mới"
         maxWidth="max-w-3xl"
       >
+        {/* key forces a full remount each time the modal opens → state is always fresh */}
         <CreateExamForm
+          key={String(isModalOpen)}
           onClose={() => setIsModalOpen(false)}
           classes={classes}
           refresh={loadData}
         />
       </Modal>
+
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}
