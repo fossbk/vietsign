@@ -2617,6 +2617,7 @@ const swaggerDocs = {
     get: {
       tags: ["Question Management"],
       summary: "Get question by ID",
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: "question_id",
@@ -2641,6 +2642,7 @@ const swaggerDocs = {
             },
           },
         },
+        401: { description: "Unauthorized" },
         400: { description: "Invalid question ID" },
         404: { description: "Question not found" },
         500: { description: "Internal server error" },
@@ -2816,29 +2818,21 @@ const swaggerDocs = {
         {
           name: "limit",
           in: "query",
-          description: "Number of items per page (default: 20)",
-          schema: { type: "integer", default: 20 },
-        },
-        {
-          name: "page",
-          in: "query",
-          description: "Page number, 1-based (default: 1)",
-          schema: { type: "integer", default: 1 },
+          schema: { type: "integer", default: 10 },
         },
         {
           name: "offset",
           in: "query",
-          description: "Offset-based alternative to page. If provided, page = floor(offset/limit)+1",
           schema: { type: "integer", default: 0 },
         },
-        { name: "class_room_id", in: "query", schema: { type: "integer" }, description: "Filter by single classroom ID" },
-        { name: "class_room_ids", in: "query", schema: { type: "string" }, description: "Filter by multiple classroom IDs (comma-separated, e.g. '1,2,3')" },
-        { name: "studentId", in: "query", schema: { type: "integer" }, description: "If provided, response includes is_submitted and user_score per exam for this student" },
+        { name: "classroom_id", in: "query", schema: { type: "integer" } },
+        { name: "creator_id", in: "query", schema: { type: "integer" } },
         {
           name: "exam_type",
           in: "query",
           schema: { type: "string", enum: ["MULTIPLE_CHOICE", "PRACTICAL"] },
         },
+        { name: "is_active", in: "query", schema: { type: "boolean" } },
       ],
       responses: {
         200: {
@@ -2850,10 +2844,7 @@ const swaggerDocs = {
                 properties: {
                   success: { type: "boolean" },
                   data: { type: "array", items: { type: "object" } },
-                  total: { type: "integer", description: "Total number of exams matching filters" },
-                  page: { type: "integer", description: "Current page number" },
-                  limit: { type: "integer", description: "Items per page" },
-                  totalPages: { type: "integer", description: "Total number of pages" },
+                  total: { type: "integer" },
                   message: { type: "string" },
                 },
               },
@@ -2864,7 +2855,6 @@ const swaggerDocs = {
       },
     },
   },
-
 
   "/teaching-management/exams/statistics": {
     get: {
