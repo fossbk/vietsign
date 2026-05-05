@@ -44,6 +44,9 @@ export function ExamsManagement() {
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Increments each time the modal is opened → forces CreateExamForm to fully remount
+  // (key="true" / key="false" approach reuses the same key, React keeps stale state)
+  const [createFormKey, setCreateFormKey] = useState(0);
 
   // User role from Redux
   const { user } = useSelector((state: RootState) => state.admin);
@@ -296,7 +299,10 @@ export function ExamsManagement() {
           <p className="text-gray-600 mt-1">{getRoleDescription()}</p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setCreateFormKey((k) => k + 1); // new key → fresh form state
+            setIsModalOpen(true);
+          }}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium shadow-sm"
         >
           <Plus size={20} /> Tạo bài kiểm tra
@@ -436,9 +442,9 @@ export function ExamsManagement() {
         title="Tạo bài kiểm tra mới"
         maxWidth="max-w-3xl"
       >
-        {/* key forces a full remount each time the modal opens → state is always fresh */}
+        {/* createFormKey increments each open → React always mounts a fresh form */}
         <CreateExamForm
-          key={String(isModalOpen)}
+          key={createFormKey}
           onClose={() => setIsModalOpen(false)}
           classes={classes}
           refresh={loadData}
