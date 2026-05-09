@@ -191,13 +191,14 @@ async function getExams(filters) {
           "SELECT 1 FROM vocabulary_exam_mapping WHERE exam_id = ? LIMIT 1",
           [exam.exam_id],
         );
+        // Prefer practical type if vocabulary mappings exist
         return {
           ...exam,
           exam_type:
-            qMap.length > 0
-              ? "MULTIPLE_CHOICE"
-              : vMap.length > 0
-                ? "PRACTICAL"
+            vMap.length > 0
+              ? "PRACTICAL"
+              : qMap.length > 0
+                ? "MULTIPLE_CHOICE"
                 : "MULTIPLE_CHOICE",
         };
       }),
@@ -271,10 +272,10 @@ async function getExamById(examId) {
 
     const actualType =
       exam.exam_type ||
-      (qMap.length > 0
-        ? "MULTIPLE_CHOICE"
-        : vMap.length > 0
-          ? "PRACTICAL"
+      (vMap.length > 0
+        ? "PRACTICAL"
+        : qMap.length > 0
+          ? "MULTIPLE_CHOICE"
           : "MULTIPLE_CHOICE");
 
     // Fetch associated content based on type
