@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Copy, CheckCircle, Lock, Mail, User } from "lucide-react";
+import { Lock, Mail, User } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
 import { Button, Form, Input, message } from "antd";
 
 import { useMutation } from "@tanstack/react-query";
 import Loader from "@/shared/components/ui/Loader";
-
-import { supabase } from "@/core/lib/supabaseClient";
 
 export const Register: React.FC = () => {
   const [form] = Form.useForm();
@@ -18,49 +16,21 @@ export const Register: React.FC = () => {
 
   const registerMutation = useMutation({
     mutationFn: async (values: any) => {
-      // 1. Đăng ký với Supabase để gửi email xác thực
-      const { data: supabaseData, error: supabaseError } =
-        await supabase.auth.signUp({
-          email: values.email,
-          password: values.password,
-          options: {
-            data: {
-              full_name: values.name,
-            },
-          },
-        });
-
-      if (supabaseError) {
-        // Nếu lỗi do email đã tồn tại bên Supabase hoặc lỗi khác
-        throw new Error(supabaseError.message);
-      }
-
-      // 2. Gọi backend cũ để lưu thông tin vào MySQL (nếu cần sync)
-      // Lưu ý: Backend có thể trả về 409 nếu email đã tồn tại trong MySQL
+      // Gọi backend để tạo tài khoản trong MySQL
       const backendRes = await Auth.register(values);
-      return { backendRes, supabaseData };
+      return backendRes;
     },
-    onSuccess: async ({ backendRes, supabaseData }) => {
-      if (supabaseData.session) {
-        // Trường hợp đã tắt Email Confirmation hoặc auto-confirm
-        message.success("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
-      } else {
-        // Trường hợp cần xác thực email
-        message.success(
-          "Đăng ký thành công! Vui lòng kiểm tra email (hộp thư đến hoặc Spam) để xác thực tài khoản.",
-        );
-      }
+    onSuccess: () => {
+      message.success("Đăng ký thành công! Bạn có thể đăng nhập ngay.");
       router.push("/login");
     },
-    onError: (error: Error) => {
-      // Xử lý thông báo lỗi thân thiện hơn
-      if (
-        error.message.includes("User already exists") ||
-        error.message.includes("409")
-      ) {
+    onError: (error: any) => {
+      const status = error?.response?.status;
+      const serverMsg = error?.response?.data?.message || error.message;
+      if (status === 409 || serverMsg.includes("User already exists")) {
         message.error("Email này đã được sử dụng. Vui lòng dùng email khác.");
       } else {
-        message.error(error.message);
+        message.error(serverMsg || "Đăng ký thất bại. Vui lòng thử lại.");
       }
     },
   });
