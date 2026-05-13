@@ -394,8 +394,9 @@ export function OrganizationDetail() {
 
       const targetRoleUsers = await fetchUsersByRole(roleToFetch);
 
-      // Filter out users who already manage an organization or belong to one
-      return targetRoleUsers.filter((u) => !u.organizationId);
+      // Chỉ loại bỏ những user ĐÃ thuộc tổ chức này (hiển thị trong tab hiện tại)
+      // Không được loại bỏ theo organizationId vì học sinh/GV tạo qua admin đều có organizationId
+      return targetRoleUsers;
     },
     enabled: isAssignModalOpen && assignMode === "select" && !!organization,
   });
@@ -1631,7 +1632,16 @@ export function OrganizationDetail() {
                 >
                   <option value="">-- Chọn người dùng --</option>
                   {potentialManagers
-                    .filter((u) => !managers.some((m) => m.id === u.id)) // Exclude existing managers
+                    .filter((u) => {
+                      // Loại bỏ user đã có trong tổ chức này theo đúng role đang thêm
+                      const currentList =
+                        targetRole === "STUDENT"
+                          ? students
+                          : targetRole === "TEACHER"
+                            ? teachers
+                            : managers;
+                      return !currentList.some((m) => m.id === u.id);
+                    })
                     .map((user: UserItem) => (
                       <option key={user.id} value={user.id}>
                         {user.name} ({user.email}) - {roleLabels[user.role]}
