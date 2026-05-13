@@ -101,6 +101,7 @@ module.exports = {
   getStudentById,
   updateStudent,
   deleteStudent,
+  deleteUser,
   viewLesson,
   viewVocabulary,
   getStudentLearningProgress,
@@ -171,6 +172,18 @@ async function deleteStudent(req, res) {
     const id = req.params.id;
     const modifiedBy = req.user?.email || "anonymousUser";
     const result = await services.deleteStudent(id, modifiedBy);
+    return res.json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({ message: err.message });
+  }
+}
+
+async function deleteUser(req, res) {
+  try {
+    const id = req.params.id;
+    const modifiedBy = req.user?.email || "anonymousUser";
+    const result = await services.deleteUser(id, modifiedBy);
     return res.json(result);
   } catch (err) {
     const status = err.status || 500;
@@ -420,6 +433,7 @@ module.exports = {
   getStudentById,
   updateStudent,
   deleteStudent,
+  deleteUser,
   viewLesson,
   viewVocabulary,
   getStudentLearningProgress,

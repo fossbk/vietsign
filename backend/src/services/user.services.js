@@ -642,6 +642,46 @@ async function deleteStudent(studentId, modifiedBy) {
   }
 }
 
+async function deleteUser(userId, modifiedBy) {
+  try {
+    const [rows] = await db.query(
+      "SELECT user_id, code FROM `user` WHERE user_id = ? LIMIT 1",
+      [userId],
+    );
+
+    if (rows.length === 0) {
+      const err = new Error("User not found");
+      err.status = 404;
+      throw err;
+    }
+
+    const userCode = rows[0].code;
+
+    if (userCode === "TEACHER") {
+      return await deleteTeacher(userId, modifiedBy);
+    }
+
+    if (userCode === "STUDENT") {
+      return await deleteStudent(userId, modifiedBy);
+    }
+
+    const [result] = await db.query(
+      `UPDATE user SET is_deleted = 1, modified_by = ?, modified_date = NOW() WHERE user_id = ?`,
+      [modifiedBy || "system", userId],
+    );
+
+    if (!result || result.affectedRows === 0) {
+      const err = new Error("User not found");
+      err.status = 404;
+      throw err;
+    }
+
+    return { message: "User deleted successfully" };
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Student learning tracking
 async function viewLesson(studentId, lessonId) {
   try {
@@ -1030,6 +1070,7 @@ module.exports = {
   getStudentById,
   updateStudent,
   deleteStudent,
+  deleteUser,
   viewLesson,
   viewVocabulary,
   getStudentLearningProgress,

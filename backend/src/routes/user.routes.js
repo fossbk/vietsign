@@ -20,6 +20,7 @@ const {
   createUser,
   getUserStatistics,
   updateUser,
+  deleteUser,
   changeUserRole,
   resetUserPassword,
 } = require("../controllers/user.controller");
@@ -167,7 +168,7 @@ router.get("/statistics/:userId", authRequired, getUserStatistics);
 router.get("/vocabulary/recent-view/:userId", authRequired, getUserStatistics);
 router.get("/lesson/recent-view/:userId", authRequired, getUserStatistics);
 
-// Generic GET/PUT user by ID must be at the end to avoid conflicts
+// Generic GET/PUT/DELETE user by ID must be at the end to avoid conflicts
 router.put(
   "/:id/change-role",
   authRequired,
@@ -188,6 +189,14 @@ router.put(
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN"]),
   updateUser
+);
+
+router.delete(
+  "/:id",
+  authRequired,
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
+  checkOrgScope(),
+  deleteUser
 );
 
 router.get("/:id", authRequired, getUserById);
