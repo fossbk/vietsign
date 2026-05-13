@@ -62,6 +62,16 @@ async function createExam(data, userId) {
       throw { status: 500, message: "Error creating exam record: " + err.message };
     }
 
+    // Defensive cleanup in case exam_id was reused or stale mappings exist
+    await connection.execute(
+      "DELETE FROM question_exam_mapping WHERE exam_id = ?",
+      [examId],
+    );
+    await connection.execute(
+      "DELETE FROM vocabulary_exam_mapping WHERE exam_id = ?",
+      [examId],
+    );
+
     // Mapping for Quiz (Multiple Choice Questions)
     const qIds = question_ids || data.questionIds || [];
     if (isQuiz && Array.isArray(qIds)) {
@@ -76,17 +86,22 @@ async function createExam(data, userId) {
     // Mapping for Practice (Vocabulary Questions)
     const pqs = practice_questions || data.practiceQuestions || [];
     if (isPractice && Array.isArray(pqs)) {
+      const missingVocab = pqs.some(
+        (pq) => !pq.vocabularyId && !pq.vocabulary_id,
+      );
+      if (missingVocab) {
+        throw {
+          status: 400,
+          message: "practice_questions must include vocabularyId",
+        };
+      }
+
       for (const pq of pqs) {
-        try {
-          // Supports both vocabularyId and vocabulary_id
-          const vId = pq.vocabularyId || pq.vocabulary_id || null;
-          await connection.execute(
-            "INSERT INTO vocabulary_exam_mapping (exam_id, vocabulary_id, content, created_date) VALUES (?, ?, ?, NOW())",
-            [examId, vId, pq.content || ""],
-          );
-        } catch (err) {
-          console.error("Error inserting practice question mapping:", err);
-        }
+        const vId = pq.vocabularyId || pq.vocabulary_id;
+        await connection.execute(
+          "INSERT INTO vocabulary_exam_mapping (exam_id, vocabulary_id, content, created_date) VALUES (?, ?, ?, NOW())",
+          [examId, vId, pq.content || ""],
+        );
       }
     }
 
@@ -191,13 +206,14 @@ async function getExams(filters) {
           "SELECT 1 FROM vocabulary_exam_mapping WHERE exam_id = ? LIMIT 1",
           [exam.exam_id],
         );
+        // Prefer practical type if vocabulary mappings exist
         return {
           ...exam,
           exam_type:
-            qMap.length > 0
-              ? "MULTIPLE_CHOICE"
-              : vMap.length > 0
-                ? "PRACTICAL"
+            vMap.length > 0
+              ? "PRACTICAL"
+              : qMap.length > 0
+                ? "MULTIPLE_CHOICE"
                 : "MULTIPLE_CHOICE",
         };
       }),
@@ -271,10 +287,10 @@ async function getExamById(examId) {
 
     const actualType =
       exam.exam_type ||
-      (qMap.length > 0
-        ? "MULTIPLE_CHOICE"
-        : vMap.length > 0
-          ? "PRACTICAL"
+      (vMap.length > 0
+        ? "PRACTICAL"
+        : qMap.length > 0
+          ? "MULTIPLE_CHOICE"
           : "MULTIPLE_CHOICE");
 
     // Fetch associated content based on type
