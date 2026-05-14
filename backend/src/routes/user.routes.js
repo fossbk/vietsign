@@ -113,7 +113,6 @@ router.put(
   "/teachers/:id",
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
   updateTeacher,
 );
 
@@ -121,7 +120,6 @@ router.delete(
   "/teachers/:id",
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
   deleteTeacher,
 );
 
@@ -142,7 +140,6 @@ router.put(
   "/students/:id",
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
   updateStudent,
 );
 
@@ -150,7 +147,6 @@ router.delete(
   "/students/:id",
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
   deleteStudent,
 );
 
@@ -195,7 +191,6 @@ router.delete(
   "/:id",
   authRequired,
   checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
   deleteUser
 );
 
