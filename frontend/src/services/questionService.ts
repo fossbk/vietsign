@@ -1,6 +1,7 @@
 import QuestionModel from "@/domain/entities/Question";
 import { QuestionItem } from "@/data/questionsData";
 import { normalizeFileUrl } from "@/services/uploadService";
+import { API_BASE_URL } from "@/core/config/api";
 
 // Helper to normalize question data from API
 function normalizeQuestion(q: any): any {
@@ -23,15 +24,41 @@ function normalizeQuestion(q: any): any {
 /**
  * Chuyển URL (có thể là full URL hoặc relative path) về relative path
  * để lưu vào DB. Tránh lưu full URL gây duplicate khi hiển thị.
+ *
+ * Cũng strip basePath (nếu API_BASE_URL có path prefix như /user-service)
+ * để tránh duplicate khi pathname đã chứa basePath.
  */
 function toRelativePath(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith("/")) return url;
-  try {
-    return new URL(url).pathname;
-  } catch {
-    return `/${url}`;
+
+  // Lấy pathname (bỏ host nếu có)
+  let pathname = url;
+  if (url.startsWith("http")) {
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      pathname = url;
+    }
   }
+  if (!pathname.startsWith("/")) pathname = "/" + pathname;
+
+  // Strip basePath nếu API_BASE_URL có path prefix (vd: /user-service)
+  try {
+    const basePath = new URL(API_BASE_URL).pathname.replace(/\/+$/, "");
+    if (basePath) {
+      while (
+        pathname === basePath ||
+        pathname.toLowerCase().startsWith(basePath.toLowerCase() + "/")
+      ) {
+        pathname = pathname.slice(basePath.length);
+        if (!pathname.startsWith("/")) pathname = "/" + pathname;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return pathname;
 }
 
 

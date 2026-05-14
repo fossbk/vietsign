@@ -2,32 +2,87 @@ import http from "@/core/services/api/http";
 import { API_BASE_URL } from "@/core/config/api";
 
 /**
+ * Tách API_BASE_URL thành origin và basePath
+ * VD: "https://vietsign.ibme.edu.vn/user-service"
+ *  → origin: "https://vietsign.ibme.edu.vn", basePath: "/user-service"
+ */
+function parseApiBase(): { origin: string; basePath: string } {
+  try {
+    const u = new URL(API_BASE_URL);
+    return {
+      origin: u.origin,
+      basePath: u.pathname.replace(/\/+$/, ""), // strip trailing slash
+    };
+  } catch {
+    return { origin: API_BASE_URL.replace(/\/+$/, ""), basePath: "" };
+  }
+}
+
+/**
+ * Strip basePath lặp lại ở đầu pathname
+ * VD: basePath = "/user-service", pathname = "/user-service/user-service/uploads/x.png"
+ *  → "/uploads/x.png"
+ */
+function stripBasePath(pathname: string, basePath: string): string {
+  if (!basePath) return pathname;
+  let result = pathname;
+  // Loop để strip nhiều lần nếu bị duplicate
+  while (
+    result === basePath ||
+    result.toLowerCase().startsWith(basePath.toLowerCase() + "/")
+  ) {
+    result = result.slice(basePath.length);
+    if (!result.startsWith("/")) result = "/" + result;
+  }
+  return result;
+}
+
+/**
  * Chuẩn hóa URL file → luôn trả về full URL trỏ về backend (chỉ dùng khi HIỂN THỊ).
  *
- * Quy tắc:
- * - Nếu là relative path (/uploads/...) → prepend API_BASE_URL
- * - Nếu là absolute URL bất kỳ → extract pathname rồi prepend API_BASE_URL
- *   (tránh trường hợp URL đã có host sai hoặc bị duplicate)
+ * Xử lý các trường hợp:
+ * - Relative path: "/uploads/x.png"
+ * - Absolute URL đúng: "https://vietsign.ibme.edu.vn/user-service/uploads/x.png"
+ * - Absolute URL có duplicate basePath: "https://.../user-service/user-service/uploads/x.png"
+ * - Path có duplicate prefix: "/user-service/uploads/x.png"
+ * - URL ngoài (host khác): trả về nguyên (chỉ clean double slash)
  *
  * KHÔNG gọi hàm này khi lưu vào DB — chỉ gọi khi render <img> hoặc <video>.
  */
 export const normalizeFileUrl = (url: string): string => {
   if (!url) return url;
 
-  // Nếu là relative path (bắt đầu bằng /) → prepend API_BASE_URL trực tiếp
-  if (url.startsWith("/")) {
-    return `${API_BASE_URL}${url}`;
+  const { origin, basePath } = parseApiBase();
+
+  // Nếu là absolute URL với host khác origin của API → giữ nguyên (chỉ clean double slash)
+  if (url.startsWith("http")) {
+    try {
+      const parsed = new URL(url);
+      if (parsed.origin !== origin) {
+        // URL ngoài (vd: wesign.ibme.edu.vn) → giữ nguyên, chỉ clean double slash trong path
+        return url.replace(/([^:])\/\/+/g, "$1/");
+      }
+    } catch {
+      // ignore, xử lý như relative path bên dưới
+    }
   }
 
-  // Nếu là absolute URL → extract pathname để tránh duplicate host
-  try {
-    const parsed = new URL(url);
-    const pathname = parsed.pathname;
-    return `${API_BASE_URL}${pathname}`;
-  } catch {
-    // Không parse được → coi như relative path không có dấu /
-    return `${API_BASE_URL}/${url}`;
+  // Lấy pathname (loại bỏ host nếu có)
+  let pathname = url;
+  if (url.startsWith("http")) {
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      pathname = url;
+    }
   }
+  if (!pathname.startsWith("/")) pathname = "/" + pathname;
+
+  // Strip basePath nếu pathname đã chứa nó (tránh duplicate)
+  pathname = stripBasePath(pathname, basePath);
+
+  // Build URL cuối: origin + basePath + clean pathname
+  return `${origin}${basePath}${pathname}`;
 };
 
 export const uploadFile = async (
