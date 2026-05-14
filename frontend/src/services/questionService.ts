@@ -6,17 +6,37 @@ import { API_BASE_URL } from "@/core/config/api";
 // Helper to normalize question data from API
 function normalizeQuestion(q: any): any {
   if (!q) return null;
+
+  // Map answers từ backend (answerResList) sang format frontend dùng (answers)
+  // Backend trả: { id, content, correct, videoLocation } (correct là 0/1)
+  const rawAnswers = q.answerResList || q.answers || [];
+  const answers = Array.isArray(rawAnswers)
+    ? rawAnswers.map((a: any) => ({
+        id: a.id || a.answer_id,
+        content: a.content || "",
+        correct: Boolean(a.correct ?? a.is_correct),
+        videoLocation: a.videoLocation || a.video_location || "",
+        imageLocation: a.imageLocation || a.image_location || "",
+        fileType:
+          a.fileType ||
+          (a.imageLocation || a.videoLocation ? "NOT_EXISTED" : "TEXT"),
+      }))
+    : [];
+
   return {
     ...q,
     id: q.question_id || q.id,
     content: q.content,
     explanation: q.explanation,
     classId: q.class_room_id || q.classId,
+    questionType: q.question_type || q.questionType || "ONE_ANSWER",
+    fileType: q.file_type || q.fileType || "TEXT",
     image: normalizeFileUrl(q.image_location),
     video: normalizeFileUrl(q.video_location),
     // Giữ lại relative path gốc để dùng khi update (tránh lưu full URL vào DB)
     image_location: q.image_location || null,
     video_location: q.video_location || null,
+    answers,
     createdAt: q.created_date || q.created_at || q.createdAt,
   };
 }
