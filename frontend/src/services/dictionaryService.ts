@@ -10,8 +10,18 @@ function convertApiToDictionaryItem(item: any): DictionaryItem {
 
   const getFullUrl = (path?: string) => {
     if (!path) return undefined;
-    if (path.startsWith("http")) return path;
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+    let url = path;
+
+    // Nếu là absolute URL → dùng thẳng nhưng clean double slash trong path
+    if (url.startsWith("http")) {
+      // Fix double slash trong path (giữ nguyên phần protocol https://)
+      url = url.replace(/([^:])\/\/+/g, "$1/");
+      return url;
+    }
+
+    // Nếu là relative path → prepend baseUrl
+    const cleanPath = url.startsWith("/") ? url : `/${url}`;
     return `${baseUrl}${cleanPath}`;
   };
 

@@ -8,6 +8,16 @@ export interface TopicItem {
   classroomId?: number;
 }
 
+/**
+ * Clean double slash trong URL (giữ nguyên protocol https://)
+ * VD: "https://wesign.ibme.edu.vn/upload/vocabularies//file.mp4"
+ *  → "https://wesign.ibme.edu.vn/upload/vocabularies/file.mp4"
+ */
+function cleanUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  return url.replace(/([^:])\/\/+/g, "$1/");
+}
+
 export async function fetchAllTopics(query: any = {}): Promise<TopicItem[]> {
   try {
     const response = await Topics.getTopics({ limit: 1000, ...query });
@@ -63,8 +73,8 @@ export async function fetchVocabulariesByTopic(
           word: repairVietnameseMojibake(v.word || v.content || ""),
           vocabularyImageResList: v.vocabularyImageResList || [],
           vocabularyVideoResList: v.vocabularyVideoResList || [],
-          imageUrl: v.images_path || v.imageUrl,
-          videoUrl: v.videos_path || v.videoUrl,
+          imageUrl: cleanUrl(v.images_path || v.imageUrl),
+          videoUrl: cleanUrl(v.videos_path || v.videoUrl),
         }))
       : [];
   } catch (error) {
