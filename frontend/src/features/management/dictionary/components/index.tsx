@@ -592,13 +592,14 @@ export function DictionaryManagementComponent() {
                           setIsUploading(true);
                           const { uploadFile } =
                             await import("@/services/uploadService");
+                          // uploadFile trả về relative path — lưu thẳng vào DB
                           const path = await uploadFile(
                             e.target.files[0],
                             "Data_FSL",
                           );
                           setFormData({
                             ...formData,
-                            imageUrl: `${API_BASE_URL}${path}`,
+                            imageUrl: path,
                           });
                         } catch (err) {
                           alert("Lỗi tải ảnh");
@@ -645,13 +646,14 @@ export function DictionaryManagementComponent() {
                           setIsUploading(true);
                           const { uploadFile } =
                             await import("@/services/uploadService");
+                          // uploadFile trả về relative path — lưu thẳng vào DB
                           const path = await uploadFile(
                             e.target.files[0],
                             "Data_FSL",
                           );
                           setFormData({
                             ...formData,
-                            videoUrl: `${API_BASE_URL}${path}`,
+                            videoUrl: path,
                           });
                         } catch (err) {
                           alert("Lỗi tải video");

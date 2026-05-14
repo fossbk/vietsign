@@ -107,9 +107,9 @@ export function DictionaryManagementDetail() {
     try {
       setIsUploading(true);
       const { uploadFile } = await import("@/services/uploadService");
+      // uploadFile trả về relative path (/uploads/...) — lưu thẳng vào DB
       const path = await uploadFile(file, "Data_FSL");
-      const fullPath = `${API_BASE_URL}${path}`;
-      setEditForm((prev) => ({ ...prev, [field]: fullPath }));
+      setEditForm((prev) => ({ ...prev, [field]: path }));
     } catch (err) {
       alert("Tải lên thất bại");
     } finally {

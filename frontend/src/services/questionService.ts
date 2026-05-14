@@ -13,8 +13,25 @@ function normalizeQuestion(q: any): any {
     classId: q.class_room_id || q.classId,
     image: normalizeFileUrl(q.image_location),
     video: normalizeFileUrl(q.video_location),
+    // Giữ lại relative path gốc để dùng khi update (tránh lưu full URL vào DB)
+    image_location: q.image_location || null,
+    video_location: q.video_location || null,
     createdAt: q.created_date || q.created_at || q.createdAt,
   };
+}
+
+/**
+ * Chuyển URL (có thể là full URL hoặc relative path) về relative path
+ * để lưu vào DB. Tránh lưu full URL gây duplicate khi hiển thị.
+ */
+function toRelativePath(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("/")) return url;
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return `/${url}`;
+  }
 }
 
 
@@ -73,8 +90,9 @@ export async function createQuestion(data: any) {
     explanation: data.explanation || "",
     class_room_id:
       data.class_room_id || data.classId || data.classroomId || null,
-    image_location: data.imageLocation || data.image_location || null,
-    video_location: data.videoLocation || data.video_location || null,
+    // Luôn lưu relative path vào DB
+    image_location: toRelativePath(data.imageLocation || data.image_location),
+    video_location: toRelativePath(data.videoLocation || data.video_location),
     question_type: questionType,
     file_type: fileType,
     answers: answers,
@@ -95,8 +113,9 @@ export async function updateQuestion(id: number, data: any) {
     content: data.content,
     explanation: data.explanation,
     class_room_id: data.class_room_id || data.classId || data.classroomId,
-    image_location: data.imageLocation || data.image_location,
-    video_location: data.videoLocation || data.video_location,
+    // Luôn lưu relative path vào DB
+    image_location: toRelativePath(data.imageLocation || data.image_location),
+    video_location: toRelativePath(data.videoLocation || data.video_location),
     question_type: questionType,
     organization_id: data.organization_id || data.organizationId,
     answers: data.answers || data.answerReqs,

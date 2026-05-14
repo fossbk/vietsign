@@ -1012,8 +1012,9 @@ function EditQuestionForm({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      let imageLocation = initialData.image;
-      let videoLocation = initialData.video;
+      // Dùng image_location (relative path gốc từ DB) để tránh lưu full URL
+      let imageLocation = initialData.image_location || null;
+      let videoLocation = initialData.video_location || null;
 
       if (imageFile) {
         imageLocation = await uploadFile(imageFile, "question");
