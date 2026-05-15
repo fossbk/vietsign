@@ -18,15 +18,12 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, PlayCircle, ImageIcon } from "lucide-react";
 import { fetchExamById, submitExam } from "@/services/examService";
-import { API_BASE_URL } from "@/core/config/api"; // Ensure this exists or use relative path if needed
+import { normalizeFileUrl } from "@/services/uploadService";
 
 // Helper to get full media URL
 const getFullUrl = (path?: string) => {
   if (!path) return "";
-  if (path.startsWith("http")) return path;
-  // If API_BASE_URL is defined, use it, otherwise relative
-  const baseUrl = "http://localhost:5000"; // Fallback or imported config
-  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+  return normalizeFileUrl(path);
 };
 
 export default function QuestionsPage() {
