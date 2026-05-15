@@ -204,15 +204,30 @@ export default function TakeExamList() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           {isSubmitted ? (
-                            <button
-                              onClick={() =>
-                                router.push(`/take-exam/${exam.id}?redo=true`)
-                              }
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-medium text-sm shadow-sm"
-                            >
-                              <PlayCircle size={16} />
-                              Làm lại
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              {!isPractical && (
+                                <button
+                                  onClick={() =>
+                                    router.push(
+                                      `/take-exam/${exam.id}?review=true`,
+                                    )
+                                  }
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all font-medium text-sm shadow-sm"
+                                >
+                                  <CheckCircle size={16} />
+                                  Xem kết quả
+                                </button>
+                              )}
+                              <button
+                                onClick={() =>
+                                  router.push(`/take-exam/${exam.id}?redo=true`)
+                                }
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-medium text-sm shadow-sm"
+                              >
+                                <PlayCircle size={16} />
+                                Làm lại
+                              </button>
+                            </div>
                           ) : (
                             <button
                               onClick={() =>

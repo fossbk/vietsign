@@ -35,6 +35,11 @@ export class ExamModel extends Base {
     return res.data;
   };
 
+  getExamReview = async (examId: number, studentId: number) => {
+    const res = await this.apiGet(`/${examId}/review/${studentId}`);
+    return res.data;
+  };
+
   getExamsByClassroom = async (classroomId: number) => {
     const res = await this.apiGet(`/classroom/${classroomId}`);
     return res.data;

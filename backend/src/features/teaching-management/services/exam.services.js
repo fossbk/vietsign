@@ -950,6 +950,114 @@ async function markPracticeExam(examId, userId, score, details) {
   }
 }
 
+/**
+ * Lấy chi tiết bài làm của học sinh cho 1 bài kiểm tra (review mode).
+ * Trả về danh sách câu hỏi + đáp án đúng + đáp án học sinh đã chọn.
+ */
+async function getStudentExamReview(examId, studentId) {
+  try {
+    const normalizedExamId = parseInt(examId);
+    const normalizedStudentId = parseInt(studentId);
+
+    if (!normalizedExamId || !normalizedStudentId) {
+      throw { status: 400, message: "examId and studentId are required" };
+    }
+
+    // Lấy attempt gần nhất
+    const [attempts] = await db.execute(
+      "SELECT attempt_id, score, finished_at FROM exam_attempt WHERE exam_id = ? AND user_id = ? ORDER BY attempt_id DESC LIMIT 1",
+      [normalizedExamId, normalizedStudentId],
+    );
+
+    if (attempts.length === 0) {
+      throw { status: 404, message: "Chưa có bài làm nào cho bài kiểm tra này" };
+    }
+
+    const attempt = attempts[0];
+
+    // Lấy câu trả lời của học sinh cho attempt này
+    const [userAnswers] = await db.execute(
+      `SELECT question_id, selected_answers, is_correct, score
+       FROM question_exam_user_mapping
+       WHERE exam_id = ? AND user_id = ? AND attempt_id = ?`,
+      [normalizedExamId, normalizedStudentId, attempt.attempt_id],
+    );
+
+    // Lấy danh sách câu hỏi của bài thi
+    const [questions] = await db.execute(
+      `SELECT q.question_id, q.content, q.explanation, q.image_location, q.video_location
+       FROM question q
+       JOIN question_exam_mapping qem ON q.question_id = qem.question_id
+       WHERE qem.exam_id = ?`,
+      [normalizedExamId],
+    );
+
+    // Lấy tất cả đáp án cho các câu hỏi
+    const questionIds = questions.map((q) => q.question_id);
+    let allAnswers = [];
+    if (questionIds.length > 0) {
+      const placeholders = questionIds.map(() => "?").join(",");
+      const [answerRows] = await db.execute(
+        `SELECT answer_id, question_id, content, is_correct, video_location
+         FROM answer WHERE question_id IN (${placeholders})`,
+        questionIds,
+      );
+      allAnswers = answerRows;
+    }
+
+    // Build response
+    const reviewData = questions.map((q) => {
+      const answers = allAnswers
+        .filter((a) => a.question_id === q.question_id)
+        .map((a) => ({
+          answerId: a.answer_id,
+          content: a.content,
+          correct: bitToBoolean(a.is_correct),
+          videoLocation: a.video_location,
+        }));
+
+      // Tìm câu trả lời của học sinh
+      const userAnswer = userAnswers.find((ua) => ua.question_id === q.question_id);
+      let selectedAnswerIds = [];
+      if (userAnswer && userAnswer.selected_answers) {
+        try {
+          const raw = userAnswer.selected_answers;
+          // selected_answers được lưu dưới dạng JSON Buffer
+          const str = Buffer.isBuffer(raw) ? raw.toString("utf8") : String(raw);
+          selectedAnswerIds = JSON.parse(str);
+        } catch (e) {
+          selectedAnswerIds = [];
+        }
+      }
+
+      return {
+        questionId: q.question_id,
+        content: q.content,
+        explanation: q.explanation,
+        imageLocation: q.image_location,
+        videoLocation: q.video_location,
+        answerResList: answers,
+        selectedAnswerIds,
+        isCorrect: userAnswer ? bitToBoolean(userAnswer.is_correct) : false,
+        questionScore: userAnswer ? userAnswer.score : 0,
+      };
+    });
+
+    return {
+      examId: normalizedExamId,
+      studentId: normalizedStudentId,
+      attemptId: attempt.attempt_id,
+      score: attempt.score,
+      finishedAt: attempt.finished_at,
+      totalQuestions: questions.length,
+      correctCount: reviewData.filter((r) => r.isCorrect).length,
+      questions: reviewData,
+    };
+  } catch (err) {
+    throw { status: err.status || 500, message: err.message };
+  }
+}
+
 module.exports = {
   createExam,
   getExams,
@@ -963,6 +1071,7 @@ module.exports = {
   getExamResults,
   getExamStatistics,
   getStudentExamAttempts,
+  getStudentExamReview,
   createPracticeAttempt,
   savePracticeQuestionVideo,
   getPracticeSubmission,

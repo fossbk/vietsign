@@ -691,6 +691,24 @@ const getAllPracticalSubmissions = async (req, res) => {
   }
 };
 
+// GET /:exam_id/review/:student_id - Xem chi tiết bài làm
+const getStudentExamReview = async (req, res) => {
+  try {
+    const examId = parseInt(req.params.exam_id);
+    const studentId = parseInt(req.params.student_id);
+
+    if (!examId || !studentId) {
+      return res.status(400).json({ error: "examId and studentId are required" });
+    }
+
+    const result = await examService.getStudentExamReview(examId, studentId);
+    return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    const status = error.status || 500;
+    return res.status(status).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createExam,
   getExams,
@@ -706,6 +724,7 @@ module.exports = {
   getExamResults,
   getExamStatistics,
   getStudentExamAttempts,
+  getStudentExamReview,
   submitPracticeExam,
   getPracticeSubmission,
   markPracticeExam,

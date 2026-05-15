@@ -179,3 +179,16 @@ export async function fetchAllPracticalSubmissions() {
 export async function markPracticeSubmission(data: any) {
   return await ExamModel.markPracticeExam(data);
 }
+
+/**
+ * Lấy chi tiết bài làm của học sinh (review mode)
+ */
+export async function fetchExamReview(examId: number, studentId: number) {
+  try {
+    const response = await ExamModel.getExamReview(examId, studentId);
+    return response.data || response;
+  } catch (error) {
+    console.error("Error fetching exam review:", error);
+    throw error;
+  }
+}

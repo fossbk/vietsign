@@ -57,6 +57,43 @@ export default function QuestionsPage() {
     }
   }, []);
 
+  // Fetch review data if in review mode
+  const { data: reviewData } = useQuery({
+    queryKey: ["examReview", id, user?.id || user?.user_id],
+    queryFn: async () => {
+      const { fetchExamReview } = await import("@/services/examService");
+      return await fetchExamReview(Number(id), user?.id || user?.user_id);
+    },
+    enabled: isReview && !!id && !!user,
+  });
+
+  // Pre-populate answers from review data
+  useEffect(() => {
+    if (isReview && reviewData?.questions) {
+      const savedAnswers: { [index: number]: any } = {};
+      const examQuestions = (detailExam as any)?.questionsList || [];
+
+      reviewData.questions.forEach((rq: any) => {
+        const idx = examQuestions.findIndex(
+          (q: any) => q.questionId === rq.questionId,
+        );
+        if (idx >= 0 && rq.selectedAnswerIds?.length > 0) {
+          // If single answer question, store as single value; otherwise array
+          savedAnswers[idx] =
+            rq.selectedAnswerIds.length === 1
+              ? rq.selectedAnswerIds[0]
+              : rq.selectedAnswerIds;
+        }
+      });
+      setAllAnswers(savedAnswers);
+      setShowResults(true);
+      setSubmitted(true);
+      if (reviewData.score !== undefined) {
+        setExamScore(reviewData.score);
+      }
+    }
+  }, [isReview, reviewData, detailExam]);
+
   const {
     data: detailExam,
     isLoading,
