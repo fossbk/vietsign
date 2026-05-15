@@ -67,7 +67,20 @@ export default function QuestionsPage() {
     enabled: isReview && !!id && !!user,
   });
 
-  // Pre-populate answers from review data
+  const {
+    data: detailExam,
+    isLoading,
+    refetch: refetchExam,
+  } = useQuery({
+    queryKey: ["getExamDetail", id],
+    queryFn: async () => {
+      if (!id) return null;
+      return await fetchExamById(Number(id));
+    },
+    enabled: !!id,
+  });
+
+  // Pre-populate answers from review data (must be after detailExam is declared)
   useEffect(() => {
     if (isReview && reviewData?.questions) {
       const savedAnswers: { [index: number]: any } = {};
@@ -78,7 +91,6 @@ export default function QuestionsPage() {
           (q: any) => q.questionId === rq.questionId,
         );
         if (idx >= 0 && rq.selectedAnswerIds?.length > 0) {
-          // If single answer question, store as single value; otherwise array
           savedAnswers[idx] =
             rq.selectedAnswerIds.length === 1
               ? rq.selectedAnswerIds[0]
@@ -93,19 +105,6 @@ export default function QuestionsPage() {
       }
     }
   }, [isReview, reviewData, detailExam]);
-
-  const {
-    data: detailExam,
-    isLoading,
-    refetch: refetchExam,
-  } = useQuery({
-    queryKey: ["getExamDetail", id],
-    queryFn: async () => {
-      if (!id) return null;
-      return await fetchExamById(Number(id));
-    },
-    enabled: !!id,
-  });
 
   // Questions are embedded in the exam detail in our updated backend logic
   // Use 'any' type to avoid TS errors on dynamic field 'questionsList'
