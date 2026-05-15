@@ -12,7 +12,13 @@ async function getProfile(req, res) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const [rows] = await db.query(
-      "SELECT user_id, name, email, phone_number, code, is_deleted, is_oauth2, created_by, created_date, modified_by, modified_date FROM `user` WHERE user_id = ? LIMIT 1",
+      `SELECT u.user_id, u.name, u.email, u.phone_number, u.code, u.is_deleted, 
+              u.is_oauth2, u.created_by, u.created_date, u.modified_by, u.modified_date,
+              om.organization_id, o.name as organization_name
+       FROM \`user\` u
+       LEFT JOIN organization_manager om ON u.user_id = om.user_id AND om.is_primary = 1
+       LEFT JOIN organization o ON om.organization_id = o.organization_id
+       WHERE u.user_id = ? LIMIT 1`,
       [userId],
     );
 
@@ -20,7 +26,19 @@ async function getProfile(req, res) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const user = rows[0];
+    let user = rows[0];
+
+    // Nếu không có primary org, lấy org đầu tiên (fallback)
+    if (!user.organization_id) {
+      const [orgRows] = await db.query(
+        `SELECT organization_id, role_in_org FROM organization_manager WHERE user_id = ? ORDER BY id ASC LIMIT 1`,
+        [userId],
+      );
+      if (orgRows.length > 0) {
+        user.organization_id = orgRows[0].organization_id;
+      }
+    }
+
     return res.json({ user });
   } catch (error) {
     console.error("Error fetching user profile:", error);

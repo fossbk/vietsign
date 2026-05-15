@@ -37,6 +37,8 @@ const Login: React.FC = () => {
         // Map role code từ backend sang frontend role format
         const userData = {
           ...userProfile.user,
+          id: userProfile.user.user_id, // Alias for convenience
+          organizationId: userProfile.user.organization_id, // Normalize to camelCase
           role: mapRoleCode(userProfile.user.code || "USER"),
         };
 
