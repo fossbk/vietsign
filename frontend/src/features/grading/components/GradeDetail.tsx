@@ -36,7 +36,9 @@ const GradeDetail: React.FC = () => {
   const getFullUrl = (url: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
-    return `http://localhost:5000${url.startsWith("/") ? "" : "/"}${url}`;
+    // Use dynamic import to avoid circular deps
+    const { normalizeFileUrl } = require("@/services/uploadService");
+    return normalizeFileUrl(url);
   };
 
   useEffect(() => {

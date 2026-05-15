@@ -235,7 +235,9 @@ async function getExams(filters) {
  */
 async function getAllPracticalSubmissions(filters = {}) {
   try {
-    const { teacherId } = filters;
+    const { teacherId, status } = filters;
+
+    // Lấy tất cả submissions (cả thực hành và trắc nghiệm)
     let query = `
       SELECT 
         ea.attempt_id,
@@ -246,19 +248,35 @@ async function getAllPracticalSubmissions(filters = {}) {
         cr.content as classRoomName,
         ea.score,
         ea.started_at,
-        ea.finished_at
+        ea.finished_at,
+        CASE 
+          WHEN EXISTS (SELECT 1 FROM vocabulary_exam_mapping vem WHERE vem.exam_id = e.exam_id) THEN 'PRACTICAL'
+          ELSE 'MULTIPLE_CHOICE'
+        END as exam_type,
+        CASE 
+          WHEN ea.score IS NOT NULL THEN 1
+          ELSE 0
+        END as is_graded
       FROM exam_attempt ea
       JOIN exam e ON ea.exam_id = e.exam_id
       JOIN user u ON ea.user_id = u.user_id
       LEFT JOIN class_room cr ON e.class_room_id = cr.class_room_id
-      WHERE EXISTS (SELECT 1 FROM vocabulary_exam_mapping vem WHERE vem.exam_id = e.exam_id)
-      AND ea.score IS NULL
+      WHERE 1=1
     `;
-    // If teacherId is provided, should we filter by classroom?
-    // For now list all pending practical submissions
+
+    const params = [];
+
+    // Filter by status
+    if (status === "graded") {
+      query += " AND ea.score IS NOT NULL";
+    } else if (status === "pending") {
+      query += " AND ea.score IS NULL";
+    }
+    // Default (no status filter): return all
+
     query += " ORDER BY ea.started_at DESC";
 
-    const [rows] = await db.execute(query);
+    const [rows] = await db.execute(query, params);
     return rows;
   } catch (err) {
     throw { status: 500, message: err.message };
