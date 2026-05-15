@@ -66,11 +66,11 @@ router.get(
   getClassroomStudents,
 );
 
-// Remove student from classroom (admin)
+// Remove student from classroom (admin or teacher of the classroom)
 router.delete(
   "/:classroomId/students",
   authRequired,
-  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN", "TEACHER"]),
   removeStudentFromClassroom,
 );
 

@@ -64,6 +64,45 @@ const orgScopeMiddleware = (allowRoles = []) => {
 
       console.log(`📋 [checkOrgRole] userRoles found:`, userRoles);
 
+      // 1b. Bypass for TEACHER who owns the classroom
+      // Khi TEACHER thao tác trên classroom họ phụ trách (vd: xóa student khỏi lớp),
+      // họ có thể chưa có entry trong organization_manager. Cho phép bypass nếu họ
+      // là teacher_id của class_room đó và 'TEACHER' nằm trong allowRoles.
+      if (allowRoles.includes("TEACHER")) {
+        const classroomId =
+          req.params?.classroomId ||
+          req.body?.classroomId ||
+          req.body?.class_room_id;
+
+        if (classroomId) {
+          const [classRows] = await db.query(
+            "SELECT teacher_id, organization_id FROM class_room WHERE class_room_id = ? LIMIT 1",
+            [classroomId],
+          );
+          if (
+            classRows.length > 0 &&
+            Number(classRows[0].teacher_id) === Number(userId)
+          ) {
+            console.log(
+              `📋 [checkOrgRole] TEACHER ${userId} owns classroom ${classroomId} → bypass`,
+            );
+            req.orgRole = "TEACHER";
+            req.organization_id = classRows[0].organization_id || null;
+            return next();
+          }
+        }
+
+        // Bypass nếu user có role TEACHER trong user.code (legacy data)
+        if (userCode === "TEACHER") {
+          console.log(
+            `📋 [checkOrgRole] User ${userId} has TEACHER code → bypass`,
+          );
+          req.orgRole = "TEACHER";
+          req.organization_id = null;
+          return next();
+        }
+      }
+
       // 2. If SUPER_ADMIN anywhere, allow global access (bypass orgId requirement if missing)
       const isSuperAdmin = userRoles.some(
         (r) => r.role_in_org === "SUPER_ADMIN",
