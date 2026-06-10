@@ -1,5 +1,80 @@
 const db = require("../db");
 
+const VALID_ROLE_CODES = new Set([
+  "SUPER_ADMIN",
+  "ADMIN",
+  "CENTER_ADMIN",
+  "SCHOOL_ADMIN",
+  "FACILITY_MANAGER",
+  "TEACHER",
+  "STUDENT",
+  "PARENT",
+  "USER",
+  "TESTER",
+]);
+
+const toNullableGrade = (value) => {
+  if (value === undefined || value === null || value === "") return null;
+  const grade = Number(value);
+  if (!Number.isInteger(grade) || grade < 1 || grade > 5) {
+    const err = new Error("Grade must be an integer from 1 to 5");
+    err.status = 400;
+    throw err;
+  }
+  return grade;
+};
+
+const ensureRoleExists = async (roleCode) => {
+  if (!VALID_ROLE_CODES.has(roleCode)) {
+    const err = new Error("Invalid role");
+    err.status = 400;
+    throw err;
+  }
+
+  if (roleCode === "PARENT") {
+    await db.query(
+      `INSERT IGNORE INTO role (code, description, name)
+       VALUES ('PARENT', 'Phu huynh hoc sinh', 'Phu huynh')`,
+    );
+  }
+};
+
+const getClassroomForTeacher = async (classroomId, teacherId) => {
+  if (!classroomId) return null;
+
+  const [rows] = await db.query(
+    `
+      SELECT c.class_room_id, c.organization_id
+      FROM class_room c
+      LEFT JOIN class_teacher ct ON c.class_room_id = ct.class_room_id
+      WHERE c.class_room_id = ?
+        AND (? IS NULL OR ct.user_id = ? OR c.created_by = ?)
+      LIMIT 1
+    `,
+    [classroomId, teacherId || null, teacherId || null, String(teacherId || "")],
+  );
+
+  return rows[0] || null;
+};
+
+const normalizeStudentPayload = (payload) => {
+  const source = payload || {};
+  return {
+    name: source.name || source.fullName || source.full_name,
+    email: source.email,
+    phoneNumber: source.phoneNumber || source.phone_number || source.phone,
+    password: source.password,
+    birthDay: source.birthDay || source.birth_day,
+    address: source.address,
+    grade: source.grade || source.classGrade || source.class_grade,
+    organizationId:
+      source.organization_id || source.organizationId || source.schoolId || null,
+    classRoomName: source.classRoomName || source.class_room_name,
+    schoolName: source.schoolName,
+    classroomId: source.classroomId || source.class_room_id || null,
+  };
+};
+
 /**
  * Service layer for teacher management.
  * Functions throw Error with optional `status` property for HTTP handling.
@@ -331,9 +406,12 @@ async function deleteTeacher(teacherId, modifiedBy) {
 }
 
 // Student CRUD operations
-async function createStudent(payload, createdBy) {
+async function createStudent(payload, createdBy, options = {}) {
   console.log("DEBUG createStudent Payload:", payload);
   try {
+    await ensureRoleExists("STUDENT");
+
+    const normalized = normalizeStudentPayload(payload);
     const {
       name,
       birthDay,
@@ -343,21 +421,42 @@ async function createStudent(payload, createdBy) {
       email,
       phoneNumber,
       password: _password,
-      organization_id,
       organizationId,
-      schoolId: _schoolId,
-    } = payload || {};
+      grade,
+      classroomId,
+    } = normalized;
 
-    let schoolId = organization_id || organizationId || _schoolId;
-    let classRoomId = undefined;
+    let schoolId = organizationId;
+    let classRoomId = classroomId;
 
     // find classroom id if provided
     if (classRoomName) {
       const [rows] = await db.query(
-        "SELECT classroom_id FROM class_room WHERE name = ? LIMIT 1",
+        "SELECT class_room_id, organization_id FROM class_room WHERE content = ? LIMIT 1",
         [classRoomName],
       );
-      if (rows.length > 0) classRoomId = rows[0].classroom_id;
+      if (rows.length > 0) {
+        classRoomId = rows[0].class_room_id;
+        schoolId = schoolId || rows[0].organization_id;
+      }
+    }
+
+    if (classRoomId) {
+      const classInfo =
+        options.actorRole === "TEACHER"
+          ? await getClassroomForTeacher(classRoomId, options.actorUserId)
+          : await getClassroomForTeacher(classRoomId, null);
+
+      if (!classInfo) {
+        const err = new Error("Teacher does not manage this classroom");
+        err.status = 403;
+        throw err;
+      }
+      schoolId = schoolId || classInfo.organization_id;
+    } else if (options.actorRole === "TEACHER") {
+      const err = new Error("Teacher-created students must be assigned to a classroom");
+      err.status = 400;
+      throw err;
     }
 
     // find school id if provided (override if found by name)
@@ -372,6 +471,7 @@ async function createStudent(payload, createdBy) {
     const password = _password || phoneNumber || "123456";
     const code = "STUDENT";
     const isDeleted = 0;
+    const finalGrade = toNullableGrade(grade);
 
     if (!name || !email) {
       const err = new Error("Missing required fields: name, email");
@@ -392,8 +492,8 @@ async function createStudent(payload, createdBy) {
 
     // insert into primary `user` table (Removed organization_id)
     const [result] = await db.query(
-      `INSERT INTO \`user\` (name, birth_day, address, email, password, code, is_deleted, phone_number, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO \`user\` (name, birth_day, address, email, password, code, grade, is_deleted, phone_number, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         birthDay || null,
@@ -401,6 +501,7 @@ async function createStudent(payload, createdBy) {
         email,
         password,
         code,
+        finalGrade,
         isDeleted,
         phoneNumber || null,
         createdBy || "system",
@@ -581,6 +682,10 @@ async function updateStudent(studentId, body, modifiedBy) {
     setIf("birth_day", "birth_day");
     setIf("address", "address");
     setIf("avatar_location", "avatar_location");
+    if (has("grade")) {
+      updates.push("grade = ?");
+      values.push(toNullableGrade(raw.grade));
+    }
     // Handle organization update for student too
     if (has("organization_id")) {
       const newOrgId = raw.organization_id;
@@ -900,11 +1005,11 @@ async function createUser(payload, createdBy) {
       organization_id,
       organizationId, // camelCase from frontend
       role, // fallback if code not sent
+      grade,
     } = payload || {};
 
     let userCode = code || role || "USER";
-    if (userCode === "FACILITY_MANAGER") userCode = "FACILITY_MANAGER";
-    if (userCode === "ADMIN") userCode = "ADMIN";
+    await ensureRoleExists(userCode);
 
     // Map Organization ID (support all naming conventions)
     const finalSchoolId = schoolId || organization_id || organizationId || null;
@@ -927,11 +1032,12 @@ async function createUser(payload, createdBy) {
     }
 
     const startPassword = password || "123456";
+    const finalGrade = userCode === "STUDENT" ? toNullableGrade(grade) : null;
 
     // insert into primary `user` table (Removed organization_id)
     const [result] = await db.query(
-      `INSERT INTO \`user\` (name, birth_day, address, email, password, code, is_deleted, phone_number, created_by, created_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      `INSERT INTO \`user\` (name, birth_day, address, email, password, code, grade, is_deleted, phone_number, created_by, created_date)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         name,
         birthDay || null,
@@ -939,6 +1045,7 @@ async function createUser(payload, createdBy) {
         email,
         startPassword,
         userCode,
+        finalGrade,
         0, // is_deleted
         phoneNumber || null,
         createdBy || "system",
@@ -984,6 +1091,10 @@ async function updateUser(userId, body, modifiedBy) {
     setIf("address", "address");
     setIf("avatar_location", "avatar_location");
     setIf("status", "status");
+    if (has("grade")) {
+      updates.push("grade = ?");
+      values.push(toNullableGrade(raw.grade));
+    }
 
     if (has("organization_id")) {
       const newOrgId = raw.organization_id;
@@ -1008,6 +1119,7 @@ async function updateUser(userId, body, modifiedBy) {
 
     setIf("code", "code");
     if (has("role")) {
+      await ensureRoleExists(raw.role);
       updates.push("code = ?");
       values.push(raw.role);
     }
@@ -1041,6 +1153,7 @@ async function updateUser(userId, body, modifiedBy) {
 
 async function changeUserRole(userId, roleCode, modifiedBy) {
   try {
+    await ensureRoleExists(roleCode);
     const [user] = await db.query("SELECT * FROM user WHERE user_id = ?", [userId]);
     if (user.length === 0) {
       throw { status: 404, message: "User not found" };
@@ -1057,6 +1170,52 @@ async function changeUserRole(userId, roleCode, modifiedBy) {
   } catch (error) {
     throw error;
   }
+}
+
+async function bulkCreateStudents(rows, createdBy, options = {}) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    const err = new Error("Students must be a non-empty array");
+    err.status = 400;
+    throw err;
+  }
+
+  const maxRows = 500;
+  if (rows.length > maxRows) {
+    const err = new Error(`Cannot import more than ${maxRows} students at once`);
+    err.status = 400;
+    throw err;
+  }
+
+  const results = [];
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index] || {};
+    try {
+      const created = await createStudent(row, createdBy, options);
+      results.push({
+        row: index + 1,
+        success: true,
+        userId: created.userId,
+        email: row.email || null,
+        message: created.message,
+      });
+    } catch (error) {
+      results.push({
+        row: index + 1,
+        success: false,
+        email: row.email || null,
+        message: error.message || "Could not create student",
+        status: error.status || 500,
+      });
+    }
+  }
+
+  const successCount = results.filter((r) => r.success).length;
+  return {
+    total: rows.length,
+    successCount,
+    failureCount: rows.length - successCount,
+    results,
+  };
 }
 
 module.exports = {
@@ -1079,4 +1238,5 @@ module.exports = {
   createUser,
   updateUser,
   changeUserRole,
+  bulkCreateStudents,
 };

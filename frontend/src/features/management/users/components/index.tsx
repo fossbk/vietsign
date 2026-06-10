@@ -46,6 +46,7 @@ export function UsersManagement() {
     phoneNumber: "",
     role: "USER",
     organizationId: "",
+    grade: "",
   });
 
   // State xử lý autocomplete Organization (Sở & Trường)
@@ -229,6 +230,7 @@ export function UsersManagement() {
         phoneNumber: "",
         role: "USER",
         organizationId: "",
+        grade: "",
       });
       // Reset custom inputs
       setDeptInput("");
@@ -296,6 +298,7 @@ export function UsersManagement() {
               <option value="SCHOOL_ADMIN">Quản lý Trường học</option>
               <option value="TEACHER">Giáo viên</option>
               <option value="STUDENT">Học sinh</option>
+              <option value="PARENT">Phu huynh</option>
               <option value="USER">Người dùng</option>
             </select>
           </div>
@@ -531,6 +534,27 @@ export function UsersManagement() {
                   ))}
               </select>
             </div>
+            {formData.role === "STUDENT" && (
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-gray-700">
+                  Khoi lop <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="grade"
+                  value={formData.grade}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white"
+                  required
+                >
+                  <option value="">Chon khoi lop</option>
+                  {[1, 2, 3, 4, 5].map((grade) => (
+                    <option key={grade} value={grade}>
+                      Khoi {grade}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {/* Container có margin bottom lớn khi mở dropdown để không bị che */}
             {/* Logic hiển thị Organization Input dựa trên Role */}
             {formData.role !== "ADMIN" && formData.role !== "USER" && (

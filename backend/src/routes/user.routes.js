@@ -23,6 +23,7 @@ const {
   deleteUser,
   changeUserRole,
   resetUserPassword,
+  bulkCreateStudents,
 } = require("../controllers/user.controller");
 
 const { authRequired } = require("../middleware/auth.middleware");
@@ -37,7 +38,7 @@ router.get("/", authRequired, getUsers);
 router.post(
   "/",
   authRequired,
-  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN"]),
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
   createUser,
 );
 
@@ -129,9 +130,15 @@ router.get("/students", authRequired, getStudents);
 router.post(
   "/students",
   authRequired,
-  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN"]),
-  checkOrgScope(),
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN", "TEACHER"]),
   createStudent,
+);
+
+router.post(
+  "/students/bulk",
+  authRequired,
+  checkOrgRole(["SUPER_ADMIN", "CENTER_ADMIN", "SCHOOL_ADMIN", "TEACHER"]),
+  bulkCreateStudents,
 );
 
 router.get("/students/:id", authRequired, getStudentById);

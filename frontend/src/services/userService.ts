@@ -31,6 +31,7 @@ function convertApiUserToUserItem(apiUser: any): UserItem {
         : apiUser.status === "inactive",
     avatar: apiUser.avatar_location || apiUser.avatar_url,
     phone: apiUser.phone_number,
+    grade: apiUser.grade,
     createdAt: apiUser.created_date
       ? new Date(apiUser.created_date).toLocaleDateString("vi-VN")
       : new Date().toLocaleDateString("vi-VN"),
@@ -205,10 +206,12 @@ export async function createUser(data: any): Promise<any> {
       name: data.name,
       email: data.email,
       password: data.password, // Add password
-      phoneNumber: data.phone, // Map phone -> phoneNumber
+      phoneNumber: data.phone ?? data.phoneNumber, // Map phone -> phoneNumber
       birthDay: data.birthDay,
       address: data.address,
       classRoomName: data.className,
+      classroomId: data.classroomId,
+      grade: data.grade,
       schoolName: data.schoolName || data.facilityName,
       organization_id: data.organizationId, // Map to organization_id (underscore for BE)
       code: data.role || data.code, // Pass role code for generic user creation
@@ -231,6 +234,26 @@ export async function createUser(data: any): Promise<any> {
     return res;
   } catch (error) {
     console.error("API create user failed", error);
+    throw error;
+  }
+}
+
+export async function bulkCreateStudents(students: any[]): Promise<any> {
+  try {
+    const payload = students.map((student) => ({
+      name: student.name,
+      email: student.email,
+      password: student.password,
+      phoneNumber: student.phone ?? student.phoneNumber,
+      birthDay: student.birthDay,
+      address: student.address,
+      grade: student.grade,
+      organization_id: student.organizationId,
+      classroomId: student.classroomId,
+    }));
+    return await UserModel.bulkCreateStudents(payload);
+  } catch (error) {
+    console.error("API bulk create students failed", error);
     throw error;
   }
 }

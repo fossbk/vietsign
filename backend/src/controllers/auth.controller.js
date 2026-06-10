@@ -11,7 +11,8 @@ function signToken(payload){
 // POST /auth/register
  async function register(req, res) {
     try {
-        const {name , email, password, phone_number, code} = req.body;
+        const {name , email, password, phone_number, code, grade} = req.body;
+        const roleCode = code || "STUDENT";
         //1. Validate input
         if(!name || !email || !password){
             return res.status(400).json({message: "Name, email, and password are required"});
@@ -28,9 +29,16 @@ function signToken(payload){
 
 
         //4. Insert new user into database
+        if (roleCode === "STUDENT") {
+            const numericGrade = Number(grade);
+            if (!Number.isInteger(numericGrade) || numericGrade < 1 || numericGrade > 5) {
+                return res.status(400).json({ message: "Grade must be an integer from 1 to 5" });
+            }
+        }
+
         const [result] = await pool.query(
-            'INSERT INTO `user` (name, email, password, phone_number, code, is_deleted, is_oauth2, created_by) VALUES (?, ?, ?, ?, ?, 0, 0, ?)',
-            [name, email, password, phone_number || null, code ||'USER', 'anonymousUser']
+            'INSERT INTO `user` (name, email, password, phone_number, code, grade, is_deleted, is_oauth2, created_by) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)',
+            [name, email, password, phone_number || null, roleCode, roleCode === "STUDENT" ? Number(grade) : null, 'anonymousUser']
         )
 
         return res.status(201).json({message: "User registered successfully ", userId: result.insertId});

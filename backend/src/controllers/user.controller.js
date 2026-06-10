@@ -132,8 +132,26 @@ async function createStudent(req, res) {
   try {
     const payload = req.body || {};
     const createdBy = req.user?.email || "anonymousUser";
-    const result = await services.createStudent(payload, createdBy);
+    const result = await services.createStudent(payload, createdBy, {
+      actorUserId: req.user?.user_id,
+      actorRole: req.orgRole || req.user?.code,
+    });
     return res.status(201).json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    return res.status(status).json({ message: err.message });
+  }
+}
+
+async function bulkCreateStudents(req, res) {
+  try {
+    const { students } = req.body || {};
+    const createdBy = req.user?.email || "anonymousUser";
+    const result = await services.bulkCreateStudents(students, createdBy, {
+      actorUserId: req.user?.user_id,
+      actorRole: req.orgRole || req.user?.code,
+    });
+    return res.status(200).json(result);
   } catch (err) {
     const status = err.status || 500;
     return res.status(status).json({ message: err.message });
@@ -442,6 +460,7 @@ module.exports = {
   updateProfile,
   createUser,
   createTeacher,
+  bulkCreateStudents,
   getTeachers,
   getTeacherById,
   updateTeacher,

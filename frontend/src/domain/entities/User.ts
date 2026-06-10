@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   phone_number?: string;
+  grade?: number;
   code?: string; // role code from backend (ADMIN, STUDENT, TEACHER, etc.)
   role?: UserRole;
   label?: string;
@@ -19,7 +20,7 @@ export interface User {
 }
 
 export interface UserRole {
-  role: "Admin" | "FacilityManager" | "Teacher" | "Student" | "User";
+  role: "Admin" | "FacilityManager" | "Teacher" | "Student" | "Parent" | "User";
   label: string;
 }
 
@@ -30,6 +31,7 @@ export const mapRoleCode = (code: string): UserRole => {
     FACILITY_MANAGER: { role: "FacilityManager", label: "Quản lý cơ sở" },
     TEACHER: { role: "Teacher", label: "Giáo viên" },
     STUDENT: { role: "Student", label: "Học sinh" },
+    PARENT: { role: "Parent", label: "Phu huynh" },
     USER: { role: "User", label: "Người dùng" },
     TEST: { role: "Admin", label: "Tài khoản Test (Full Access)" }, // Map to Admin role type for compatibility, but label distinct
   };
@@ -130,6 +132,11 @@ class UserModelClass extends Base {
 
   createStudent = async (data: any): Promise<any> => {
     const res = await this.apiPost("/students", data); // /users/students
+    return res.data;
+  };
+
+  bulkCreateStudents = async (students: any[]): Promise<any> => {
+    const res = await this.apiPost("/students/bulk", { students });
     return res.data;
   };
 

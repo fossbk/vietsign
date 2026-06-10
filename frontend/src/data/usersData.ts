@@ -8,6 +8,7 @@ export interface UserItem {
   isDeleted: boolean; // Trạng thái xóa mềm (true: Inactive, false: Active)
   avatar?: string;
   phone?: string;
+  grade?: number;
   createdAt: string;
   organizationId?: number; // ID cơ sở (thay vì tên)
   organizationName?: string; // Tên cơ sở (từ BE)
@@ -22,6 +23,7 @@ export const roleLabels: Record<string, string> = {
   FACILITY_MANAGER: "Quản lý cơ sở",
   TEACHER: "Giáo viên",
   STUDENT: "Học sinh",
+  PARENT: "Phu huynh",
   USER: "Người dùng",
   TESTER: "Tester",
 };
@@ -34,6 +36,7 @@ export const roleColors: Record<string, string> = {
   FACILITY_MANAGER: "bg-blue-100 text-blue-800",
   TEACHER: "bg-green-100 text-green-800",
   STUDENT: "bg-amber-100 text-amber-800",
+  PARENT: "bg-cyan-100 text-cyan-800",
   USER: "bg-teal-100 text-teal-800",
   TESTER: "bg-orange-100 text-orange-800",
 };

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User } from "lucide-react";
 import Auth from "@/domain/entities/Auth";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input, Select, message } from "antd";
 
 import { useMutation } from "@tanstack/react-query";
 import Loader from "@/shared/components/ui/Loader";
@@ -36,7 +36,7 @@ export const Register: React.FC = () => {
   });
 
   const handleSubmit = (values: any) => {
-    registerMutation.mutate(values);
+    registerMutation.mutate({ ...values, code: "STUDENT" });
   };
 
   if (registerMutation.isPending) {
@@ -96,6 +96,20 @@ export const Register: React.FC = () => {
               placeholder="••••••••"
               className="py-2"
               prefix={<Lock className="text-gray-400" size={16} />}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Khoi lop"
+            name="grade"
+            rules={[{ required: true, message: "Vui long chon khoi lop!" }]}
+          >
+            <Select
+              placeholder="Chon khoi lop"
+              options={[1, 2, 3, 4, 5].map((grade) => ({
+                value: grade,
+                label: `Khoi ${grade}`,
+              }))}
             />
           </Form.Item>
 

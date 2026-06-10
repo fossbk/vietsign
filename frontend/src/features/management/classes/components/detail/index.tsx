@@ -17,7 +17,9 @@ import {
   GraduationCap,
   Search,
   Loader2,
+  FileSpreadsheet,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useParams, useRouter } from "next/navigation";
 import { ClassItem, statusConfig } from "@/data";
 import {
@@ -29,7 +31,12 @@ import {
   removeStudentFromClassroom,
   ClassMember,
 } from "@/services/classService";
-import { fetchUserById, fetchUsersByRole } from "@/services/userService";
+import {
+  bulkCreateStudents,
+  createUser,
+  fetchUserById,
+  fetchUsersByRole,
+} from "@/services/userService";
 import {
   fetchAllOrganizations,
   OrganizationItem,
@@ -69,6 +76,20 @@ export function ClassManagementDetail() {
     null,
   );
   const [isAddingMember, setIsAddingMember] = useState(false);
+  const [isCreateStudentModalOpen, setIsCreateStudentModalOpen] =
+    useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phoneNumber: "",
+    grade: "",
+  });
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importRows, setImportRows] = useState<any[]>([]);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Load class and teachers
   // Load class and teachers
@@ -227,6 +248,117 @@ export function ClassManagementDetail() {
       alert("Thêm thành viên thất bại");
     } finally {
       setIsAddingMember(false);
+    }
+  };
+
+  const resetNewStudent = () => {
+    setNewStudent({
+      name: "",
+      email: "",
+      password: "",
+      phoneNumber: "",
+      grade: "",
+    });
+  };
+
+  const handleCreateStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classItem) return;
+
+    const grade = Number(newStudent.grade);
+    if (!newStudent.name || !newStudent.email || grade < 1 || grade > 5) {
+      alert("Vui long nhap ten, email va khoi lop 1-5");
+      return;
+    }
+
+    try {
+      await createUser({
+        ...newStudent,
+        role: "STUDENT",
+        grade,
+        organizationId: classItem.organizationId,
+        classroomId: classItem.id,
+      });
+      await Promise.all([loadClassMembers(), loadAllStudents()]);
+      resetNewStudent();
+      setIsCreateStudentModalOpen(false);
+    } catch (error: any) {
+      console.error("Failed to create student", error);
+      alert(error?.response?.data?.message || "Tao hoc sinh that bai");
+    }
+  };
+
+  const normalizeImportKey = (value: unknown) =>
+    String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const readCell = (row: Record<string, unknown>, keys: string[]) => {
+    const entries = Object.entries(row).map(([key, value]) => [
+      normalizeImportKey(key),
+      value,
+    ]);
+    const found = entries.find(([key]) => keys.includes(String(key)));
+    return found?.[1] ? String(found[1]).trim() : "";
+  };
+
+  const handleImportFile = async (file: File) => {
+    setImportRows([]);
+    setImportErrors([]);
+    setImportResult(null);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const firstSheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[firstSheetName];
+      const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+        defval: "",
+      });
+
+      const errors: string[] = [];
+      const rows = rawRows.map((row, index) => {
+        const parsed = {
+          name: readCell(row, ["name", "fullname", "hovaten", "hoten"]),
+          email: readCell(row, ["email", "mail"]),
+          password: readCell(row, ["password", "matkhau"]),
+          phoneNumber: readCell(row, ["phone", "phonenumber", "sdt", "sodienthoai"]),
+          grade: Number(readCell(row, ["grade", "khoi", "lop", "khoilop"])),
+          organizationId: classItem?.organizationId,
+          classroomId: classItem?.id,
+        };
+
+        if (!parsed.name) errors.push(`Dong ${index + 2}: thieu ten`);
+        if (!parsed.email) errors.push(`Dong ${index + 2}: thieu email`);
+        if (!Number.isInteger(parsed.grade) || parsed.grade < 1 || parsed.grade > 5) {
+          errors.push(`Dong ${index + 2}: khoi lop phai tu 1 den 5`);
+        }
+
+        return parsed;
+      });
+
+      setImportRows(rows);
+      setImportErrors(errors);
+    } catch (error) {
+      console.error("Failed to read import file", error);
+      setImportErrors(["Khong doc duoc file Excel"]);
+    }
+  };
+
+  const handleImportStudents = async () => {
+    if (!importRows.length || importErrors.length > 0) return;
+    setIsImporting(true);
+    try {
+      const result = await bulkCreateStudents(importRows);
+      setImportResult(result);
+      await Promise.all([loadClassMembers(), loadAllStudents()]);
+    } catch (error: any) {
+      console.error("Failed to import students", error);
+      alert(error?.response?.data?.message || "Import hoc sinh that bai");
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -552,13 +684,29 @@ export function ClassManagementDetail() {
               ({classMembers.length + (classItem.teacherId ? 1 : 0)} người)
             </span>
           </div>
-          <button
-            onClick={() => setIsAddMemberModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm shadow-sm"
-          >
-            <UserPlus size={16} />
-            Thêm học sinh
-          </button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button
+              onClick={() => setIsCreateStudentModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm shadow-sm"
+            >
+              <UserPlus size={16} />
+              Tao hoc sinh
+            </button>
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-primary-200 text-primary-700 bg-primary-50 rounded-xl hover:bg-primary-100 font-medium text-sm"
+            >
+              <FileSpreadsheet size={16} />
+              Import Excel
+            </button>
+            <button
+              onClick={() => setIsAddMemberModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium text-sm"
+            >
+              <Plus size={16} />
+              Them co san
+            </button>
+          </div>
         </div>
 
         <div className="p-6">
@@ -645,6 +793,195 @@ export function ClassManagementDetail() {
           </div>
         </div>
       </div>
+
+      {/* Create Student Modal */}
+      <Modal
+        isOpen={isCreateStudentModalOpen}
+        onClose={() => {
+          setIsCreateStudentModalOpen(false);
+          resetNewStudent();
+        }}
+        title="Tao tai khoan hoc sinh"
+        maxWidth="max-w-lg"
+      >
+        <form className="space-y-4" onSubmit={handleCreateStudent}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-sm font-semibold text-gray-700">
+                Ho va ten <span className="text-red-500">*</span>
+              </label>
+              <input
+                value={newStudent.name}
+                onChange={(e) =>
+                  setNewStudent((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={newStudent.email}
+                onChange={(e) =>
+                  setNewStudent((prev) => ({ ...prev, email: e.target.value }))
+                }
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">
+                Mat khau
+              </label>
+              <input
+                type="password"
+                value={newStudent.password}
+                onChange={(e) =>
+                  setNewStudent((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+                placeholder="Mac dinh 123456 neu de trong"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">
+                So dien thoai
+              </label>
+              <input
+                value={newStudent.phoneNumber}
+                onChange={(e) =>
+                  setNewStudent((prev) => ({
+                    ...prev,
+                    phoneNumber: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">
+                Khoi lop <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={newStudent.grade}
+                onChange={(e) =>
+                  setNewStudent((prev) => ({ ...prev, grade: e.target.value }))
+                }
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                required
+              >
+                <option value="">Chon khoi</option>
+                {[1, 2, 3, 4, 5].map((grade) => (
+                  <option key={grade} value={grade}>
+                    Khoi {grade}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsCreateStudentModalOpen(false);
+                resetNewStudent();
+              }}
+              className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+            >
+              Huy
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium"
+            >
+              Tao va them vao lop
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Import Students Modal */}
+      <Modal
+        isOpen={isImportModalOpen}
+        onClose={() => {
+          setIsImportModalOpen(false);
+          setImportRows([]);
+          setImportErrors([]);
+          setImportResult(null);
+        }}
+        title="Import danh sach hoc sinh"
+        maxWidth="max-w-2xl"
+      >
+        <div className="space-y-4">
+          <div className="p-4 bg-gray-50 rounded-xl text-sm text-gray-600">
+            File can co cac cot: <b>name</b>, <b>email</b>, <b>grade</b>.
+            Cot tuy chon: <b>password</b>, <b>phone</b>. Cac tieu de tieng
+            Viet nhu Ho ten, Mat khau, So dien thoai, Khoi cung duoc ho tro.
+          </div>
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImportFile(file);
+            }}
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl"
+          />
+
+          {importErrors.length > 0 && (
+            <div className="max-h-40 overflow-y-auto rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700">
+              {importErrors.map((error) => (
+                <p key={error}>{error}</p>
+              ))}
+            </div>
+          )}
+
+          {importRows.length > 0 && importErrors.length === 0 && (
+            <div className="rounded-xl bg-green-50 border border-green-100 p-3 text-sm text-green-700">
+              San sang import {importRows.length} hoc sinh vao lop nay.
+            </div>
+          )}
+
+          {importResult && (
+            <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-sm text-blue-700">
+              Import xong: {importResult.successCount} thanh cong,{" "}
+              {importResult.failureCount} loi.
+              {importResult.results
+                ?.filter((item: any) => !item.success)
+                .map((item: any) => (
+                  <p key={`${item.row}-${item.email}`} className="mt-1">
+                    Dong {item.row}: {item.message}
+                  </p>
+                ))}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsImportModalOpen(false)}
+              className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+            >
+              Dong
+            </button>
+            <button
+              type="button"
+              disabled={!importRows.length || importErrors.length > 0 || isImporting}
+              onClick={handleImportStudents}
+              className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium disabled:opacity-50"
+            >
+              {isImporting ? "Dang import..." : "Import"}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Add Member Modal */}
       <Modal
