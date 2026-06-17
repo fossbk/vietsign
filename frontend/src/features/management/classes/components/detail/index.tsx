@@ -265,7 +265,7 @@ export function ClassManagementDetail() {
     e.preventDefault();
     if (!classItem) return;
     if (!classItem.id) {
-      alert("Khong tim thay ma lop. Vui long tai lai trang lop hoc.");
+      alert("Không tìm thấy mã lớp. Vui lòng tải lại trang lớp học.");
       return;
     }
 
@@ -288,7 +288,7 @@ export function ClassManagementDetail() {
       setIsCreateStudentModalOpen(false);
     } catch (error: any) {
       console.error("Failed to create student", error);
-      alert(error?.response?.data?.message || "Tao hoc sinh that bai");
+      alert(error?.response?.data?.message || "Tạo học sinh thất bại");
     }
   };
 
@@ -314,7 +314,7 @@ export function ClassManagementDetail() {
     setImportResult(null);
 
     if (!classItem?.id) {
-      setImportErrors(["Khong tim thay ma lop. Vui long tai lai trang lop hoc."]);
+      setImportErrors(["Không tìm thấy mã lớp. Vui lòng tải lại trang lớp học."]);
       return;
     }
 
@@ -339,10 +339,10 @@ export function ClassManagementDetail() {
           classroomId: classItem?.id,
         };
 
-        if (!parsed.name) errors.push(`Dong ${index + 2}: thieu ten`);
-        if (!parsed.email) errors.push(`Dong ${index + 2}: thieu email`);
+        if (!parsed.name) errors.push(`Dòng ${index + 2}: thiếu tên`);
+        if (!parsed.email) errors.push(`Dòng ${index + 2}: thiếu email`);
         if (!Number.isInteger(parsed.grade) || parsed.grade < 1 || parsed.grade > 5) {
-          errors.push(`Dong ${index + 2}: khoi lop phai tu 1 den 5`);
+          errors.push(`Dòng ${index + 2}: khối lớp phải từ 1 đến 5`);
         }
 
         return parsed;
@@ -352,14 +352,14 @@ export function ClassManagementDetail() {
       setImportErrors(errors);
     } catch (error) {
       console.error("Failed to read import file", error);
-      setImportErrors(["Khong doc duoc file Excel"]);
+      setImportErrors(["Không đọc được file Excel"]);
     }
   };
 
   const handleImportStudents = async () => {
     if (!importRows.length || importErrors.length > 0) return;
     if (!classItem?.id || importRows.some((row) => !row.classroomId)) {
-      setImportErrors(["classroomId la bat buoc khi import hoc sinh vao lop"]);
+      setImportErrors(["classroomId là bắt buộc khi import học sinh vào lớp"]);
       return;
     }
 
@@ -370,7 +370,7 @@ export function ClassManagementDetail() {
       await Promise.all([loadClassMembers(), loadAllStudents()]);
     } catch (error: any) {
       console.error("Failed to import students", error);
-      alert(error?.response?.data?.message || "Import hoc sinh that bai");
+      alert(error?.response?.data?.message || "Import học sinh thất bại");
     } finally {
       setIsImporting(false);
     }
@@ -704,7 +704,7 @@ export function ClassManagementDetail() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm shadow-sm"
             >
               <UserPlus size={16} />
-              Tao hoc sinh
+              Tạo Học Sinh
             </button>
             <button
               onClick={() => setIsImportModalOpen(true)}
@@ -718,7 +718,7 @@ export function ClassManagementDetail() {
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium text-sm"
             >
               <Plus size={16} />
-              Them co san
+              Thêm Học Sinh Có Sẵn
             </button>
           </div>
         </div>
@@ -815,14 +815,14 @@ export function ClassManagementDetail() {
           setIsCreateStudentModalOpen(false);
           resetNewStudent();
         }}
-        title="Tao tai khoan hoc sinh"
+        title="Tạo tài khoản học sinh"
         maxWidth="max-w-lg"
       >
         <form className="space-y-4" onSubmit={handleCreateStudent}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-sm font-semibold text-gray-700">
-                Ho va ten <span className="text-red-500">*</span>
+                Họ và tên <span className="text-red-500">*</span>
               </label>
               <input
                 value={newStudent.name}
@@ -849,7 +849,7 @@ export function ClassManagementDetail() {
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-gray-700">
-                Mat khau
+                Mật khẩu
               </label>
               <input
                 type="password"
@@ -866,7 +866,7 @@ export function ClassManagementDetail() {
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-gray-700">
-                So dien thoai
+                Số điện thoại
               </label>
               <input
                 value={newStudent.phoneNumber}
@@ -881,7 +881,7 @@ export function ClassManagementDetail() {
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-gray-700">
-                Khoi lop <span className="text-red-500">*</span>
+                Khối lớp <span className="text-red-500">*</span>
               </label>
               <select
                 value={newStudent.grade}
@@ -891,7 +891,7 @@ export function ClassManagementDetail() {
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                 required
               >
-                <option value="">Chon khoi</option>
+                <option value="">Chọn khối</option>
                 {[1, 2, 3, 4, 5].map((grade) => (
                   <option key={grade} value={grade}>
                     Khoi {grade}
@@ -915,7 +915,7 @@ export function ClassManagementDetail() {
               type="submit"
               className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium"
             >
-              Tao va them vao lop
+              Tạo và thêm vào lớp
             </button>
           </div>
         </form>
@@ -930,14 +930,14 @@ export function ClassManagementDetail() {
           setImportErrors([]);
           setImportResult(null);
         }}
-        title="Import danh sach hoc sinh"
+        title="Import danh sách học sinh"
         maxWidth="max-w-2xl"
       >
         <div className="space-y-4">
           <div className="p-4 bg-gray-50 rounded-xl text-sm text-gray-600">
-            File can co cac cot: <b>name</b>, <b>email</b>, <b>grade</b>.
-            Cot tuy chon: <b>password</b>, <b>phone</b>. Cac tieu de tieng
-            Viet nhu Ho ten, Mat khau, So dien thoai, Khoi cung duoc ho tro.
+            File cần có các cột: <b>name</b>, <b>email</b>, <b>grade</b>.
+            Cột tùy chọn: <b>password</b>, <b>phone</b>. Các tiêu đề tiếng
+            Việt như Họ tên, Mật khẩu, Số điện thoại, Khối cũng được hỗ trợ.
           </div>
           <input
             type="file"
@@ -965,13 +965,13 @@ export function ClassManagementDetail() {
 
           {importResult && (
             <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-sm text-blue-700">
-              Import xong: {importResult.successCount} thanh cong,{" "}
+              Import xong: {importResult.successCount} thành công,{" "}
               {importResult.failureCount} loi.
               {importResult.results
                 ?.filter((item: any) => !item.success)
                 .map((item: any) => (
                   <p key={`${item.row}-${item.email}`} className="mt-1">
-                    Dong {item.row}: {item.message}
+                    Dòng {item.row}: {item.message}
                   </p>
                 ))}
             </div>
@@ -983,7 +983,7 @@ export function ClassManagementDetail() {
               onClick={() => setIsImportModalOpen(false)}
               className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
             >
-              Dong
+              Đóng
             </button>
             <button
               type="button"
@@ -991,7 +991,7 @@ export function ClassManagementDetail() {
               onClick={handleImportStudents}
               className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium disabled:opacity-50"
             >
-              {isImporting ? "Dang import..." : "Import"}
+              {isImporting ? "Đang import..." : "Import"}
             </button>
           </div>
         </div>
