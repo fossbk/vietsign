@@ -264,6 +264,10 @@ export function ClassManagementDetail() {
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!classItem) return;
+    if (!classItem.id) {
+      alert("Khong tim thay ma lop. Vui long tai lai trang lop hoc.");
+      return;
+    }
 
     const grade = Number(newStudent.grade);
     if (!newStudent.name || !newStudent.email || grade < 1 || grade > 5) {
@@ -309,6 +313,11 @@ export function ClassManagementDetail() {
     setImportErrors([]);
     setImportResult(null);
 
+    if (!classItem?.id) {
+      setImportErrors(["Khong tim thay ma lop. Vui long tai lai trang lop hoc."]);
+      return;
+    }
+
     try {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array" });
@@ -349,6 +358,11 @@ export function ClassManagementDetail() {
 
   const handleImportStudents = async () => {
     if (!importRows.length || importErrors.length > 0) return;
+    if (!classItem?.id || importRows.some((row) => !row.classroomId)) {
+      setImportErrors(["classroomId la bat buoc khi import hoc sinh vao lop"]);
+      return;
+    }
+
     setIsImporting(true);
     try {
       const result = await bulkCreateStudents(importRows);

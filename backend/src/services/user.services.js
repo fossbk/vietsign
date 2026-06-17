@@ -429,6 +429,12 @@ async function createStudent(payload, createdBy, options = {}) {
     let schoolId = organizationId;
     let classRoomId = classroomId;
 
+    if (options.actorRole === "TEACHER" && !classRoomId) {
+      const err = new Error("classroomId is required when a teacher creates a student");
+      err.status = 400;
+      throw err;
+    }
+
     // find classroom id if provided
     if (classRoomName) {
       const [rows] = await db.query(
