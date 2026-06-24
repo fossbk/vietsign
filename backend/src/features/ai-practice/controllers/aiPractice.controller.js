@@ -1,4 +1,4 @@
-const aiPracticeService = require("../services/aiPractice.service");
+﻿const aiPracticeService = require("../services/aiPractice.service");
 const { ALLOWED_MODES, predictModel3: _predictModel3 } = aiPracticeService;
 
 const MAX_FILE_SIZE_BYTES = Number(
@@ -114,6 +114,7 @@ const getHistory = async (req, res) => {
       userId,
       page,
       limit,
+      modelCode: req.query.model,
     });
 
     return res.status(200).json({
@@ -143,11 +144,34 @@ const predictModel3Controller = async (req, res) => {
   }
 
   try {
+    const userId = toNullableInt(req.user?.user_id);
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid user context",
+      });
+    }
+
     const result = await _predictModel3({ file: req.file });
+    const savedAttempt = await aiPracticeService.saveModel3Attempt({
+      userId,
+      result,
+      targetText: req.body.target_text || req.body.targetText || null,
+      mode: req.body.mode || "free",
+      vocabularyId: toNullableInt(req.body.vocabulary_id || req.body.vocabularyId),
+      topicId: toNullableInt(req.body.topic_id || req.body.topicId),
+    });
+
     return res.status(200).json({
       success: true,
       message: "Model3 prediction completed",
-      data: result,
+      data: {
+        ...result,
+        attempt_id: savedAttempt.attempt_id,
+        model_code: savedAttempt.model_code,
+        target_text: savedAttempt.target_text,
+        is_match: savedAttempt.is_match,
+      },
     });
   } catch (error) {
     console.error("Model3 prediction error:", error);

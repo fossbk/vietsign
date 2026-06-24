@@ -1,4 +1,4 @@
-const db = require("../../../db");
+﻿const db = require("../../../db");
 const { convertToMp4, needsConversion } = require("../../../utils/videoConverter");
 
 let historyTableEnsured = false;
@@ -18,6 +18,7 @@ const ensureHistoryTable = async () => {
     CREATE TABLE IF NOT EXISTS ai_practice_attempt (
       attempt_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       user_id BIGINT NOT NULL,
+      model_code VARCHAR(20) NOT NULL DEFAULT 'model1',
       mode VARCHAR(20) NOT NULL DEFAULT 'match',
       target_text VARCHAR(255) DEFAULT NULL,
       predicted_label VARCHAR(255) DEFAULT NULL,
@@ -31,11 +32,43 @@ const ensureHistoryTable = async () => {
       raw_response JSON DEFAULT NULL,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (attempt_id),
+      KEY idx_ai_practice_attempt_user_model_created (user_id, model_code, created_at),
       KEY idx_ai_practice_attempt_user_created (user_id, created_at),
       KEY idx_ai_practice_attempt_topic (topic_id),
       KEY idx_ai_practice_attempt_vocab (vocabulary_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
+
+  const [columns] = await db.execute(`
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'ai_practice_attempt'
+      AND COLUMN_NAME = 'model_code'
+  `);
+
+  if (columns.length === 0) {
+    await db.execute(`
+      ALTER TABLE ai_practice_attempt
+      ADD COLUMN model_code VARCHAR(20) NOT NULL DEFAULT 'model1' AFTER user_id
+    `);
+  }
+
+  const [indexes] = await db.execute(`
+    SELECT INDEX_NAME
+    FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'ai_practice_attempt'
+      AND INDEX_NAME = 'idx_ai_practice_attempt_user_model_created'
+    LIMIT 1
+  `);
+
+  if (indexes.length === 0) {
+    await db.execute(`
+      ALTER TABLE ai_practice_attempt
+      ADD KEY idx_ai_practice_attempt_user_model_created (user_id, model_code, created_at)
+    `);
+  }
 
   historyTableEnsured = true;
 };
@@ -85,13 +118,13 @@ const normalizeModelPayload = (payload, targetText, mode) => {
     source?.class_name ||
     null;
 
-  // label_name từ AI (ưu tiên), nếu không có sẽ được lookup từ DB sau
+  // label_name tá»« AI (Æ°u tiÃªn), náº¿u khÃ´ng cÃ³ sáº½ Ä‘Æ°á»£c lookup tá»« DB sau
   const labelName =
     source?.label_name ||
     source?.labelName ||
     source?.recognized ||
     source?.word ||
-    // action_name chỉ dùng nếu KHÔNG phải là số (tránh lấy label_id)
+    // action_name chá»‰ dÃ¹ng náº¿u KHÃ”NG pháº£i lÃ  sá»‘ (trÃ¡nh láº¥y label_id)
     (source?.action_name && isNaN(Number(source.action_name)) ? source.action_name : null) ||
     (source?.actionName && isNaN(Number(source.actionName)) ? source.actionName : null) ||
     null;
@@ -131,6 +164,7 @@ const normalizeModelPayload = (payload, targetText, mode) => {
 
 const insertAttempt = async ({
   userId,
+  modelCode,
   mode,
   targetText,
   predictedLabel,
@@ -147,6 +181,7 @@ const insertAttempt = async ({
     `
       INSERT INTO ai_practice_attempt (
         user_id,
+        model_code,
         mode,
         target_text,
         predicted_label,
@@ -158,10 +193,11 @@ const insertAttempt = async ({
         status,
         error_message,
         raw_response
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     [
       userId,
+      modelCode || "model1",
       mode || "match",
       targetText || null,
       predictedLabel || null,
@@ -286,6 +322,7 @@ const predictAndSave = async ({
   mode,
   vocabularyId,
   topicId,
+  modelCode = "model1",
 }) => {
   await ensureHistoryTable();
   const normalizedMode = normalizeMode(mode);
@@ -294,7 +331,7 @@ const predictAndSave = async ({
     const modelPayload = await callModelApi(file);
     const normalized = normalizeModelPayload(modelPayload, targetText, normalizedMode);
 
-    // Nếu AI không trả về label_name, lookup trong DB theo label_id
+    // Náº¿u AI khÃ´ng tráº£ vá» label_name, lookup trong DB theo label_id
     let resolvedLabelName = normalized.labelName;
     if (!resolvedLabelName && normalized.labelId) {
       resolvedLabelName = await lookupLabelName(normalized.labelId);
@@ -304,6 +341,7 @@ const predictAndSave = async ({
 
     const attemptId = await insertAttempt({
       userId,
+      modelCode,
       mode: normalizedMode,
       targetText,
       predictedLabel: normalized.predictedLabel,
@@ -319,6 +357,7 @@ const predictAndSave = async ({
 
     return {
       attempt_id: attemptId,
+      model_code: modelCode,
       mode: normalizedMode,
       target_text: targetText || null,
       predicted_label: normalized.predictedLabel,
@@ -332,6 +371,7 @@ const predictAndSave = async ({
   } catch (error) {
     await insertAttempt({
       userId,
+      modelCode,
       mode: normalizedMode,
       targetText,
       predictedLabel: null,
@@ -349,17 +389,75 @@ const predictAndSave = async ({
   }
 };
 
-const getHistoryByUser = async ({ userId, page, limit }) => {
+const saveModel3Attempt = async ({
+  userId,
+  targetText,
+  mode,
+  vocabularyId,
+  topicId,
+  result,
+}) => {
+  await ensureHistoryTable();
+  const normalizedMode = normalizeMode(mode);
+  const top1 = result?.top_k?.[0];
+  const actionName = result?.label_name || top1?.label || result?.action_name || null;
+  const predictedLabel = result?.label_id ?? top1?.class_id ?? null;
+  const normalizedTarget = normalizeText(targetText);
+  const normalizedPredicted = normalizeText(actionName || predictedLabel);
+  const isMatch =
+    normalizedTarget && normalizedPredicted
+      ? normalizedTarget === normalizedPredicted
+      : null;
+  const confidence = result?.confidence ?? top1?.probability ?? null;
+
+  const attemptId = await insertAttempt({
+    userId,
+    modelCode: "model3",
+    mode: normalizedMode,
+    targetText,
+    predictedLabel,
+    actionName,
+    confidence,
+    isMatch,
+    vocabularyId,
+    topicId,
+    status: "SUCCESS",
+    errorMessage: null,
+    rawResponse: result || {},
+  });
+
+  return {
+    attempt_id: attemptId,
+    model_code: "model3",
+    mode: normalizedMode,
+    target_text: targetText || null,
+    predicted_label: predictedLabel,
+    action_name: actionName,
+    label_id: predictedLabel,
+    label_name: actionName,
+    confidence,
+    is_match: isMatch,
+    raw_response: result || {},
+  };
+};
+
+const getHistoryByUser = async ({ userId, page, limit, modelCode }) => {
   await ensureHistoryTable();
 
   const safePage = Number.isFinite(page) && page > 0 ? page : 1;
   const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 100) : 20;
   const offset = (safePage - 1) * safeLimit;
+  const safeModelCode = ["model1", "model3"].includes(modelCode) ? modelCode : null;
+  const whereClause = safeModelCode
+    ? "WHERE user_id = ? AND model_code = ?"
+    : "WHERE user_id = ?";
+  const queryParams = safeModelCode ? [userId, safeModelCode] : [userId];
 
   const [rows] = await db.execute(
     `
       SELECT
         attempt_id,
+        model_code,
         mode,
         target_text,
         predicted_label,
@@ -373,16 +471,16 @@ const getHistoryByUser = async ({ userId, page, limit }) => {
         raw_response,
         created_at
       FROM ai_practice_attempt
-      WHERE user_id = ?
+      ${whereClause}
       ORDER BY created_at DESC
       LIMIT ${safeLimit} OFFSET ${offset}
     `,
-    [userId],
+    queryParams,
   );
 
   const [countRows] = await db.execute(
-    "SELECT COUNT(*) AS total FROM ai_practice_attempt WHERE user_id = ?",
-    [userId],
+    `SELECT COUNT(*) AS total FROM ai_practice_attempt ${whereClause}`,
+    queryParams,
   );
 
   return {
@@ -455,8 +553,8 @@ const postToModel3 = async ({ endpoint, timeoutMs, fileBuffer, fileMimetype, fil
 };
 
 // ---------------------------------------------------------------
-// Model 3: gọi AI model chạy trên cùng máy chủ (localhost:30081)
-// Frontend không thể gọi trực tiếp nên phải đi qua backend này
+// Model 3: gá»i AI model cháº¡y trÃªn cÃ¹ng mÃ¡y chá»§ (localhost:30081)
+// Frontend khÃ´ng thá»ƒ gá»i trá»±c tiáº¿p nÃªn pháº£i Ä‘i qua backend nÃ y
 // ---------------------------------------------------------------
 const predictModel3 = async ({ file, topK = 5 }) => {
   const baseUrl = (process.env.AI_MODEL3_BASE_URL || "http://localhost:30081").replace(/\/$/, "");
@@ -517,7 +615,7 @@ const predictModel3 = async ({ file, topK = 5 }) => {
       }
     }
 
-    // Response: { "top_k": [ { "rank":1, "class_id":43, "probability":0.01, "label":"đất" }, ... ] }
+    // Response: { "top_k": [ { "rank":1, "class_id":43, "probability":0.01, "label":"Ä‘áº¥t" }, ... ] }
     const top1 = jsonBody?.top_k?.[0];
     return {
       label_name: top1?.label || null,
@@ -565,5 +663,6 @@ module.exports = {
   ALLOWED_MODES,
   predictAndSave,
   predictModel3,
+  saveModel3Attempt,
   getHistoryByUser,
 };
