@@ -1,4 +1,4 @@
-﻿import http from "@/core/services/api/http";
+import http from "@/core/services/api/http";
 import { API_ENDPOINTS } from "@/core/config/api";
 
 export interface PredictAiPracticePayload {
@@ -98,7 +98,7 @@ export const predictAiPractice = async (
   return response.data;
 };
 
-// Model 3: gá»i qua backend (backend sáº½ proxy sang localhost:30081 trÃªn mÃ¡y chá»§)
+// Model 3: gọi qua backend (backend sẽ proxy sang localhost:30081 trên máy chủ)
 export const predictAiPracticeModel3 = async (
   file: File,
   metadata?: Omit<PredictAiPracticePayload, "file">,

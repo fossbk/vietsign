@@ -1,4 +1,4 @@
-﻿/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import Learning from "@/model/Learning";
@@ -73,7 +73,7 @@ const PracticeData: React.FC = () => {
   const webcamRef = useRef<Webcam>(null);
   const isRecordingRef = useRef(false);
   const maxRecordingTime = 5;
-  // Káº¿t quáº£ sau khi xá»­ lÃ½ AI
+  // Kết quả sau khi xử lý AI
   const [resultContent, setResultContent] = useState<{
     content: string;
     fileLocation?: string;
@@ -87,7 +87,7 @@ const PracticeData: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const checkButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Dá»¯ liá»‡u máº«u
+  // Dữ liệu mẫu
   const [filterParams, setFilterParams] = useState<any>({
     topic: "",
     vocabulary: "",
@@ -117,25 +117,25 @@ const PracticeData: React.FC = () => {
     setWebcamReady(true);
   }, []);
 
-  // Äá»c file excel
+  // Đọc file excel
   const [dataExcel, setDataExcel] = useState<any>([]);
   const excelUrl =
     "https://res.cloudinary.com/dso3fp1fx/raw/upload/v1720014385/01_1-200_yttv3i.xlsx";
 
-  // Äá»c dá»¯ liá»‡u lÆ°u file AI tá»­ cloudinary
+  // Đọc dữ liệu lưu file AI tử cloudinary
   useEffect(() => {
     async function fetchData() {
       try {
-        // Táº£i tá»‡p tá»« Cloudinary
+        // Tải tệp từ Cloudinary
         const response = await axios.get(excelUrl, {
           responseType: "arraybuffer",
         });
 
-        // Äá»c tá»‡p Excel
+        // Đọc tệp Excel
         const data = new Uint8Array(response.data);
         const workbook = XLSX.read(data, { type: "array" });
 
-        // Chuyá»ƒn Ä‘á»•i dá»¯ liá»‡u
+        // Chuyển đổi dữ liệu
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
@@ -152,17 +152,17 @@ const PracticeData: React.FC = () => {
           return newItem;
         });
 
-        // LÆ°u dá»¯ liá»‡u vÃ o state
+        // Lưu dữ liệu vào state
         setDataExcel(transformedData);
       } catch (error) {
-        console.error("Lá»—i khi Ä‘á»c tá»‡p Excel:", error);
+        console.error("Lỗi khi đọc tệp Excel:", error);
       }
     }
 
     fetchData();
   }, [excelUrl]);
 
-  // API láº¥y danh sÃ¡ch  topics
+  // API lấy danh sách  topics
   const { data: allTopics } = useQuery({
     queryKey: ["getAllTopics"],
     queryFn: async () => {
@@ -176,7 +176,7 @@ const PracticeData: React.FC = () => {
     },
   });
 
-  // API láº¥y danh sÃ¡ch tá»« theo topics
+  // API lấy danh sách từ theo topics
   const { data: allVocabulary, isFetching: isFetchingVocabulary } = useQuery({
     queryKey: ["getVocabularyTopic", filterParams.topic],
     queryFn: async () => {
@@ -205,10 +205,10 @@ const PracticeData: React.FC = () => {
       if (isRecordingRef.current) return;
       isRecordingRef.current = true;
       setRecordingTime(0);
-      startTimeRef.current = null; // Sáº½ Ä‘Æ°á»£c Ä‘áº·t khi status thá»±c sá»± lÃ  "recording"
+      startTimeRef.current = null; // Sẽ được đặt khi status thực sự là "recording"
       startRecording();
 
-      // Kiá»ƒm tra status vÃ  báº¯t Ä‘áº§u Ä‘áº¿m thá»i gian
+      // Kiểm tra status và bắt đầu đếm thời gian
       const checkRecordingStatus = () => {
         if (recordingStatusRef.current === "recording") {
           if (!startTimeRef.current) {
@@ -226,12 +226,12 @@ const PracticeData: React.FC = () => {
             }
           }, 1000);
 
-          // Äáº·t timeout Ä‘á»ƒ dá»«ng ghi sau recordingDuration
+          // Đặt timeout để dừng ghi sau recordingDuration
           recordingTimeoutRef.current = setTimeout(() => {
             handleStopRecording(stopRecording);
           }, recordingDuration * 1000);
         } else {
-          // Náº¿u chÆ°a á»Ÿ tráº¡ng thÃ¡i recording, kiá»ƒm tra láº¡i sau 100ms
+          // Nếu chưa ở trạng thái recording, kiểm tra lại sau 100ms
           setTimeout(checkRecordingStatus, 100);
         }
       };
@@ -315,7 +315,7 @@ const PracticeData: React.FC = () => {
     : null;
   const predictionBuckets = Object.entries(
     aiHistoryItems.reduce<Record<string, number>>((acc, item) => {
-      const label = item.action_name || String(item.predicted_label || "Không có k?t qu?");
+      const label = item.action_name || String(item.predicted_label || "Không có kết quả");
       acc[label] = (acc[label] || 0) + 1;
       return acc;
     }, {}),
@@ -324,12 +324,12 @@ const PracticeData: React.FC = () => {
     .slice(0, 6);
   const maxPredictionBucket = Math.max(...predictionBuckets.map(([, count]) => count), 1);
 
-  // Kiá»ƒm tra AI
+  // Kiểm tra AI
   const mutationDetectAI = useMutation({
     mutationFn: async (data: { videoUrl?: string; file?: File }) => {
       if (selectedAIModel === "model1") {
         if (!data.file) {
-          throw new Error("Thiáº¿u file Ä‘áº§u vÃ o cho AI Model 1");
+          throw new Error("Thiếu file đầu vào cho AI Model 1");
         }
 
         const aiResponse = await predictAiPractice({
@@ -375,7 +375,7 @@ const PracticeData: React.FC = () => {
         };
       } else if (selectedAIModel === "model2") {
         if (!data.videoUrl) {
-          throw new Error("Thiáº¿u videoUrl cho AI Model 2");
+          throw new Error("Thiếu videoUrl cho AI Model 2");
         }
         const response = await axios.post(
           "https://wesign.ibme.edu.vn/ai/t2/ai/detection",
@@ -389,7 +389,7 @@ const PracticeData: React.FC = () => {
         return response.data;
       } else if (selectedAIModel === "model3") {
         if (!data.file) {
-          throw new Error("Thiáº¿u file cho AI Model 3");
+          throw new Error("Thiếu file cho AI Model 3");
         }
         
         const response3 = await predictAiPracticeModel3(data.file, {
@@ -430,7 +430,7 @@ const PracticeData: React.FC = () => {
           ? String(explicitLabelName || res?.action_name).toLowerCase().trim()
           : null;
 
-      // Loáº¡i bá» pháº§n mÃ´ táº£ trong ngoáº·c (náº¿u cÃ³)
+      // Loại bỏ phần mô tả trong ngoặc (nếu có)
       const normalize = (str: string) =>
         str.replace(/\s*\(.*?\)\s*/g, "").trim();
 
@@ -454,17 +454,17 @@ const PracticeData: React.FC = () => {
       if (explicitLabelName || res?.action_name) {
         setResultContent({
           content: explicitLabelName || res.action_name,
-          fileLocation: res.fileLocation, // Náº¿u model 3 tráº£ vá» fileLocation, náº¿u khÃ´ng thÃ¬ bá» dÃ²ng nÃ y
+          fileLocation: res.fileLocation, // Nếu model 3 trả về fileLocation, nếu không thì bỏ dòng này
         });
         setShowModalResult(true);
-        message.success("Xá»­ lÃ½ dá»¯ liá»‡u thÃ nh cÃ´ng");
+        message.success("Xử lý dữ liệu thành công");
       } else {
-        message.error("KhÃ´ng cÃ³ tá»« nÃ o Ä‘Ãºng vá»›i ná»™i dung cung cáº¥p");
+        message.error("Không có từ nào đúng với nội dung cung cấp");
       }
     },
     onError: (error) => {
-      console.error("Lá»—i khi gá»i AI model:", error);
-      message.error("ÄÃ£ xáº£y ra lá»—i khi xá»­ lÃ½ AI");
+      console.error("Lỗi khi gọi AI model:", error);
+      message.error("Đã xảy ra lỗi khi xử lý AI");
     },
   });
 
@@ -475,7 +475,7 @@ const PracticeData: React.FC = () => {
   // Function to handle video upload
   const handleUpload = async () => {
     if (!uploadedVideo) {
-      message.error("Vui lÃ²ng chá»n má»™t video.");
+      message.error("Vui lòng chọn một video.");
       return;
     }
 
@@ -483,19 +483,19 @@ const PracticeData: React.FC = () => {
     const isLt10M = uploadedVideo.size / 1024 / 1024 < 10;
 
     if (!isVideo) {
-      message.error("File pháº£i lÃ  video.");
+      message.error("File phải là video.");
       return;
     }
 
     if (!isLt10M) {
-      message.error("Video pháº£i nhá» hÆ¡n 10MB.");
+      message.error("Video phải nhỏ hơn 10MB.");
       return;
     }
 
     try {
       setUploadLoading(true); // Set loading state
       if (selectedAIModel === "model1" || selectedAIModel === "model3") {
-        // Model 1 & Model 3: gá»­i file trá»±c tiáº¿p, khÃ´ng upload cloud
+        // Model 1 & Model 3: gửi file trực tiếp, không upload cloud
         mutationDetectAI.mutate(
           { file: uploadedVideo },
           {
@@ -521,10 +521,10 @@ const PracticeData: React.FC = () => {
         );
       }
 
-      message.success("Video Ä‘Ã£ Ä‘Æ°á»£c táº£i lÃªn thÃ nh cÃ´ng.");
+      message.success("Video đã được tải lên thành công.");
     } catch (error) {
-      console.error("Lá»—i khi táº£i video:", error);
-      message.error("KhÃ´ng thá»ƒ táº£i video. Vui lÃ²ng thá»­ láº¡i.");
+      console.error("Lỗi khi tải video:", error);
+      message.error("Không thể tải video. Vui lòng thử lại.");
       setUploadLoading(false);
     }
   };
@@ -545,11 +545,11 @@ const PracticeData: React.FC = () => {
   return (
     <>
       <Tabs defaultActiveKey="1">
-        <Tabs.TabPane tab="Luyá»‡n táº­p tá»« vá»±ng" key="1">
+        <Tabs.TabPane tab="Luyện tập từ vựng" key="1">
           <div className="relative flex h-[600px] items-start justify-between gap-4 overflow-hidden bg-gray-2">
             <div className="flex w-1/2 flex-col justify-start">
               <div className="mb-2 flex justify-between items-center text-xl font-semibold">
-                <div>Dá»¯ liá»‡u máº«u</div>
+                <div>Dữ liệu mẫu</div>
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedAIModel}
@@ -566,7 +566,7 @@ const PracticeData: React.FC = () => {
                       setTimeout(() => refetchAiHistory(), 0);
                     }}
                   >
-                    Th?ng kê
+                    Thống kê
                   </Button>
                 </div>
               </div>
@@ -575,7 +575,7 @@ const PracticeData: React.FC = () => {
                   className="w-full"
                   allowClear
                   showSearch
-                  placeholder="Chá»n chá»§ Ä‘á»"
+                  placeholder="Chọn chủ đề"
                   options={allTopics}
                   onChange={(value, option: any) =>
                     setFilterParams({
@@ -590,7 +590,7 @@ const PracticeData: React.FC = () => {
                   className="w-full"
                   allowClear
                   showSearch
-                  placeholder="Chá»n tá»« vá»±ng"
+                  placeholder="Chọn từ vựng"
                   disabled={!filterParams.topic}
                   options={allVocabulary}
                   value={filterParams.vocabulary}
@@ -598,7 +598,7 @@ const PracticeData: React.FC = () => {
                     if (value) {
                       option?.vocabularyImageResList.sort(
                         (a: { primary: any }, b: { primary: any }) => {
-                          // Sáº¯p xáº¿p sao cho pháº§n tá»­ cÃ³ primary = true Ä‘Æ°á»£c Ä‘áº·t lÃªn Ä‘áº§u
+                          // Sắp xếp sao cho phần tử có primary = true được đặt lên đầu
                           return a.primary === b.primary
                             ? 0
                             : a.primary
@@ -608,7 +608,7 @@ const PracticeData: React.FC = () => {
                       );
                       option?.vocabularyVideoResList.sort(
                         (a: { primary: any }, b: { primary: any }) => {
-                          // Sáº¯p xáº¿p sao cho pháº§n tá»­ cÃ³ primary = true Ä‘Æ°á»£c Ä‘áº·t lÃªn Ä‘áº§u
+                          // Sắp xếp sao cho phần tử có primary = true được đặt lên đầu
                           return a.primary === b.primary
                             ? 0
                             : a.primary
@@ -647,12 +647,12 @@ const PracticeData: React.FC = () => {
                     isFetchingVocabulary ? (
                       <Spin size="small" />
                     ) : (
-                      "KhÃ´ng tÃ¬m tháº¥y tá»« vá»±ng"
+                      "Không tìm thấy từ vựng"
                     )
                   }
                 />
               </div>
-              {/* Button lá»±a chá»n hiá»ƒn kiá»ƒu dá»¯ liá»‡u máº«u */}
+              {/* Button lựa chọn hiển kiểu dữ liệu mẫu */}
               <div className="mt-4  flex items-center gap-2">
                 <Button
                   onClick={() =>
@@ -660,7 +660,7 @@ const PracticeData: React.FC = () => {
                   }
                   className="border border-neutral-400 text-sm px-3 py-2 h-auto"
                 >
-                  Dá»¯ liá»‡u máº«u theo video
+                  Dữ liệu mẫu theo video
                 </Button>
                 <Button
                   onClick={() =>
@@ -668,10 +668,10 @@ const PracticeData: React.FC = () => {
                   }
                   className="border border-neutral-400 text-sm px-3 py-2 h-auto"
                 >
-                  Dá»¯ liá»‡u máº«u theo áº£nh
+                  Dữ liệu mẫu theo ảnh
                 </Button>
               </div>
-              {/* Dá»¯ liá»‡u máº«u */}
+              {/* Dữ liệu mẫu */}
               <div className="mt-3 flex items-start justify-start ">
                 {modalVideo.type === "image" && modalVideo.previewImg && (
                   <Image
@@ -723,14 +723,14 @@ const PracticeData: React.FC = () => {
                   return (
                     <div className="mt-3 object-contain overflow-y-auto max-h-[200px]">
                       <div className="flex gap-2 items-center">
-                        <p>Tráº¡ng thÃ¡i video: {status}</p>
+                        <p>Trạng thái video: {status}</p>
                         <Select
                           defaultValue={5}
                           onChange={(value) => setRecordingDuration(value)}
                           options={[
-                            { value: 3, label: "3 giÃ¢y" },
-                            { value: 4, label: "4 giÃ¢y" },
-                            { value: 5, label: "5 giÃ¢y" },
+                            { value: 3, label: "3 giây" },
+                            { value: 4, label: "4 giây" },
+                            { value: 5, label: "5 giây" },
                           ]}
                           className="w-24"
                         />
@@ -746,7 +746,7 @@ const PracticeData: React.FC = () => {
                           }
                           icon={
                             <Tooltip
-                              title={`Thá»i gian tá»‘i Ä‘a cho má»—i video lÃ  ${recordingDuration}s.`}
+                              title={`Thời gian tối đa cho mỗi video là ${recordingDuration}s.`}
                               placement="top"
                               trigger="hover"
                               color="#4096ff"
@@ -755,7 +755,7 @@ const PracticeData: React.FC = () => {
                             </Tooltip>
                           }
                         >
-                          Báº¯t Ä‘áº§u quay
+                          Bắt đầu quay
                           {isRecordingRef.current && (
                             <p
                               className="text-sm text-black"
@@ -782,10 +782,10 @@ const PracticeData: React.FC = () => {
                             }
                           }}
                         >
-                          Xem láº¡i file
+                          Xem lại file
                         </Button>
                         <Button onClick={() => setUploadModalVisible(true)}>
-                          Táº£i video
+                          Tải video
                         </Button>
                         <Button
                           size="large"
@@ -806,7 +806,7 @@ const PracticeData: React.FC = () => {
                               );
 
                               if (selectedAIModel === "model1" || selectedAIModel === "model3") {
-                                // Gá»­i file trá»±c tiáº¿p cho model1 vÃ  model3
+                                // Gửi file trực tiếp cho model1 và model3
                                 mutationDetectAI.mutate({ file: capturedFile });
                               } else {
                                 const link = await uploadMediaFile(
@@ -816,11 +816,11 @@ const PracticeData: React.FC = () => {
                                 mutationDetectAI.mutate({ videoUrl: link });
                               }
                             } catch (error) {
-                              console.error("Lá»—i khi kiá»ƒm tra video:", error);
+                              console.error("Lỗi khi kiểm tra video:", error);
                             }
                           }}
                         >
-                          Kiá»ƒm tra
+                          Kiểm tra
                         </Button>
                       </div>
                     </div>
@@ -830,14 +830,14 @@ const PracticeData: React.FC = () => {
 
               <Modal
                 visible={uploadModalVisible}
-                title="Táº£i video"
+                title="Tải video"
                 onCancel={() => setUploadModalVisible(false)}
                 footer={[
                   <Button
                     key="cancel"
                     onClick={() => setUploadModalVisible(false)}
                   >
-                    Há»§y
+                    Hủy
                   </Button>,
                   <Button
                     key="check"
@@ -846,7 +846,7 @@ const PracticeData: React.FC = () => {
                     onClick={handleUpload}
                     style={{ background: "#2f54eb" }}
                   >
-                    Kiá»ƒm tra
+                    Kiểm tra
                   </Button>,
                 ]}
               >
@@ -858,13 +858,13 @@ const PracticeData: React.FC = () => {
                   accept="video/*"
                   maxCount={1}
                 >
-                  <Button>Chá»n video</Button>
+                  <Button>Chọn video</Button>
                 </Upload>
               </Modal>
             </div>
           </div>
         </Tabs.TabPane>
-        <Tabs.TabPane tab="Luyá»‡n táº­p theo báº£ng chá»¯ cÃ¡i" key="2">
+        <Tabs.TabPane tab="Luyện tập theo bảng chữ cái" key="2">
           <LearningData />
         </Tabs.TabPane>
       </Tabs>
@@ -873,26 +873,26 @@ const PracticeData: React.FC = () => {
         open={isStatsModalOpen}
         onCancel={() => setIsStatsModalOpen(false)}
         footer={null}
-        title={`Th?ng kê ${selectedAIModel === "model1" ? "AI Model 1" : "AI Model 3"}`}
+        title={`Thống kê ${selectedAIModel === "model1" ? "AI Model 1" : "AI Model 3"}`}
         width={1100}
       >
         <Spin spinning={isFetchingAiHistory}>
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <div className="rounded-lg border border-gray-200 p-4">
-                <div className="text-sm text-gray-500">T?ng lu?t ch?m</div>
+                <div className="text-sm text-gray-500">Tổng lượt chấm</div>
                 <div className="text-2xl font-bold">{aiHistoryTotal}</div>
               </div>
               <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                <div className="text-sm text-green-700">D? doán dúng</div>
+                <div className="text-sm text-green-700">Dự đoán đúng</div>
                 <div className="text-2xl font-bold text-green-700">{aiHistoryMatched}</div>
               </div>
               <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                <div className="text-sm text-red-700">D? doán sai</div>
+                <div className="text-sm text-red-700">Dự đoán sai</div>
                 <div className="text-2xl font-bold text-red-700">{aiHistoryMissed}</div>
               </div>
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <div className="text-sm text-blue-700">Ð? tin c?y TB</div>
+                <div className="text-sm text-blue-700">Độ tin cậy TB</div>
                 <div className="text-2xl font-bold text-blue-700">
                   {formatConfidence(aiHistoryAvgConfidence)}
                 </div>
@@ -901,11 +901,11 @@ const PracticeData: React.FC = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-lg border border-gray-200 p-4">
-                <div className="mb-3 font-semibold">T? l? k?t qu?</div>
+                <div className="mb-3 font-semibold">Tỷ lệ kết quả</div>
                 {[
-                  { label: "Ðúng", count: aiHistoryMatched, color: "bg-green-500" },
+                  { label: "Đúng", count: aiHistoryMatched, color: "bg-green-500" },
                   { label: "Sai", count: aiHistoryMissed, color: "bg-red-500" },
-                  { label: "Chua d?i chi?u", count: aiHistoryUnknown, color: "bg-gray-400" },
+                  { label: "Chưa đối chiếu", count: aiHistoryUnknown, color: "bg-gray-400" },
                 ].map((item) => {
                   const percent = aiHistoryItems.length
                     ? Math.round((item.count / aiHistoryItems.length) * 100)
@@ -914,7 +914,7 @@ const PracticeData: React.FC = () => {
                     <div key={item.label} className="mb-3">
                       <div className="mb-1 flex justify-between text-sm">
                         <span>{item.label}</span>
-                        <span>{item.count} lu?t ({percent}%)</span>
+                        <span>{item.count} lượt ({percent}%)</span>
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                         <div
@@ -928,9 +928,9 @@ const PracticeData: React.FC = () => {
               </div>
 
               <div className="rounded-lg border border-gray-200 p-4">
-                <div className="mb-3 font-semibold">K?t qu? AI ch?m nhi?u nh?t</div>
+                <div className="mb-3 font-semibold">Kết quả AI chấm nhiều nhất</div>
                 {predictionBuckets.length === 0 ? (
-                  <div className="text-sm text-gray-500">Chua có d? li?u</div>
+                  <div className="text-sm text-gray-500">Chưa có dữ liệu</div>
                 ) : (
                   predictionBuckets.map(([label, count]) => (
                     <div key={label} className="mb-3">
@@ -958,40 +958,40 @@ const PracticeData: React.FC = () => {
               scroll={{ x: 900 }}
               columns={[
                 {
-                  title: "Th?i gian",
+                  title: "Thời gian",
                   dataIndex: "created_at",
                   width: 170,
                   render: (value: string) =>
                     value ? new Date(value).toLocaleString("vi-VN") : "--",
                 },
                 {
-                  title: "T? c?n doán",
+                  title: "Từ cần đoán",
                   dataIndex: "target_text",
                   render: (value: string | null) => value || "--",
                 },
                 {
-                  title: "Th?c t? AI ch?m",
+                  title: "Thực tế AI chấm",
                   render: (_, record) =>
                     record.action_name || record.predicted_label || "--",
                 },
                 {
-                  title: "Ð? tin c?y",
+                  title: "Độ tin cậy",
                   dataIndex: "confidence",
                   width: 120,
                   render: (value: number | null) => formatConfidence(value),
                 },
                 {
-                  title: "K?t qu?",
+                  title: "Kết quả",
                   dataIndex: "is_match",
                   width: 130,
                   render: (value: boolean | number | null) => {
-                    if (isHistoryMatch(value)) return <Tag color="green">Ðúng</Tag>;
+                    if (isHistoryMatch(value)) return <Tag color="green">Đúng</Tag>;
                     if (isHistoryMiss(value)) return <Tag color="red">Sai</Tag>;
-                    return <Tag>Chua d?i chi?u</Tag>;
+                    return <Tag>Chưa đối chiếu</Tag>;
                   },
                 },
                 {
-                  title: "Tr?ng thái",
+                  title: "Trạng thái",
                   dataIndex: "status",
                   width: 120,
                   render: (value: string) => (
@@ -1003,25 +1003,25 @@ const PracticeData: React.FC = () => {
           </div>
         </Spin>
       </Modal>
-      {/* Modal hiá»ƒn thá»‹ káº¿t quáº£ */}
+      {/* Modal hiển thị kết quả */}
       <Modal
         open={showModalResult}
         onCancel={() => setShowModalResult(false)}
         footer={null}
-        title="Káº¿t quáº£"
+        title="Kết quả"
         width={1200}
       >
         <div className="w-full ">
           <Spin spinning={mutationDetectAI.isPending}>
             <div className="mb-4 flex items-center justify-between gap-4 text-[60px] font-bold">
               <div className="w-1/2">
-                <div className=" text-[20px]">Tá»« cáº§n biá»ƒu diá»…n</div>
+                <div className=" text-[20px]">Từ cần biểu diễn</div>
                 <div className=" text-[24px] text-primary">
                   {modalVideo.vocabularyContent}
                 </div>
               </div>
               <div className="w-1/2">
-                <div className="w-1/2 text-[20px]">Tá»« nháº­n diá»‡n</div>
+                <div className="w-1/2 text-[20px]">Từ nhận diện</div>
                 <div className="text-[24px] text-primary">
                   {resultContent.content}
                 </div>
@@ -1038,7 +1038,7 @@ const PracticeData: React.FC = () => {
           </Spin>
         </div>
       </Modal>
-      {/* Modal xem láº¡i */}
+      {/* Modal xem lại */}
       <Modal
         open={showModalPreview.open}
         onCancel={() =>
@@ -1046,7 +1046,7 @@ const PracticeData: React.FC = () => {
         }
         footer={null}
         title={
-          showModalPreview.type === "image" ? "Xem láº¡i áº£nh: " : "Xem láº¡i video"
+          showModalPreview.type === "image" ? "Xem lại ảnh: " : "Xem lại video"
         }
         width={800}
       >
