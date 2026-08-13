@@ -85,6 +85,13 @@ const normalizeText = (value) => {
     .trim();
 };
 
+const toNullableBoolean = (value) => {
+  if (typeof value === "boolean") return value;
+  if (value === 1 || value === "1") return true;
+  if (value === 0 || value === "0") return false;
+  return null;
+};
+
 const toNullableNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
@@ -140,15 +147,11 @@ const normalizeModelPayload = (payload, targetText, mode) => {
   const normalizedTarget = normalizeText(targetText);
   const normalizedPredicted = normalizeText(actionName || predictedLabel);
 
-  let isMatch = null;
-  if (mode === "match" || mode === "spell") {
-    if (typeof source?.is_match === "boolean") {
-      isMatch = source.is_match;
-    } else if (normalizedTarget && normalizedPredicted) {
-      isMatch = normalizedTarget === normalizedPredicted;
-    } else {
-      isMatch = false;
-    }
+  let isMatch = toNullableBoolean(source?.is_match);
+  if (isMatch === null && normalizedTarget && normalizedPredicted) {
+    isMatch = normalizedTarget === normalizedPredicted;
+  } else if (isMatch === null && (mode === "match" || mode === "spell")) {
+    isMatch = false;
   }
 
   return {

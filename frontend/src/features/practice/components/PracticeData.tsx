@@ -54,11 +54,30 @@ const formatConfidence = (value: number | string | null | undefined) => {
   return `${Math.round(numeric * 100)}%`;
 };
 
+const normalizeHistoryText = (value: string | number | null | undefined) =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s*\(.*?\)\s*/g, "")
+    .trim();
+
 const isHistoryMatch = (value: boolean | number | string | null | undefined) =>
   value === true || value === 1 || value === "1";
 
 const isHistoryMiss = (value: boolean | number | string | null | undefined) =>
   value === false || value === 0 || value === "0";
+
+const getHistoryResult = (item: AiPracticeHistoryItem) => {
+  if (isHistoryMatch(item.is_match)) return true;
+  if (isHistoryMiss(item.is_match)) return false;
+
+  const target = normalizeHistoryText(item.target_text);
+  const predicted = normalizeHistoryText(item.action_name || item.predicted_label);
+
+  if (!target || !predicted) return null;
+  return target === predicted;
+};
 
 const PracticeData: React.FC = () => {
   const [webcamReady, setWebcamReady] = useState(false);
@@ -303,8 +322,8 @@ const PracticeData: React.FC = () => {
 
   const aiHistoryItems = aiHistoryResponse?.data || [];
   const aiHistoryTotal = aiHistoryResponse?.total || aiHistoryItems.length;
-  const aiHistoryMatched = aiHistoryItems.filter((item) => isHistoryMatch(item.is_match)).length;
-  const aiHistoryMissed = aiHistoryItems.filter((item) => isHistoryMiss(item.is_match)).length;
+  const aiHistoryMatched = aiHistoryItems.filter((item) => getHistoryResult(item) === true).length;
+  const aiHistoryMissed = aiHistoryItems.filter((item) => getHistoryResult(item) === false).length;
   const aiHistoryUnknown = Math.max(
     0,
     aiHistoryItems.length - aiHistoryMatched - aiHistoryMissed,
@@ -984,9 +1003,10 @@ const PracticeData: React.FC = () => {
                   title: "Kết quả",
                   dataIndex: "is_match",
                   width: 130,
-                  render: (value: boolean | number | null) => {
-                    if (isHistoryMatch(value)) return <Tag color="green">Đúng</Tag>;
-                    if (isHistoryMiss(value)) return <Tag color="red">Sai</Tag>;
+                  render: (_: boolean | number | null, record) => {
+                    const result = getHistoryResult(record);
+                    if (result === true) return <Tag color="green">Đúng</Tag>;
+                    if (result === false) return <Tag color="red">Sai</Tag>;
                     return <Tag>Chưa đối chiếu</Tag>;
                   },
                 },
