@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: jin312/vietsign-fe:v1.1.70
+          image: jin312/vietsign-fe:v1.1.71
           ports:
             - containerPort: 3000
           resources:

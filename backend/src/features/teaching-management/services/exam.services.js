@@ -5,6 +5,31 @@ const db = require("../../../db");
  * Aligned with updated database schema (name, exam_type, class_room_id, duration_minutes, total_points, passing_score, description)
  */
 
+let practiceAiResultColumnEnsured = false;
+
+async function ensurePracticeAiResultColumn(connection = db) {
+  if (practiceAiResultColumnEnsured) {
+    return;
+  }
+
+  const [columns] = await connection.execute(`
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'question_exam_user_mapping'
+      AND COLUMN_NAME = 'ai_result_json'
+  `);
+
+  if (columns.length === 0) {
+    await connection.execute(`
+      ALTER TABLE question_exam_user_mapping
+      ADD COLUMN ai_result_json TEXT DEFAULT NULL AFTER ai_result
+    `);
+  }
+
+  practiceAiResultColumnEnsured = true;
+}
+
 async function createExam(data, userId) {
   const connection = await db.getConnection();
   try {
@@ -872,25 +897,165 @@ async function savePracticeQuestionVideo(
   }
 }
 
-async function getPracticeSubmission(examId, studentId) {
+async function getPracticeQuestionMeta(examId, vocabularyId) {
   try {
     const [rows] = await db.execute(
+      `SELECT
+         COALESCE(v.content, vem.content) as targetText,
+         vem.content as promptText,
+         v.topic_id as topicId
+       FROM vocabulary_exam_mapping vem
+       LEFT JOIN vocabulary v ON v.vocabulary_id = vem.vocabulary_id
+       WHERE vem.exam_id = ? AND vem.vocabulary_id = ?
+       LIMIT 1`,
+      [examId, vocabularyId],
+    );
+
+    return rows[0] || { targetText: null, topicId: null };
+  } catch (err) {
+    throw { status: 500, message: err.message };
+  }
+}
+
+async function savePracticeAiResult(
+  examId,
+  userId,
+  attemptId,
+  vocabularyId,
+  aiResults,
+) {
+  const connection = await db.getConnection();
+  try {
+    await ensurePracticeAiResultColumn(connection);
+
+    const successfulResults = Array.isArray(aiResults)
+      ? aiResults.filter((item) => item && item.status !== "FAILED")
+      : [];
+    const firstAnswer = successfulResults
+      .map((item) => item.action_name || item.label_name || item.predicted_label)
+      .find(Boolean);
+    const hasMatch = successfulResults.some((item) => item.is_match === true);
+    const hasComparable = successfulResults.some(
+      (item) => typeof item.is_match === "boolean",
+    );
+
+    await connection.execute(
+      `UPDATE question_exam_user_mapping
+       SET ai_answer = ?,
+           ai_result = ?,
+           ai_result_json = ?
+       WHERE exam_id = ? AND user_id = ? AND attempt_id = ? AND question_id = ?`,
+      [
+        firstAnswer || null,
+        hasComparable ? (hasMatch ? 1 : 0) : null,
+        JSON.stringify(aiResults || []),
+        examId,
+        userId,
+        attemptId,
+        vocabularyId,
+      ],
+    );
+
+    return { success: true };
+  } catch (err) {
+    throw { status: 500, message: err.message };
+  } finally {
+    connection.release();
+  }
+}
+
+async function getPracticeSubmission(examId, studentId) {
+  try {
+    await ensurePracticeAiResultColumn();
+
+    let [rows] = await db.execute(
       `SELECT 
          q.question_exam_user_id as id,
          COALESCE(vem.content, v.content) as contentFromVocabulary,
          q.minio_path as studentVideoUrl,
          q.ai_answer as aiAnswer,
+         q.ai_result_json as aiResultJson,
          q.is_correct as isCorrect,
          q.score as score,
-         q.question_id as vocabularyId
+         q.question_id as vocabularyId,
+         q.attempt_id as attemptId,
+         ea.score as teacherScore,
+         ea.finished_at as submittedAt
        FROM question_exam_user_mapping q
+       LEFT JOIN exam_attempt ea ON ea.attempt_id = q.attempt_id
        LEFT JOIN vocabulary v ON v.vocabulary_id = q.question_id
        LEFT JOIN vocabulary_exam_mapping vem ON vem.exam_id = q.exam_id AND vem.vocabulary_id = q.question_id
        WHERE q.exam_id = ? AND q.user_id = ?
+         AND q.attempt_id = (
+           SELECT attempt_id
+           FROM exam_attempt
+           WHERE exam_id = ? AND user_id = ?
+           ORDER BY attempt_id DESC
+           LIMIT 1
+         )
        ORDER BY q.question_exam_user_id ASC`,
+      [examId, studentId, examId, studentId],
+    );
+
+    if (rows.length === 0) {
+      [rows] = await db.execute(
+        `SELECT
+           q.question_exam_user_id as id,
+           COALESCE(vem.content, v.content) as contentFromVocabulary,
+           q.minio_path as studentVideoUrl,
+           q.ai_answer as aiAnswer,
+           q.ai_result_json as aiResultJson,
+           q.is_correct as isCorrect,
+           q.score as score,
+           q.question_id as vocabularyId,
+           q.attempt_id as attemptId,
+           ea.score as teacherScore,
+           ea.finished_at as submittedAt
+         FROM question_exam_user_mapping q
+         LEFT JOIN exam_attempt ea ON ea.attempt_id = q.attempt_id
+         LEFT JOIN vocabulary v ON v.vocabulary_id = q.question_id
+         LEFT JOIN vocabulary_exam_mapping vem ON vem.exam_id = q.exam_id AND vem.vocabulary_id = q.question_id
+         WHERE q.exam_id = ? AND q.user_id = ?
+         ORDER BY q.question_exam_user_id ASC`,
+        [examId, studentId],
+      );
+    }
+
+    return rows.map((row) => {
+      let aiResults = [];
+      if (row.aiResultJson) {
+        try {
+          aiResults =
+            typeof row.aiResultJson === "string"
+              ? JSON.parse(row.aiResultJson)
+              : row.aiResultJson;
+        } catch {
+          aiResults = [];
+        }
+      }
+
+      return {
+        ...row,
+        aiResults: Array.isArray(aiResults) ? aiResults : [],
+      };
+    });
+  } catch (err) {
+    throw { status: 500, message: err.message };
+  }
+}
+
+async function getLatestPracticeAttemptId(examId, studentId) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT attempt_id
+       FROM exam_attempt
+       WHERE exam_id = ? AND user_id = ?
+       ORDER BY attempt_id DESC
+       LIMIT 1`,
       [examId, studentId],
     );
-    return rows;
+
+    return rows[0]?.attempt_id || null;
   } catch (err) {
     throw { status: 500, message: err.message };
   }
@@ -1092,7 +1257,10 @@ module.exports = {
   getStudentExamReview,
   createPracticeAttempt,
   savePracticeQuestionVideo,
+  getPracticeQuestionMeta,
+  savePracticeAiResult,
   getPracticeSubmission,
+  getLatestPracticeAttemptId,
   getAllPracticalSubmissions,
   markPracticeExam,
 };

@@ -1,4 +1,5 @@
 const examService = require("../services/exam.services");
+const aiPracticeService = require("../../ai-practice/services/aiPractice.service");
 const path = require("path");
 const { minioClient, bucketName } = require("../../../utils/minio");
 
@@ -6,6 +7,40 @@ const { minioClient, bucketName } = require("../../../utils/minio");
  * Exam Management Controller
  * Handles HTTP requests for exam management and submission operations
  */
+
+const normalizePracticeAiResult = (modelCode, result) => ({
+  model_code: modelCode,
+  status: "SUCCESS",
+  attempt_id: result?.attempt_id || null,
+  target_text: result?.target_text || null,
+  predicted_label: result?.predicted_label ?? result?.label_id ?? null,
+  action_name: result?.action_name || result?.label_name || null,
+  label_name: result?.label_name || result?.action_name || null,
+  confidence: result?.confidence ?? null,
+  is_match:
+    typeof result?.is_match === "boolean"
+      ? result.is_match
+      : result?.is_match === 1
+        ? true
+        : result?.is_match === 0
+          ? false
+          : null,
+  top_k: Array.isArray(result?.top_k) ? result.top_k : undefined,
+  error_message: null,
+});
+
+const normalizePracticeAiError = (modelCode, error) => ({
+  model_code: modelCode,
+  status: "FAILED",
+  attempt_id: null,
+  target_text: null,
+  predicted_label: null,
+  action_name: null,
+  label_name: null,
+  confidence: null,
+  is_match: null,
+  error_message: error?.message || "AI grading failed",
+});
 
 // Create new exam
 const createExam = async (req, res) => {
@@ -621,6 +656,59 @@ const submitPracticeExam = async (req, res) => {
         attempt.attemptId,
         vocabularyId,
         minioPath,
+      );
+
+      const questionMeta = await examService.getPracticeQuestionMeta(
+        examId,
+        vocabularyId,
+      );
+      const aiTargetText = questionMeta.targetText || null;
+      const aiTopicId = questionMeta.topicId || null;
+      const aiResults = [];
+
+      try {
+        const model1Result = await aiPracticeService.predictAndSave({
+          userId: Number(userId),
+          file,
+          targetText: aiTargetText,
+          mode: "match",
+          vocabularyId: Number(vocabularyId),
+          topicId: aiTopicId,
+          modelCode: "model1",
+        });
+        aiResults.push(normalizePracticeAiResult("model1", model1Result));
+      } catch (aiError) {
+        console.error("[submitPracticeExam] Model1 grading failed:", aiError);
+        aiResults.push(normalizePracticeAiError("model1", aiError));
+      }
+
+      try {
+        const model3Prediction = await aiPracticeService.predictModel3({ file });
+        const model3Saved = await aiPracticeService.saveModel3Attempt({
+          userId: Number(userId),
+          result: model3Prediction,
+          targetText: aiTargetText,
+          mode: "match",
+          vocabularyId: Number(vocabularyId),
+          topicId: aiTopicId,
+        });
+        aiResults.push(
+          normalizePracticeAiResult("model3", {
+            ...model3Prediction,
+            ...model3Saved,
+          }),
+        );
+      } catch (aiError) {
+        console.error("[submitPracticeExam] Model3 grading failed:", aiError);
+        aiResults.push(normalizePracticeAiError("model3", aiError));
+      }
+
+      await examService.savePracticeAiResult(
+        examId,
+        userId,
+        attempt.attemptId,
+        vocabularyId,
+        aiResults,
       );
       results.push(minioPath);
     }
