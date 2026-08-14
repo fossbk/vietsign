@@ -754,9 +754,7 @@ export function StudyDetail() {
                     </>
                   ) : (
                     <button
-                      onClick={() =>
-                        router.push(`/study/${id}/exam/${exam.id}`)
-                      }
+                      onClick={() => router.push(`/take-exam/${exam.id}`)}
                       className="px-4 py-2 bg-primary-100 text-primary-700 rounded-xl text-sm font-medium hover:bg-primary-200 transition-colors flex items-center gap-2"
                     >
                       <Play size={16} />
