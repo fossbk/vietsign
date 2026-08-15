@@ -929,7 +929,7 @@ async function savePracticeAiResult(
     await ensurePracticeAiResultColumn(connection);
 
     const successfulResults = Array.isArray(aiResults)
-      ? aiResults.filter((item) => item && item.status !== "FAILED")
+      ? aiResults.filter((item) => item && item.status === "SUCCESS")
       : [];
     const firstAnswer = successfulResults
       .map((item) => item.action_name || item.label_name || item.predicted_label)

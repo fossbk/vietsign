@@ -93,6 +93,23 @@ const AiResultTag = ({ result }: { result: PracticeAiResult }) => {
     );
   }
 
+  if (result.status === "PENDING") {
+    return (
+      <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2">
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <span className="font-semibold uppercase text-blue-700">
+            {result.model_code || "AI"}
+          </span>
+          <Tag color="processing">Đang chấm</Tag>
+        </div>
+        <div className="text-sm text-blue-700">Đang chấm AI...</div>
+        <div className="text-xs text-blue-500">
+          Kết quả sẽ hiển thị sau khi model xử lý xong.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
       <div className="mb-1 flex items-center justify-between gap-2">
@@ -190,7 +207,8 @@ const GradeDetail: React.FC = () => {
       const correct = results.filter((item) => toBoolean(item.is_match) === true).length;
       const wrong = results.filter((item) => toBoolean(item.is_match) === false).length;
       const failed = results.filter((item) => item.status === "FAILED").length;
-      return { modelCode, total: results.length, correct, wrong, failed };
+      const pending = results.filter((item) => item.status === "PENDING").length;
+      return { modelCode, total: results.length, correct, wrong, failed, pending };
     });
 
     return {
@@ -341,7 +359,7 @@ const GradeDetail: React.FC = () => {
                 </div>
                 <Progress percent={percent} size="small" />
                 <div className="mt-2 text-sm text-gray-600">
-                  {item.correct} đúng, {item.wrong} sai, {item.failed} lỗi
+                  {item.correct} đúng, {item.wrong} sai, {item.pending} đang chấm, {item.failed} lỗi
                 </div>
               </div>
             );

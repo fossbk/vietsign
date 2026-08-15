@@ -42,6 +42,88 @@ const normalizePracticeAiError = (modelCode, error) => ({
   error_message: error?.message || "AI grading failed",
 });
 
+const normalizePracticeAiPending = (modelCode) => ({
+  model_code: modelCode,
+  status: "PENDING",
+  attempt_id: null,
+  target_text: null,
+  predicted_label: null,
+  action_name: null,
+  label_name: null,
+  confidence: null,
+  is_match: null,
+  error_message: null,
+});
+
+const gradePracticeVideoWithAi = async ({
+  examId,
+  userId,
+  attemptId,
+  vocabularyId,
+  file,
+}) => {
+  const aiResults = [];
+
+  let questionMeta = { targetText: null, topicId: null };
+  try {
+    questionMeta = await examService.getPracticeQuestionMeta(examId, vocabularyId);
+  } catch (error) {
+    console.error("[practice-ai-grading] Could not load question metadata:", error);
+  }
+
+  const aiTargetText = questionMeta.targetText || null;
+  const aiTopicId = questionMeta.topicId || null;
+
+  try {
+    const model1Result = await aiPracticeService.predictAndSave({
+      userId: Number(userId),
+      file,
+      targetText: aiTargetText,
+      mode: "match",
+      vocabularyId: Number(vocabularyId),
+      topicId: aiTopicId,
+      modelCode: "model1",
+    });
+    aiResults.push(normalizePracticeAiResult("model1", model1Result));
+  } catch (aiError) {
+    console.error("[practice-ai-grading] Model1 grading failed:", aiError);
+    aiResults.push(normalizePracticeAiError("model1", aiError));
+  }
+
+  try {
+    const model3Prediction = await aiPracticeService.predictModel3({ file });
+    const model3Saved = await aiPracticeService.saveModel3Attempt({
+      userId: Number(userId),
+      result: model3Prediction,
+      targetText: aiTargetText,
+      mode: "match",
+      vocabularyId: Number(vocabularyId),
+      topicId: aiTopicId,
+    });
+    aiResults.push(
+      normalizePracticeAiResult("model3", {
+        ...model3Prediction,
+        ...model3Saved,
+      }),
+    );
+  } catch (aiError) {
+    console.error("[practice-ai-grading] Model3 grading failed:", aiError);
+    aiResults.push(normalizePracticeAiError("model3", aiError));
+  }
+
+  try {
+    await examService.savePracticeAiResult(
+      examId,
+      userId,
+      attemptId,
+      vocabularyId,
+      aiResults,
+    );
+  } catch (error) {
+    console.error("[practice-ai-grading] Could not save AI result:", error);
+  }
+};
+
 // Create new exam
 const createExam = async (req, res) => {
   try {
@@ -658,58 +740,31 @@ const submitPracticeExam = async (req, res) => {
         minioPath,
       );
 
-      const questionMeta = await examService.getPracticeQuestionMeta(
-        examId,
-        vocabularyId,
-      );
-      const aiTargetText = questionMeta.targetText || null;
-      const aiTopicId = questionMeta.topicId || null;
-      const aiResults = [];
-
-      try {
-        const model1Result = await aiPracticeService.predictAndSave({
-          userId: Number(userId),
-          file,
-          targetText: aiTargetText,
-          mode: "match",
-          vocabularyId: Number(vocabularyId),
-          topicId: aiTopicId,
-          modelCode: "model1",
-        });
-        aiResults.push(normalizePracticeAiResult("model1", model1Result));
-      } catch (aiError) {
-        console.error("[submitPracticeExam] Model1 grading failed:", aiError);
-        aiResults.push(normalizePracticeAiError("model1", aiError));
-      }
-
-      try {
-        const model3Prediction = await aiPracticeService.predictModel3({ file });
-        const model3Saved = await aiPracticeService.saveModel3Attempt({
-          userId: Number(userId),
-          result: model3Prediction,
-          targetText: aiTargetText,
-          mode: "match",
-          vocabularyId: Number(vocabularyId),
-          topicId: aiTopicId,
-        });
-        aiResults.push(
-          normalizePracticeAiResult("model3", {
-            ...model3Prediction,
-            ...model3Saved,
-          }),
-        );
-      } catch (aiError) {
-        console.error("[submitPracticeExam] Model3 grading failed:", aiError);
-        aiResults.push(normalizePracticeAiError("model3", aiError));
-      }
-
       await examService.savePracticeAiResult(
         examId,
         userId,
         attempt.attemptId,
         vocabularyId,
-        aiResults,
+        [
+          normalizePracticeAiPending("model1"),
+          normalizePracticeAiPending("model3"),
+        ],
       );
+
+      const fileForAi = {
+        ...file,
+        buffer: Buffer.from(file.buffer),
+      };
+
+      setImmediate(() => {
+        gradePracticeVideoWithAi({
+          examId,
+          userId,
+          attemptId: attempt.attemptId,
+          vocabularyId,
+          file: fileForAi,
+        });
+      });
       results.push(minioPath);
     }
 
