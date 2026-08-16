@@ -42,18 +42,38 @@ const normalizePracticeAiError = (modelCode, error) => ({
   error_message: error?.message || "AI grading failed",
 });
 
-const normalizePracticeAiPending = (modelCode) => ({
-  model_code: modelCode,
-  status: "PENDING",
-  attempt_id: null,
-  target_text: null,
-  predicted_label: null,
-  action_name: null,
-  label_name: null,
-  confidence: null,
-  is_match: null,
-  error_message: null,
-});
+const withTimeout = (promise, timeoutMs, timeoutMessage) => {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      const error = new Error(timeoutMessage);
+      error.code = "AI_GRADING_TIMEOUT";
+      reject(error);
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    clearTimeout(timeoutId);
+  });
+};
+
+const runWithConcurrency = async (items, limit, worker) => {
+  const safeLimit = Math.max(1, Number(limit) || 1);
+  let nextIndex = 0;
+
+  const workers = Array.from(
+    { length: Math.min(safeLimit, items.length) },
+    async () => {
+      while (nextIndex < items.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+        await worker(items[currentIndex], currentIndex);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+};
 
 const gradePracticeVideoWithAi = async ({
   examId,
@@ -62,8 +82,6 @@ const gradePracticeVideoWithAi = async ({
   vocabularyId,
   file,
 }) => {
-  const aiResults = [];
-
   let questionMeta = { targetText: null, topicId: null };
   try {
     questionMeta = await examService.getPracticeQuestionMeta(examId, vocabularyId);
@@ -73,43 +91,57 @@ const gradePracticeVideoWithAi = async ({
 
   const aiTargetText = questionMeta.targetText || null;
   const aiTopicId = questionMeta.topicId || null;
+  const timeoutMs = Number(process.env.PRACTICE_AI_GRADING_TIMEOUT_MS || 45000);
 
-  try {
-    const model1Result = await aiPracticeService.predictAndSave({
-      userId: Number(userId),
-      file,
-      targetText: aiTargetText,
-      mode: "match",
-      vocabularyId: Number(vocabularyId),
-      topicId: aiTopicId,
-      modelCode: "model1",
-    });
-    aiResults.push(normalizePracticeAiResult("model1", model1Result));
-  } catch (aiError) {
-    console.error("[practice-ai-grading] Model1 grading failed:", aiError);
-    aiResults.push(normalizePracticeAiError("model1", aiError));
-  }
-
-  try {
-    const model3Prediction = await aiPracticeService.predictModel3({ file });
-    const model3Saved = await aiPracticeService.saveModel3Attempt({
-      userId: Number(userId),
-      result: model3Prediction,
-      targetText: aiTargetText,
-      mode: "match",
-      vocabularyId: Number(vocabularyId),
-      topicId: aiTopicId,
-    });
-    aiResults.push(
-      normalizePracticeAiResult("model3", {
-        ...model3Prediction,
-        ...model3Saved,
+  const model1Job = withTimeout(
+    aiPracticeService
+      .predictAndSave({
+        userId: Number(userId),
+        file,
+        targetText: aiTargetText,
+        mode: "match",
+        vocabularyId: Number(vocabularyId),
+        topicId: aiTopicId,
+        modelCode: "model1",
+      })
+      .then((model1Result) =>
+        normalizePracticeAiResult("model1", model1Result),
+      )
+      .catch((aiError) => {
+        console.error("[practice-ai-grading] Model1 grading failed:", aiError);
+        return normalizePracticeAiError("model1", aiError);
       }),
-    );
-  } catch (aiError) {
-    console.error("[practice-ai-grading] Model3 grading failed:", aiError);
-    aiResults.push(normalizePracticeAiError("model3", aiError));
-  }
+    timeoutMs,
+    "Model1 grading timed out",
+  ).catch((aiError) => normalizePracticeAiError("model1", aiError));
+
+  const model3Job = withTimeout(
+    aiPracticeService
+      .predictModel3({ file })
+      .then(async (model3Prediction) => {
+        const model3Saved = await aiPracticeService.saveModel3Attempt({
+          userId: Number(userId),
+          result: model3Prediction,
+          targetText: aiTargetText,
+          mode: "match",
+          vocabularyId: Number(vocabularyId),
+          topicId: aiTopicId,
+        });
+
+        return normalizePracticeAiResult("model3", {
+          ...model3Prediction,
+          ...model3Saved,
+        });
+      })
+      .catch((aiError) => {
+        console.error("[practice-ai-grading] Model3 grading failed:", aiError);
+        return normalizePracticeAiError("model3", aiError);
+      }),
+    timeoutMs,
+    "Model3 grading timed out",
+  ).catch((aiError) => normalizePracticeAiError("model3", aiError));
+
+  const aiResults = await Promise.all([model1Job, model3Job]);
 
   try {
     await examService.savePracticeAiResult(
@@ -122,6 +154,8 @@ const gradePracticeVideoWithAi = async ({
   } catch (error) {
     console.error("[practice-ai-grading] Could not save AI result:", error);
   }
+
+  return aiResults;
 };
 
 // Create new exam
@@ -677,6 +711,7 @@ const submitPracticeExam = async (req, res) => {
 
     const results = [];
     const skipped = [];
+    const aiGradingJobs = [];
 
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
@@ -740,33 +775,23 @@ const submitPracticeExam = async (req, res) => {
         minioPath,
       );
 
-      await examService.savePracticeAiResult(
+      aiGradingJobs.push({
         examId,
         userId,
-        attempt.attemptId,
+        attemptId: attempt.attemptId,
         vocabularyId,
-        [
-          normalizePracticeAiPending("model1"),
-          normalizePracticeAiPending("model3"),
-        ],
-      );
-
-      const fileForAi = {
-        ...file,
-        buffer: Buffer.from(file.buffer),
-      };
-
-      setImmediate(() => {
-        gradePracticeVideoWithAi({
-          examId,
-          userId,
-          attemptId: attempt.attemptId,
-          vocabularyId,
-          file: fileForAi,
-        });
+        file: {
+          ...file,
+          buffer: Buffer.from(file.buffer),
+        },
       });
       results.push(minioPath);
     }
+
+    const aiConcurrency = Number(process.env.PRACTICE_AI_GRADING_CONCURRENCY || 2);
+    await runWithConcurrency(aiGradingJobs, aiConcurrency, async (job) => {
+      await gradePracticeVideoWithAi(job);
+    });
 
     if (skipped.length > 0) {
       console.warn(

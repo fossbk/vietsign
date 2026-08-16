@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: jin312/vietsign-be:v1.1.54
+          image: jin312/vietsign-be:v1.1.55
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
