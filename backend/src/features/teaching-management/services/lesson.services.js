@@ -199,6 +199,7 @@ async function getLessonsByTopicId(topicId) {
       id: l.lesson_id,
       name: l.lesson_name,
       description: l.description,
+      content: l.content,
       topic_id: l.topic_id,
       classroom_id: l.class_room_id,
       difficulty_level: l.difficulty_level,

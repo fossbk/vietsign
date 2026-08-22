@@ -18,6 +18,8 @@ import {
   Search,
   Loader2,
   FileSpreadsheet,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useParams, useRouter } from "next/navigation";
@@ -41,6 +43,15 @@ import {
   fetchAllOrganizations,
   OrganizationItem,
 } from "@/services/organizationService";
+import {
+  createLesson,
+  fetchLessonsByClassroom,
+  type Lesson,
+} from "@/services/lessonService";
+import {
+  fetchTopicsByClassroom,
+  type TopicItem,
+} from "@/services/topicService";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
 import { Modal } from "@/shared/components/common/Modal";
 
@@ -90,6 +101,17 @@ export function ClassManagementDetail() {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importResult, setImportResult] = useState<any>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [isLessonsLoading, setIsLessonsLoading] = useState(false);
+  const [isCreateLessonModalOpen, setIsCreateLessonModalOpen] = useState(false);
+  const [isCreatingLesson, setIsCreatingLesson] = useState(false);
+  const [newLesson, setNewLesson] = useState({
+    name: "",
+    topicId: "",
+    description: "",
+    content: "",
+  });
 
   // Load class and teachers
   // Load class and teachers
@@ -231,8 +253,67 @@ export function ClassManagementDetail() {
     if (classItem) {
       loadClassMembers();
       loadAllStudents();
+      loadClassLessons();
     }
   }, [classItem?.id]);
+
+  const loadClassLessons = async () => {
+    if (!id) return;
+    setIsLessonsLoading(true);
+    try {
+      const [lessonsData, topicsData] = await Promise.all([
+        fetchLessonsByClassroom(id),
+        fetchTopicsByClassroom(id),
+      ]);
+      setLessons(lessonsData);
+      setTopics(topicsData);
+    } catch (error) {
+      console.error("Failed to load class lessons", error);
+    } finally {
+      setIsLessonsLoading(false);
+    }
+  };
+
+  const resetNewLesson = () => {
+    setNewLesson({
+      name: "",
+      topicId: "",
+      description: "",
+      content: "",
+    });
+  };
+
+  const handleCreateLesson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classItem?.id) return;
+
+    if (!newLesson.name.trim()) {
+      alert("Vui lòng nhập tên bài học");
+      return;
+    }
+
+    setIsCreatingLesson(true);
+    try {
+      await createLesson({
+        name: newLesson.name.trim(),
+        topic_id: newLesson.topicId ? Number(newLesson.topicId) : null,
+        description: newLesson.description.trim() || null,
+        content: newLesson.content.trim() || null,
+        classroom_id: classItem.id,
+        difficulty_level: "BEGINNER",
+        order_number: lessons.length + 1,
+        is_active: 1,
+      });
+      await loadClassLessons();
+      resetNewLesson();
+      setIsCreateLessonModalOpen(false);
+    } catch (error: any) {
+      console.error("Failed to create lesson", error);
+      alert(error?.response?.data?.message || "Tạo bài học thất bại");
+    } finally {
+      setIsCreatingLesson(false);
+    }
+  };
 
   // Handle add member
   const handleAddMember = async (studentId: number) => {
@@ -686,6 +767,104 @@ export function ClassManagementDetail() {
         </div>
       </div>
 
+      {/* Class Lessons Section */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <BookOpen className="w-6 h-6 text-primary-600" />
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                Bài học trong lớp
+              </h2>
+              <p className="text-sm text-gray-500">
+                Giáo viên tạo bài học theo chủ đề cho lớp này
+              </p>
+            </div>
+            <span className="text-sm text-gray-500">
+              ({lessons.length} bài học)
+            </span>
+          </div>
+          <button
+            onClick={() => setIsCreateLessonModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm shadow-sm"
+          >
+            <Plus size={16} />
+            Tạo Bài Học
+          </button>
+        </div>
+
+        <div className="p-6">
+          {isLessonsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
+              <span className="ml-2 text-gray-500">Đang tải bài học...</span>
+            </div>
+          ) : lessons.length === 0 ? (
+            <div className="text-center py-10 bg-gray-50 rounded-xl">
+              <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="font-medium text-gray-700">
+                Chưa có bài học trong lớp này
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Tạo bài học đầu tiên để học sinh bắt đầu học theo lớp.
+              </p>
+              <button
+                onClick={() => setIsCreateLessonModalOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm"
+              >
+                <Plus size={16} />
+                Tạo Bài Học
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {lessons.map((lesson) => {
+                const topic = topics.find((item) => item.id === lesson.topic_id);
+                return (
+                  <div
+                    key={lesson.id}
+                    className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0">
+                      <FileText size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-gray-900 truncate">
+                          {lesson.name}
+                        </h3>
+                        <span className="text-xs px-2 py-1 bg-white border border-gray-200 text-gray-600 rounded-full">
+                          {topic?.name || "Không thuộc chủ đề"}
+                        </span>
+                      </div>
+                      {lesson.description && (
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                          {lesson.description}
+                        </p>
+                      )}
+                      {lesson.content && (
+                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                          {lesson.content}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        lesson.is_active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {lesson.is_active ? "Hiển thị" : "Ẩn"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Class Members Section */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
@@ -807,6 +986,114 @@ export function ClassManagementDetail() {
           </div>
         </div>
       </div>
+
+      {/* Create Lesson Modal */}
+      <Modal
+        isOpen={isCreateLessonModalOpen}
+        onClose={() => {
+          setIsCreateLessonModalOpen(false);
+          resetNewLesson();
+        }}
+        title="Tạo bài học"
+        maxWidth="max-w-2xl"
+      >
+        <form className="space-y-4" onSubmit={handleCreateLesson}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              Tên bài học <span className="text-red-500">*</span>
+            </label>
+            <input
+              value={newLesson.name}
+              onChange={(e) =>
+                setNewLesson((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Ví dụ: Bài 01: Chào hỏi cơ bản"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              Chủ đề
+            </label>
+            <select
+              value={newLesson.topicId}
+              onChange={(e) =>
+                setNewLesson((prev) => ({ ...prev, topicId: e.target.value }))
+              }
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+            >
+              <option value="">Không thuộc chủ đề</option>
+              {topics.map((topic) => (
+                <option key={topic.id} value={topic.id}>
+                  {topic.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              Mô tả
+            </label>
+            <textarea
+              value={newLesson.description}
+              onChange={(e) =>
+                setNewLesson((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              rows={3}
+              placeholder="Mô tả ngắn về nội dung bài học"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              Nội dung
+            </label>
+            <textarea
+              value={newLesson.content}
+              onChange={(e) =>
+                setNewLesson((prev) => ({ ...prev, content: e.target.value }))
+              }
+              rows={6}
+              placeholder="Nhập hướng dẫn, mục tiêu hoặc nội dung chính của bài học"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+            />
+          </div>
+
+          <div className="rounded-xl bg-primary-50 border border-primary-100 p-3 text-sm text-primary-700">
+            Bài học sẽ tự động được gắn vào lớp: <b>{classItem.name}</b>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsCreateLessonModalOpen(false);
+                resetNewLesson();
+              }}
+              className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isCreatingLesson}
+              className="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            >
+              {isCreatingLesson && (
+                <Loader2 size={16} className="animate-spin" />
+              )}
+              {isCreatingLesson ? "Đang tạo..." : "Tạo bài học"}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Create Student Modal */}
       <Modal
