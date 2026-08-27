@@ -5,34 +5,75 @@ const db = require("../../../db");
  * Contains business logic for lesson operations.
  */
 
-let lessonContentColumnEnsured = false;
+let lessonSchemaColumnsEnsured = false;
 
-async function ensureLessonContentColumn() {
-  if (lessonContentColumnEnsured) {
+const LESSON_OPTIONAL_COLUMNS = [
+  {
+    name: "content",
+    ddl: "ADD COLUMN content TEXT DEFAULT NULL AFTER created_by",
+  },
+  {
+    name: "topic_id",
+    ddl: "ADD COLUMN topic_id BIGINT DEFAULT NULL AFTER content",
+  },
+  {
+    name: "description",
+    ddl: "ADD COLUMN description TEXT DEFAULT NULL AFTER topic_id",
+  },
+  {
+    name: "image_location",
+    ddl: "ADD COLUMN image_location VARCHAR(500) DEFAULT NULL AFTER description",
+  },
+  {
+    name: "video_location",
+    ddl: "ADD COLUMN video_location VARCHAR(500) DEFAULT NULL AFTER image_location",
+  },
+  {
+    name: "difficulty_level",
+    ddl: "ADD COLUMN difficulty_level VARCHAR(20) DEFAULT 'MEDIUM' AFTER video_location",
+  },
+  {
+    name: "order_number",
+    ddl: "ADD COLUMN order_number INT DEFAULT 0 AFTER difficulty_level",
+  },
+  {
+    name: "is_active",
+    ddl: "ADD COLUMN is_active TINYINT(1) DEFAULT 1 AFTER order_number",
+  },
+];
+
+async function ensureLessonSchemaColumns() {
+  if (lessonSchemaColumnsEnsured) {
     return;
   }
 
-  const [columns] = await db.execute(`
+  const columnNames = LESSON_OPTIONAL_COLUMNS.map((column) => column.name);
+  const placeholders = columnNames.map(() => "?").join(", ");
+  const [columns] = await db.execute(
+    `
     SELECT COLUMN_NAME
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'lesson'
-      AND COLUMN_NAME = 'content'
-  `);
+      AND COLUMN_NAME IN (${placeholders})
+  `,
+    columnNames
+  );
 
-  if (columns.length === 0) {
-    await db.execute(`
-      ALTER TABLE lesson
-      ADD COLUMN content TEXT DEFAULT NULL AFTER created_by
-    `);
+  const existingColumns = new Set(columns.map((column) => column.COLUMN_NAME));
+
+  for (const column of LESSON_OPTIONAL_COLUMNS) {
+    if (!existingColumns.has(column.name)) {
+      await db.execute(`ALTER TABLE lesson ${column.ddl}`);
+    }
   }
 
-  lessonContentColumnEnsured = true;
+  lessonSchemaColumnsEnsured = true;
 }
 
 async function createLesson(data, userId) {
   try {
-    await ensureLessonContentColumn();
+    await ensureLessonSchemaColumns();
 
     const {
       name,
@@ -101,7 +142,7 @@ async function createLesson(data, userId) {
 
 async function getLessons(filters) {
   try {
-    await ensureLessonContentColumn();
+    await ensureLessonSchemaColumns();
 
     const {
       page = 1,
@@ -173,7 +214,7 @@ async function getLessons(filters) {
 
 async function getLessonById(lessonId) {
   try {
-    await ensureLessonContentColumn();
+    await ensureLessonSchemaColumns();
 
     if (!lessonId) {
       throw {
@@ -216,7 +257,7 @@ async function getLessonById(lessonId) {
 
 async function getLessonsByTopicId(topicId) {
   try {
-    await ensureLessonContentColumn();
+    await ensureLessonSchemaColumns();
 
     if (!topicId) {
       throw {
@@ -248,7 +289,7 @@ async function getLessonsByTopicId(topicId) {
 
 async function getLessonsByClassroomId(classroomId) {
   try {
-    await ensureLessonContentColumn();
+    await ensureLessonSchemaColumns();
 
     if (!classroomId) {
       throw {
@@ -281,6 +322,8 @@ async function getLessonsByClassroomId(classroomId) {
 
 async function updateLesson(lessonId, data, userId) {
   try {
+    await ensureLessonSchemaColumns();
+
     if (!lessonId) {
       throw {
         status: 400,
@@ -370,6 +413,8 @@ async function updateLesson(lessonId, data, userId) {
 
 async function reorderLessons(topicId, lessons, userId) {
   try {
+    await ensureLessonSchemaColumns();
+
     if (!topicId || !Array.isArray(lessons) || lessons.length === 0) {
       throw {
         status: 400,
@@ -429,6 +474,8 @@ async function deleteLesson(lessonId, userId) {
 
 async function deleteLessonsByTopicId(topicId, userId) {
   try {
+    await ensureLessonSchemaColumns();
+
     if (!topicId) {
       throw {
         status: 400,
@@ -454,6 +501,8 @@ async function deleteLessonsByTopicId(topicId, userId) {
 
 async function getLessonStatistics(classroomId, topicId) {
   try {
+    await ensureLessonSchemaColumns();
+
     let query = "SELECT COUNT(*) as total FROM lesson WHERE 1=1";
     const params = [];
 
