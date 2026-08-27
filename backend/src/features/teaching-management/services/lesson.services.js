@@ -5,8 +5,35 @@ const db = require("../../../db");
  * Contains business logic for lesson operations.
  */
 
+let lessonContentColumnEnsured = false;
+
+async function ensureLessonContentColumn() {
+  if (lessonContentColumnEnsured) {
+    return;
+  }
+
+  const [columns] = await db.execute(`
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'lesson'
+      AND COLUMN_NAME = 'content'
+  `);
+
+  if (columns.length === 0) {
+    await db.execute(`
+      ALTER TABLE lesson
+      ADD COLUMN content TEXT DEFAULT NULL AFTER created_by
+    `);
+  }
+
+  lessonContentColumnEnsured = true;
+}
+
 async function createLesson(data, userId) {
   try {
+    await ensureLessonContentColumn();
+
     const {
       name,
       description,
@@ -74,6 +101,8 @@ async function createLesson(data, userId) {
 
 async function getLessons(filters) {
   try {
+    await ensureLessonContentColumn();
+
     const {
       page = 1,
       limit = 20,
@@ -144,6 +173,8 @@ async function getLessons(filters) {
 
 async function getLessonById(lessonId) {
   try {
+    await ensureLessonContentColumn();
+
     if (!lessonId) {
       throw {
         status: 400,
@@ -185,6 +216,8 @@ async function getLessonById(lessonId) {
 
 async function getLessonsByTopicId(topicId) {
   try {
+    await ensureLessonContentColumn();
+
     if (!topicId) {
       throw {
         status: 400,
@@ -215,6 +248,8 @@ async function getLessonsByTopicId(topicId) {
 
 async function getLessonsByClassroomId(classroomId) {
   try {
+    await ensureLessonContentColumn();
+
     if (!classroomId) {
       throw {
         status: 400,
