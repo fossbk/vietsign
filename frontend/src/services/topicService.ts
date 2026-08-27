@@ -6,9 +6,6 @@ export interface TopicItem {
   id: number;
   name: string;
   classroomId?: number;
-  description?: string;
-  imageLocation?: string;
-  isPrivate?: boolean;
 }
 
 /**
@@ -33,9 +30,6 @@ export async function fetchAllTopics(query: any = {}): Promise<TopicItem[]> {
           id: t.topic_id || t.id,
           name: repairVietnameseMojibake(t.name || t.content || ""),
           classroomId: t.classroom_id,
-          description: repairVietnameseMojibake(t.description || ""),
-          imageLocation: cleanUrl(t.image_location),
-          isPrivate: Boolean(t.is_private),
         }))
       : [];
   } catch (error) {
@@ -57,9 +51,6 @@ export async function fetchTopicsByClassroom(
           id: t.topic_id || t.id,
           name: repairVietnameseMojibake(t.name || t.content || ""),
           classroomId: t.classroom_id,
-          description: repairVietnameseMojibake(t.description || ""),
-          imageLocation: cleanUrl(t.image_location),
-          isPrivate: Boolean(t.is_private),
         }))
       : [];
   } catch (error) {
