@@ -30,7 +30,7 @@ router.put(
 router.delete(
   '/:topic_id',
   authRequired,
-  checkOrgRole(['SUPER_ADMIN', 'CENTER_ADMIN', 'SCHOOL_ADMIN']),
+  checkOrgRole(['TEACHER', 'SUPER_ADMIN', 'CENTER_ADMIN', 'SCHOOL_ADMIN']),
   topicController.deleteTopic
 );
 

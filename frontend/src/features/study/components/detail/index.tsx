@@ -55,11 +55,17 @@ import { toast } from "react-hot-toast";
 import { Modal } from "@/shared/components/common/Modal";
 import { LessonModal } from "./LessonModal";
 import { ExamModal } from "./ExamModal";
-import { fetchTopicsByClassroom, TopicItem } from "@/services/topicService";
+import {
+  createTopic,
+  deleteTopic,
+  fetchTopicsByClassroom,
+  TopicItem,
+  updateTopic,
+} from "@/services/topicService";
 import { fetchLessonStatistics } from "@/services/lessonService";
 
-type TabType = "lessons" | "exams" | "members";
-type DeleteType = "lesson" | "exam" | "member" | null;
+type TabType = "lessons" | "topics" | "exams" | "members";
+type DeleteType = "lesson" | "topic" | "exam" | "member" | null;
 
 export function StudyDetail() {
   const params = useParams();
@@ -104,6 +110,19 @@ export function StudyDetail() {
     isOpen: false,
     data: null,
   });
+  const [topicModal, setTopicModal] = useState<{
+    isOpen: boolean;
+    data: TopicItem | null;
+  }>({
+    isOpen: false,
+    data: null,
+  });
+  const [topicForm, setTopicForm] = useState({
+    name: "",
+    description: "",
+    image_location: "",
+  });
+  const [isSavingTopic, setIsSavingTopic] = useState(false);
 
   // Delete Modal State
   const [deleteModal, setDeleteModal] = useState<{
@@ -200,6 +219,10 @@ export function StudyDetail() {
       case "lessons":
         setLessonModal({ isOpen: true, data: null });
         break;
+      case "topics":
+        setTopicModal({ isOpen: true, data: null });
+        setTopicForm({ name: "", description: "", image_location: "" });
+        break;
       case "exams":
         setExamModal({ isOpen: true, data: null });
         break;
@@ -214,6 +237,17 @@ export function StudyDetail() {
       case "lessons":
         const lesson = lessons.find((l) => l.id === itemId);
         if (lesson) setLessonModal({ isOpen: true, data: lesson });
+        break;
+      case "topics":
+        const topic = topics.find((t) => t.id === itemId);
+        if (topic) {
+          setTopicModal({ isOpen: true, data: topic });
+          setTopicForm({
+            name: topic.name || "",
+            description: topic.description || "",
+            image_location: topic.imageLocation || "",
+          });
+        }
         break;
       case "exams":
         const exam = exams.find((e) => e.id === itemId);
@@ -246,6 +280,11 @@ export function StudyDetail() {
           setLessons((prev) => prev.filter((i) => i.id !== itemId));
           toast.success("Đã xóa bài học");
           break;
+        case "topic":
+          await deleteTopic(itemId);
+          setTopics((prev) => prev.filter((i) => i.id !== itemId));
+          toast.success("Đã xóa chủ đề");
+          break;
         case "exam":
           await deleteExam(itemId);
           setExams((prev) => prev.filter((i) => i.id !== itemId));
@@ -262,6 +301,43 @@ export function StudyDetail() {
       toast.error("Xóa thất bại");
     } finally {
       setDeleteModal({ isOpen: false, type: null, itemId: null, itemName: "" });
+    }
+  };
+
+  const handleSubmitTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classItem || !topicForm.name.trim()) return;
+
+    setIsSavingTopic(true);
+    try {
+      const payload = {
+        name: topicForm.name.trim(),
+        classroom_id: classItem.id,
+        description: topicForm.description.trim() || null,
+        image_location: topicForm.image_location.trim() || null,
+        is_common: false,
+      };
+
+      if (topicModal.data) {
+        await updateTopic(topicModal.data.id, payload);
+        toast.success("Cập nhật chủ đề thành công");
+      } else {
+        await createTopic(payload);
+        toast.success("Tạo chủ đề thành công");
+      }
+
+      setTopicModal({ isOpen: false, data: null });
+      setTopicForm({ name: "", description: "", image_location: "" });
+      const refreshedTopics = await fetchTopicsByClassroom(classItem.id);
+      setTopics(refreshedTopics);
+    } catch (error: any) {
+      console.error(error);
+      const message =
+        error?.response?.data?.message ||
+        (topicModal.data ? "Cập nhật chủ đề thất bại" : "Tạo chủ đề thất bại");
+      toast.error(message);
+    } finally {
+      setIsSavingTopic(false);
     }
   };
 
@@ -331,6 +407,12 @@ export function StudyDetail() {
       label: "Bài học",
       icon: BookOpen,
       count: lessons.length,
+    },
+    {
+      id: "topics" as TabType,
+      label: "Chủ đề",
+      icon: FolderOpen,
+      count: topics.length,
     },
     {
       id: "exams" as TabType,
@@ -703,6 +785,90 @@ export function StudyDetail() {
           </div>
         )}
 
+        {/* Topics Tab */}
+        {activeTab === "topics" && (
+          <div className="p-6">
+            {topics.length === 0 ? (
+              <div className="p-12 text-center">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FolderOpen size={40} className="text-gray-300" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900">
+                  Chưa có chủ đề nào
+                </h3>
+                <p className="text-gray-500 max-w-sm mx-auto mt-1">
+                  Giáo viên có thể tạo chủ đề để gom bài học theo từng phần nội
+                  dung.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {topics.map((topic) => {
+                  const topicLessons = lessons.filter(
+                    (lesson) => lesson.topic_id === topic.id,
+                  );
+
+                  return (
+                    <div
+                      key={topic.id}
+                      className="rounded-2xl border border-gray-100 bg-white p-5 hover:border-primary-200 hover:shadow-md hover:shadow-primary-500/5 transition-all"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0">
+                          <FolderOpen size={24} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-gray-900 truncate">
+                              {topic.name}
+                            </h3>
+                            <span className="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-medium whitespace-nowrap">
+                              {topicLessons.length} bài học
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                            {topic.description ||
+                              "Chưa có mô tả cho chủ đề này."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
+                        <button
+                          onClick={() => setActiveTab("lessons")}
+                          className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                        >
+                          Xem bài học
+                        </button>
+                        {isTeacher && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleEdit("topics", topic.id)}
+                              className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                              title="Chỉnh sửa chủ đề"
+                            >
+                              <Pencil size={18} />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteClick("topic", topic.id, topic.name)
+                              }
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Xóa chủ đề"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Exams Tab */}
         {activeTab === "exams" && (
           <div className="divide-y divide-gray-100">
@@ -928,14 +1094,102 @@ export function StudyDetail() {
         message={`Bạn có chắc chắn muốn xóa ${
           deleteModal.type === "lesson"
             ? "bài học"
-            : deleteModal.type === "exam"
-              ? "bài kiểm tra"
-              : "thành viên"
+            : deleteModal.type === "topic"
+              ? "chủ đề"
+              : deleteModal.type === "exam"
+                ? "bài kiểm tra"
+                : "thành viên"
         } "${deleteModal.itemName}" không? Hành động này không thể hoàn tác.`}
         confirmText="Xóa ngay"
         cancelText="Hủy bỏ"
         type="danger"
       />
+
+      <Modal
+        isOpen={topicModal.isOpen}
+        onClose={() => setTopicModal({ isOpen: false, data: null })}
+        title={topicModal.data ? "Chỉnh sửa chủ đề" : "Tạo chủ đề"}
+      >
+        <form onSubmit={handleSubmitTopic} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tên chủ đề <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={topicForm.name}
+              onChange={(e) =>
+                setTopicForm((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="Ví dụ: Chủ đề 1 - Chào hỏi"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mô tả
+            </label>
+            <textarea
+              rows={3}
+              value={topicForm.description}
+              onChange={(e) =>
+                setTopicForm((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Mô tả ngắn nội dung của chủ đề"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ảnh minh họa
+            </label>
+            <input
+              type="url"
+              value={topicForm.image_location}
+              onChange={(e) =>
+                setTopicForm((prev) => ({
+                  ...prev,
+                  image_location: e.target.value,
+                }))
+              }
+              placeholder="https://..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 outline-none"
+            />
+          </div>
+
+          <div className="rounded-xl bg-primary-50 border border-primary-100 px-4 py-3 text-sm text-primary-700">
+            Chủ đề sẽ tự động được gắn vào lớp:{" "}
+            <span className="font-semibold">{classItem.name}</span>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setTopicModal({ isOpen: false, data: null })}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isSavingTopic}
+              className="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+            >
+              {isSavingTopic
+                ? "Đang lưu..."
+                : topicModal.data
+                  ? "Lưu thay đổi"
+                  : "Tạo chủ đề"}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       <Modal
         isOpen={isAddMemberOpen}
