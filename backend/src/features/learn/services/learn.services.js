@@ -1,4 +1,7 @@
 const db = require("../../../db");
+const {
+  ensureTopicVocabularySchema,
+} = require("../../teaching-management/services/topic.services");
 
 /**
  * Service layer for Learn By Topic feature.
@@ -1201,11 +1204,17 @@ async function searchItems(query, limit = 20, offset = 0) {
 // ============================================================================
 
 async function getTopicsForLearning(classroomId, limit = 20, offset = 0) {
+  await ensureTopicVocabularySchema();
   let whereClause = "WHERE t.is_active = 1";
   const params = [];
 
   if (classroomId) {
-    whereClause += " AND t.class_room_id = ?";
+    whereClause += ` AND EXISTS (
+      SELECT 1 FROM classroom_topic ct
+      WHERE ct.topic_id = t.topic_id
+        AND ct.classroom_id = ?
+        AND ct.is_active = 1
+    )`;
     params.push(classroomId);
   }
 
@@ -1224,7 +1233,10 @@ async function getTopicsForLearning(classroomId, limit = 20, offset = 0) {
       t.video_location as videoUrl,
       t.class_room_id as classroomId,
       c.content as classroomName,
-      (SELECT COUNT(*) FROM vocabulary v WHERE v.topic_id = t.topic_id AND v.status = 'APPROVED') as vocabularyCount
+      (SELECT COUNT(*)
+       FROM topic_vocabulary tv
+       INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+       WHERE tv.topic_id = t.topic_id AND v.status = 'APPROVED') as vocabularyCount
      FROM topic t
      LEFT JOIN class_room c ON t.class_room_id = c.class_room_id
      ${whereClause}
@@ -1237,6 +1249,7 @@ async function getTopicsForLearning(classroomId, limit = 20, offset = 0) {
 }
 
 async function getTopicWithVocabularies(topicId) {
+  await ensureTopicVocabularySchema();
   const [topicRows] = await db.execute(
     `SELECT
       t.topic_id as id,
@@ -1265,8 +1278,9 @@ async function getTopicWithVocabularies(topicId) {
       (SELECT vi.image_location FROM vocabulary_image vi WHERE vi.vocabulary_id = v.vocabulary_id ORDER BY vi.is_primary DESC LIMIT 1) as imageUrl,
       (SELECT vv.video_location FROM vocabulary_video vv WHERE vv.vocabulary_id = v.vocabulary_id ORDER BY vv.is_primary DESC LIMIT 1) as videoUrl,
       (SELECT COALESCE(SUM(vw.view_count), 0) FROM vocabulary_view vw WHERE vw.vocabulary_id = v.vocabulary_id) as viewCount
-     FROM vocabulary v
-     WHERE v.topic_id = ? AND v.status = 'APPROVED'
+     FROM topic_vocabulary tv
+     INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+     WHERE tv.topic_id = ? AND v.status = 'APPROVED'
      ORDER BY v.vocabulary_id ASC`,
     [topicId],
   );

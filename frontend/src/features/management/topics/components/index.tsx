@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
+  Check,
   FolderKanban,
   Image as ImageIcon,
   Loader2,
@@ -17,9 +18,13 @@ import {
   createTopic,
   deleteTopic,
   fetchMyTopics,
+  fetchSelectedTopicVocabularies,
+  replaceTopicVocabularies,
   TopicItem,
   updateTopic,
 } from "@/services/topicService";
+import { fetchAllWords } from "@/services/dictionaryService";
+import { DictionaryItem } from "@/data/dictionaryData";
 import { Modal } from "@/shared/components/common/Modal";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
 
@@ -36,6 +41,17 @@ export function TopicsManagement() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<TopicItem | null>(null);
+  const [vocabularyModal, setVocabularyModal] = useState<{
+    open: boolean;
+    topic: TopicItem | null;
+  }>({ open: false, topic: null });
+  const [dictionaryWords, setDictionaryWords] = useState<DictionaryItem[]>([]);
+  const [selectedVocabularyIds, setSelectedVocabularyIds] = useState<number[]>(
+    [],
+  );
+  const [vocabularySearch, setVocabularySearch] = useState("");
+  const [isVocabularyLoading, setIsVocabularyLoading] = useState(false);
+  const [isVocabularySaving, setIsVocabularySaving] = useState(false);
 
   const loadTopics = async () => {
     setIsLoading(true);
@@ -125,6 +141,78 @@ export function TopicsManagement() {
       toast.error(error?.response?.data?.message || "Xóa chủ đề thất bại");
     } finally {
       setDeleteTarget(null);
+    }
+  };
+
+  const openVocabularyModal = async (topic: TopicItem) => {
+    setVocabularyModal({ open: true, topic });
+    setVocabularySearch("");
+    setIsVocabularyLoading(true);
+    try {
+      const [words, selectedWords] = await Promise.all([
+        fetchAllWords({ status: "APPROVED", limit: 10000 }),
+        fetchSelectedTopicVocabularies(topic.id),
+      ]);
+      setDictionaryWords(words);
+      setSelectedVocabularyIds(selectedWords.map((word) => word.id));
+    } catch (error: any) {
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message || "Không thể tải bộ từ điển",
+      );
+    } finally {
+      setIsVocabularyLoading(false);
+    }
+  };
+
+  const filteredDictionaryWords = useMemo(() => {
+    const keyword = vocabularySearch.trim().toLocaleLowerCase("vi");
+    if (!keyword) return dictionaryWords;
+    return dictionaryWords.filter(
+      (word) =>
+        word.word.toLocaleLowerCase("vi").includes(keyword) ||
+        word.description?.toLocaleLowerCase("vi").includes(keyword),
+    );
+  }, [dictionaryWords, vocabularySearch]);
+
+  const toggleVocabulary = (vocabularyId: number) => {
+    setSelectedVocabularyIds((current) =>
+      current.includes(vocabularyId)
+        ? current.filter((id) => id !== vocabularyId)
+        : [...current, vocabularyId],
+    );
+  };
+
+  const toggleAllVisibleVocabularies = () => {
+    const visibleIds = filteredDictionaryWords.map((word) => word.id);
+    const allVisibleSelected = visibleIds.every((id) =>
+      selectedVocabularyIds.includes(id),
+    );
+    setSelectedVocabularyIds((current) =>
+      allVisibleSelected
+        ? current.filter((id) => !visibleIds.includes(id))
+        : [...new Set([...current, ...visibleIds])],
+    );
+  };
+
+  const handleSaveVocabularies = async () => {
+    if (!vocabularyModal.topic) return;
+    setIsVocabularySaving(true);
+    try {
+      await replaceTopicVocabularies(
+        vocabularyModal.topic.id,
+        selectedVocabularyIds,
+      );
+      toast.success("Đã cập nhật bộ từ vựng");
+      setVocabularyModal({ open: false, topic: null });
+      await loadTopics();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message || "Cập nhật từ vựng thất bại",
+      );
+    } finally {
+      setIsVocabularySaving(false);
     }
   };
 
@@ -250,21 +338,30 @@ export function TopicsManagement() {
                       {topic.vocabularyCount || 0} từ
                     </span>
                   </div>
-                  <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
+                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
                     <button
-                      onClick={() => openEdit(topic)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-primary-50 hover:text-primary-600"
-                      title="Chỉnh sửa"
+                      onClick={() => openVocabularyModal(topic)}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50"
                     >
-                      <Pencil size={18} />
+                      <BookOpen size={17} />
+                      Chọn từ vựng
                     </button>
-                    <button
-                      onClick={() => setDeleteTarget(topic)}
-                      className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
-                      title="Xóa"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEdit(topic)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-primary-50 hover:text-primary-600"
+                        title="Chỉnh sửa"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(topic)}
+                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                        title="Xóa"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -349,6 +446,137 @@ export function TopicsManagement() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={vocabularyModal.open}
+        onClose={() => setVocabularyModal({ open: false, topic: null })}
+        title={`Chọn từ vựng - ${vocabularyModal.topic?.name || ""}`}
+        maxWidth="max-w-4xl"
+      >
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1">
+              <Search
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                value={vocabularySearch}
+                onChange={(event) => setVocabularySearch(event.target.value)}
+                placeholder="Tìm từ trong bộ từ điển..."
+                className="w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+            <div className="whitespace-nowrap text-sm text-gray-600">
+              Đã chọn{" "}
+              <span className="font-bold text-primary-700">
+                {selectedVocabularyIds.length}
+              </span>{" "}
+              từ
+            </div>
+          </div>
+
+          {isVocabularyLoading ? (
+            <div className="flex items-center justify-center py-16 text-gray-500">
+              <Loader2 size={24} className="mr-2 animate-spin" />
+              Đang tải bộ từ điển...
+            </div>
+          ) : dictionaryWords.length === 0 ? (
+            <div className="rounded-xl bg-gray-50 py-14 text-center">
+              <BookOpen className="mx-auto h-12 w-12 text-gray-300" />
+              <p className="mt-3 font-medium text-gray-700">
+                Chưa có từ vựng đã duyệt
+              </p>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={toggleAllVisibleVocabularies}
+                className="text-sm font-semibold text-primary-700 hover:text-primary-800"
+              >
+                {filteredDictionaryWords.every((word) =>
+                  selectedVocabularyIds.includes(word.id),
+                )
+                  ? "Bỏ chọn kết quả đang hiển thị"
+                  : "Chọn tất cả kết quả đang hiển thị"}
+              </button>
+              <div className="grid max-h-[52vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+                {filteredDictionaryWords.map((word) => {
+                  const selected = selectedVocabularyIds.includes(word.id);
+                  return (
+                    <button
+                      type="button"
+                      key={word.id}
+                      onClick={() => toggleVocabulary(word.id)}
+                      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+                        selected
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-gray-200 hover:border-primary-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        {word.imageUrl ? (
+                          <img
+                            src={word.imageUrl}
+                            alt={word.word}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="m-auto h-full w-6 text-gray-300" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-gray-900">
+                          {word.word}
+                        </p>
+                        <p className="mt-1 truncate text-xs text-gray-500">
+                          {word.description || word.category}
+                        </p>
+                      </div>
+                      <span
+                        className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border ${
+                          selected
+                            ? "border-primary-600 bg-primary-600 text-white"
+                            : "border-gray-300 bg-white"
+                        }`}
+                      >
+                        {selected && <Check size={14} />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {filteredDictionaryWords.length === 0 && (
+                <div className="py-10 text-center text-gray-500">
+                  Không tìm thấy từ vựng phù hợp
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setVocabularyModal({ open: false, topic: null })}
+              className="rounded-xl border border-gray-200 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveVocabularies}
+              disabled={isVocabularyLoading || isVocabularySaving}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            >
+              {isVocabularySaving && (
+                <Loader2 size={17} className="animate-spin" />
+              )}
+              Lưu bộ từ vựng
+            </button>
+          </div>
+        </div>
       </Modal>
 
       <ConfirmModal

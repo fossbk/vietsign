@@ -1,6 +1,7 @@
 const db = require("../../../db");
 
 let classroomTopicSchemaPromise;
+let topicVocabularySchemaPromise;
 
 async function ensureClassroomTopicSchema() {
   if (!classroomTopicSchemaPromise) {
@@ -34,6 +35,38 @@ async function ensureClassroomTopicSchema() {
   }
 
   return classroomTopicSchemaPromise;
+}
+
+async function ensureTopicVocabularySchema() {
+  if (!topicVocabularySchemaPromise) {
+    topicVocabularySchemaPromise = (async () => {
+      await db.execute(`
+        CREATE TABLE IF NOT EXISTS topic_vocabulary (
+          topic_vocabulary_id BIGINT NOT NULL AUTO_INCREMENT,
+          topic_id BIGINT NOT NULL,
+          vocabulary_id BIGINT NOT NULL,
+          added_by BIGINT DEFAULT NULL,
+          added_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (topic_vocabulary_id),
+          UNIQUE KEY uq_topic_vocabulary (topic_id, vocabulary_id),
+          KEY idx_topic_vocabulary_vocabulary (vocabulary_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      `);
+
+      await db.execute(`
+        INSERT INTO topic_vocabulary (topic_id, vocabulary_id, added_by)
+        SELECT topic_id, vocabulary_id, created_id
+        FROM vocabulary
+        WHERE topic_id IS NOT NULL AND status = 'APPROVED'
+        ON DUPLICATE KEY UPDATE topic_id = VALUES(topic_id)
+      `);
+    })().catch((error) => {
+      topicVocabularySchemaPromise = null;
+      throw error;
+    });
+  }
+
+  return topicVocabularySchemaPromise;
 }
 
 async function isGlobalAdmin(userId) {
@@ -252,12 +285,19 @@ async function getTopicById(topicId) {
 
 async function getTopicsByClassroom(classroomId, limit, offset, viewerId) {
   try {
-    await ensureClassroomTopicSchema();
+    await Promise.all([
+      ensureClassroomTopicSchema(),
+      ensureTopicVocabularySchema(),
+    ]);
     if (!classroomId) {
       throw {
         status: 400,
         message: "Classroom ID is required",
       };
+    }
+
+    if (viewerId) {
+      await assertCanViewClassroom(viewerId, classroomId);
     }
 
     const countQuery = `
@@ -272,7 +312,10 @@ async function getTopicsByClassroom(classroomId, limit, offset, viewerId) {
     const query = `
       SELECT t.topic_id as id, t.content as name, ct.classroom_id,
              t.description, t.image_location, t.created_id as creator_id,
-             (SELECT COUNT(*) FROM vocabulary v WHERE v.topic_id = t.topic_id) as vocabulary_count
+             (SELECT COUNT(*)
+              FROM topic_vocabulary tv
+              INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+              WHERE tv.topic_id = t.topic_id AND v.status = 'APPROVED') as vocabulary_count
       FROM topic t
       INNER JOIN classroom_topic ct ON ct.topic_id = t.topic_id
       WHERE ct.classroom_id = ? AND ct.is_active = 1 AND COALESCE(t.is_active, 1) = 1
@@ -297,7 +340,10 @@ async function getTopicsByClassroom(classroomId, limit, offset, viewerId) {
 
 async function getTopicsByOwner(userId, limit = 1000, offset = 0) {
   try {
-    await ensureClassroomTopicSchema();
+    await Promise.all([
+      ensureClassroomTopicSchema(),
+      ensureTopicVocabularySchema(),
+    ]);
     const admin = await isGlobalAdmin(userId);
     const ownerClause = admin
       ? ""
@@ -316,7 +362,10 @@ async function getTopicsByOwner(userId, limit = 1000, offset = 0) {
       `SELECT t.topic_id as id, t.content as name, t.description,
               t.image_location, t.created_id as creator_id,
               COUNT(DISTINCT ct.classroom_id) as classroom_count,
-              (SELECT COUNT(*) FROM vocabulary v WHERE v.topic_id = t.topic_id) as vocabulary_count
+              (SELECT COUNT(*)
+               FROM topic_vocabulary tv
+               INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+               WHERE tv.topic_id = t.topic_id AND v.status = 'APPROVED') as vocabulary_count
        FROM topic t
        LEFT JOIN \`user\` u ON u.user_id = ?
        LEFT JOIN classroom_topic ct
@@ -360,10 +409,6 @@ async function assignTopicsToClassroom(userId, classroomId, topicIds) {
       throw { status: 400, message: "Vui lòng chọn ít nhất một chủ đề" };
     }
 
-    if (viewerId) {
-      await assertCanViewClassroom(viewerId, classroomId);
-    }
-
     for (const topicId of uniqueTopicIds) {
       await assertCanManageTopic(userId, topicId);
       await db.execute(
@@ -394,6 +439,89 @@ async function removeTopicFromClassroom(userId, classroomId, topicId) {
     return { classroom_id: classroomId, topic_id: topicId };
   } catch (err) {
     throw { status: err.status || 500, message: err.message || "Error removing topic" };
+  }
+}
+
+async function getTopicVocabularies(topicId) {
+  try {
+    await ensureTopicVocabularySchema();
+    const [rows] = await db.execute(
+      `SELECT v.vocabulary_id as id, v.content as word,
+              v.description, v.vocabulary_type, v.status,
+              (SELECT vi.image_location
+               FROM vocabulary_image vi
+               WHERE vi.vocabulary_id = v.vocabulary_id
+               ORDER BY vi.is_primary DESC, vi.vocabulary_image_id ASC
+               LIMIT 1) as image_url,
+              (SELECT vv.video_location
+               FROM vocabulary_video vv
+               WHERE vv.vocabulary_id = v.vocabulary_id
+               ORDER BY vv.is_primary DESC, vv.vocabulary_video_id ASC
+               LIMIT 1) as video_url
+       FROM topic_vocabulary tv
+       INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+       WHERE tv.topic_id = ? AND v.status = 'APPROVED'
+       ORDER BY tv.added_at ASC, v.content ASC`,
+      [topicId],
+    );
+    return rows;
+  } catch (err) {
+    throw {
+      status: err.status || 500,
+      message: err.message || "Error fetching topic vocabularies",
+    };
+  }
+}
+
+async function replaceTopicVocabularies(userId, topicId, vocabularyIds) {
+  let connection;
+  try {
+    await ensureTopicVocabularySchema();
+    await assertCanManageTopic(userId, topicId);
+
+    const ids = [...new Set((vocabularyIds || []).map(Number).filter(Boolean))];
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    if (ids.length > 0) {
+      const placeholders = ids.map(() => "?").join(",");
+      const [validRows] = await connection.execute(
+        `SELECT vocabulary_id
+         FROM vocabulary
+         WHERE vocabulary_id IN (${placeholders}) AND status = 'APPROVED'`,
+        ids,
+      );
+      if (validRows.length !== ids.length) {
+        throw {
+          status: 400,
+          message: "Một số từ vựng không tồn tại hoặc chưa được duyệt",
+        };
+      }
+    }
+
+    await connection.execute(
+      "DELETE FROM topic_vocabulary WHERE topic_id = ?",
+      [topicId],
+    );
+
+    for (const vocabularyId of ids) {
+      await connection.execute(
+        `INSERT INTO topic_vocabulary (topic_id, vocabulary_id, added_by)
+         VALUES (?, ?, ?)`,
+        [topicId, vocabularyId, userId],
+      );
+    }
+
+    await connection.commit();
+    return getTopicVocabularies(topicId);
+  } catch (err) {
+    if (connection) await connection.rollback();
+    throw {
+      status: err.status || 500,
+      message: err.message || "Error updating topic vocabularies",
+    };
+  } finally {
+    if (connection) connection.release();
   }
 }
 
@@ -538,7 +666,10 @@ async function updateTopic(topicId, updates, userId) {
 
 async function deleteTopic(topicId, userId) {
   try {
-    await ensureClassroomTopicSchema();
+    await Promise.all([
+      ensureClassroomTopicSchema(),
+      ensureTopicVocabularySchema(),
+    ]);
     await assertCanManageTopic(userId, topicId);
     if (!topicId) {
       throw {
@@ -548,6 +679,7 @@ async function deleteTopic(topicId, userId) {
     }
 
     await db.execute("DELETE FROM classroom_topic WHERE topic_id = ?", [topicId]);
+    await db.execute("DELETE FROM topic_vocabulary WHERE topic_id = ?", [topicId]);
     const query = "UPDATE topic SET is_active = 0, modified_date = NOW() WHERE topic_id = ?";
     const [result] = await db.execute(query, [topicId]);
 
@@ -616,6 +748,7 @@ async function getTopicStatistics(classroomId) {
 }
 
 module.exports = {
+  ensureTopicVocabularySchema,
   createTopic,
   getTopics,
   getTopicById,
@@ -625,6 +758,8 @@ module.exports = {
   getAvailableTopicsForClassroom,
   assignTopicsToClassroom,
   removeTopicFromClassroom,
+  getTopicVocabularies,
+  replaceTopicVocabularies,
   searchTopicsByName,
   updateTopic,
   deleteTopic,

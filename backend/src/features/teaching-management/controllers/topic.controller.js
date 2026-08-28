@@ -130,6 +130,46 @@ const removeTopicFromClassroom = async (req, res) => {
   }
 };
 
+const getTopicVocabularies = async (req, res) => {
+  try {
+    const topicId = parseInt(req.params.topic_id);
+    if (!topicId) {
+      return res.status(400).json({
+        success: false,
+        message: "ID chủ đề không hợp lệ",
+      });
+    }
+    const data = await topicService.getTopicVocabularies(topicId);
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return sendTopicError(res, error, "Không thể tải từ vựng của chủ đề");
+  }
+};
+
+const replaceTopicVocabularies = async (req, res) => {
+  try {
+    const topicId = parseInt(req.params.topic_id);
+    if (!topicId || !Array.isArray(req.body.vocabulary_ids)) {
+      return res.status(400).json({
+        success: false,
+        message: "Danh sách từ vựng không hợp lệ",
+      });
+    }
+    const data = await topicService.replaceTopicVocabularies(
+      req.user.user_id,
+      topicId,
+      req.body.vocabulary_ids,
+    );
+    return res.status(200).json({
+      success: true,
+      data,
+      message: "Đã cập nhật bộ từ vựng của chủ đề",
+    });
+  } catch (error) {
+    return sendTopicError(res, error, "Cập nhật từ vựng thất bại");
+  }
+};
+
 // Get all topics with pagination and filtering
 const getTopics = async (req, res) => {
   try {
@@ -479,6 +519,8 @@ module.exports = {
   getAvailableTopicsForClassroom,
   assignTopicsToClassroom,
   removeTopicFromClassroom,
+  getTopicVocabularies,
+  replaceTopicVocabularies,
   getTopics,
   getTopicById,
   getTopicsByClassroom,

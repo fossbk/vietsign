@@ -37,6 +37,21 @@ export class TopicModel extends Base {
     return res.data;
   };
 
+  getTopicVocabularies = async (topicId: number) => {
+    const res = await this.apiGet(`/${topicId}/vocabularies`);
+    return res.data;
+  };
+
+  replaceTopicVocabularies = async (
+    topicId: number,
+    vocabularyIds: number[],
+  ) => {
+    const res = await this.apiPut(`/${topicId}/vocabularies`, {
+      vocabulary_ids: vocabularyIds,
+    });
+    return res.data;
+  };
+
   getTopicById = async (id: number) => {
     const res = await this.apiGet(`/${id}`);
     return res.data;

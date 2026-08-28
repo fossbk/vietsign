@@ -13,6 +13,16 @@ export interface TopicItem {
   vocabularyCount?: number;
 }
 
+export interface TopicVocabularyItem {
+  id: number;
+  word: string;
+  description?: string;
+  vocabularyType?: string;
+  status?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+}
+
 const mapTopic = (topic: any): TopicItem => ({
   id: Number(topic.topic_id || topic.id),
   name: repairVietnameseMojibake(topic.name || topic.content || ""),
@@ -97,6 +107,30 @@ export async function removeTopicFromClassroom(
   topicId: number,
 ): Promise<void> {
   await Topics.removeTopicFromClassroom(classroomId, topicId);
+}
+
+export async function fetchSelectedTopicVocabularies(
+  topicId: number,
+): Promise<TopicVocabularyItem[]> {
+  const response = await Topics.getTopicVocabularies(topicId);
+  const data = response.data || response;
+  const items = Array.isArray(data) ? data : data.data || [];
+  return items.map((item: any) => ({
+    id: Number(item.id || item.vocabulary_id),
+    word: repairVietnameseMojibake(item.word || item.content || ""),
+    description: repairVietnameseMojibake(item.description || ""),
+    vocabularyType: item.vocabulary_type,
+    status: item.status,
+    imageUrl: cleanUrl(item.image_url),
+    videoUrl: cleanUrl(item.video_url),
+  }));
+}
+
+export async function replaceTopicVocabularies(
+  topicId: number,
+  vocabularyIds: number[],
+): Promise<void> {
+  await Topics.replaceTopicVocabularies(topicId, vocabularyIds);
 }
 
 export async function fetchVocabulariesByTopic(

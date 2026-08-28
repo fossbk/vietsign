@@ -34,6 +34,17 @@ router.delete(
 );
 router.get('/classroom/:classroom_id', authRequired, topicController.getTopicsByClassroom);
 router.get('/creator/:creator_id', authRequired, topicController.getTopicsByCreator);
+router.get(
+  '/:topic_id/vocabularies',
+  authRequired,
+  topicController.getTopicVocabularies
+);
+router.put(
+  '/:topic_id/vocabularies',
+  authRequired,
+  checkOrgRole(['TEACHER', 'SUPER_ADMIN', 'CENTER_ADMIN', 'SCHOOL_ADMIN']),
+  topicController.replaceTopicVocabularies
+);
 router.get('/:topic_id', authRequired, topicController.getTopicById);
 
 router.put(
