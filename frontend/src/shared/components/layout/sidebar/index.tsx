@@ -27,6 +27,7 @@ import {
   Shield,
   HelpCircle,
   Hand,
+  FolderKanban,
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/core/store/slices/adminSlice";
@@ -163,6 +164,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         "ADMIN",
         "SUPER_ADMIN",
         "FACILITY_MANAGER",
+        "CENTER_ADMIN",
+        "SCHOOL_ADMIN",
+        "TEACHER",
+        "TEST",
+      ],
+    },
+    {
+      icon: <FolderKanban size={22} />,
+      label: "Quản lý chủ đề",
+      path: "/topics-management",
+      allowedRoles: [
+        "ADMIN",
+        "SUPER_ADMIN",
         "CENTER_ADMIN",
         "SCHOOL_ADMIN",
         "TEACHER",

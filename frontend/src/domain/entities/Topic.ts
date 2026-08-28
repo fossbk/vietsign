@@ -15,6 +15,28 @@ export class TopicModel extends Base {
     return res.data;
   };
 
+  getMyTopics = async () => {
+    const res = await this.apiGet("/mine");
+    return res.data;
+  };
+
+  getAvailableTopics = async (classroomId: number) => {
+    const res = await this.apiGet(`/classroom/${classroomId}/available`);
+    return res.data;
+  };
+
+  assignTopics = async (classroomId: number, topicIds: number[]) => {
+    const res = await this.apiPost(`/classroom/${classroomId}/assign`, {
+      topic_ids: topicIds,
+    });
+    return res.data;
+  };
+
+  removeTopicFromClassroom = async (classroomId: number, topicId: number) => {
+    const res = await this.apiDelete(`/classroom/${classroomId}/${topicId}`);
+    return res.data;
+  };
+
   getTopicById = async (id: number) => {
     const res = await this.apiGet(`/${id}`);
     return res.data;

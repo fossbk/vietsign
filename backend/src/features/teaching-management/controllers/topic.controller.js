@@ -1,5 +1,14 @@
 const topicService = require("../services/topic.services");
 
+const sendTopicError = (res, error, fallbackMessage) => {
+  const status = error.status || 500;
+  return res.status(status).json({
+    success: false,
+    error: error.message || fallbackMessage,
+    message: error.message || fallbackMessage,
+  });
+};
+
 /**
  * Topic Management Controller
  * Handles HTTP requests for topic management operations
@@ -13,7 +22,6 @@ const createTopic = async (req, res) => {
       classroom_id,
       image_location,
       description,
-      creator_id,
       is_common,
     } = req.body;
 
@@ -31,7 +39,7 @@ const createTopic = async (req, res) => {
       classroom_id,
       image_location,
       description,
-      creator_id || (req.user ? req.user.user_id : null),
+      req.user ? req.user.user_id : null,
       is_common || false,
     );
 
@@ -55,6 +63,70 @@ const createTopic = async (req, res) => {
       error: error.message,
       message: "Error creating topic",
     });
+  }
+};
+
+const getMyTopics = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 1000;
+    const offset = parseInt(req.query.offset) || 0;
+    const result = await topicService.getTopicsByOwner(
+      req.user.user_id,
+      limit,
+      offset,
+    );
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    return sendTopicError(res, error, "Không thể tải danh sách chủ đề");
+  }
+};
+
+const getAvailableTopicsForClassroom = async (req, res) => {
+  try {
+    const classroomId = parseInt(req.params.classroom_id);
+    const data = await topicService.getAvailableTopicsForClassroom(
+      req.user.user_id,
+      classroomId,
+    );
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return sendTopicError(res, error, "Không thể tải chủ đề khả dụng");
+  }
+};
+
+const assignTopicsToClassroom = async (req, res) => {
+  try {
+    const classroomId = parseInt(req.params.classroom_id);
+    const result = await topicService.assignTopicsToClassroom(
+      req.user.user_id,
+      classroomId,
+      req.body.topic_ids,
+    );
+    return res.status(201).json({
+      success: true,
+      data: result.data,
+      total: result.total,
+      message: "Đã thêm chủ đề vào lớp học",
+    });
+  } catch (error) {
+    return sendTopicError(res, error, "Thêm chủ đề vào lớp thất bại");
+  }
+};
+
+const removeTopicFromClassroom = async (req, res) => {
+  try {
+    const result = await topicService.removeTopicFromClassroom(
+      req.user.user_id,
+      parseInt(req.params.classroom_id),
+      parseInt(req.params.topic_id),
+    );
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: "Đã gỡ chủ đề khỏi lớp học",
+    });
+  } catch (error) {
+    return sendTopicError(res, error, "Gỡ chủ đề khỏi lớp thất bại");
   }
 };
 
@@ -155,6 +227,7 @@ const getTopicsByClassroom = async (req, res) => {
       classroomId,
       limit,
       offset,
+      req.user.user_id,
     );
 
     return res.status(200).json({
@@ -271,7 +344,11 @@ const updateTopic = async (req, res) => {
       });
     }
 
-    const topic = await topicService.updateTopic(topicId, updates);
+    const topic = await topicService.updateTopic(
+      topicId,
+      updates,
+      req.user.user_id,
+    );
 
     return res.status(200).json({
       success: true,
@@ -317,7 +394,7 @@ const deleteTopic = async (req, res) => {
       });
     }
 
-    await topicService.deleteTopic(topicId);
+    await topicService.deleteTopic(topicId, req.user.user_id);
 
     return res.status(200).json({
       success: true,
@@ -398,6 +475,10 @@ const getTopicStatistics = async (req, res) => {
 
 module.exports = {
   createTopic,
+  getMyTopics,
+  getAvailableTopicsForClassroom,
+  assignTopicsToClassroom,
+  removeTopicFromClassroom,
   getTopics,
   getTopicById,
   getTopicsByClassroom,

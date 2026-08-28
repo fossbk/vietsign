@@ -20,6 +20,8 @@ import {
   FileSpreadsheet,
   BookOpen,
   FileText,
+  FolderKanban,
+  Check,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useParams, useRouter } from "next/navigation";
@@ -49,7 +51,10 @@ import {
   type Lesson,
 } from "@/services/lessonService";
 import {
+  assignTopicsToClassroom,
+  fetchAvailableTopicsForClassroom,
   fetchTopicsByClassroom,
+  removeTopicFromClassroom,
   type TopicItem,
 } from "@/services/topicService";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
@@ -103,6 +108,12 @@ export function ClassManagementDetail() {
   const [isImporting, setIsImporting] = useState(false);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
+  const [availableTopics, setAvailableTopics] = useState<TopicItem[]>([]);
+  const [selectedTopicIds, setSelectedTopicIds] = useState<number[]>([]);
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [isTopicsLoading, setIsTopicsLoading] = useState(false);
+  const [isAssigningTopics, setIsAssigningTopics] = useState(false);
+  const [removingTopicId, setRemovingTopicId] = useState<number | null>(null);
   const [isLessonsLoading, setIsLessonsLoading] = useState(false);
   const [isCreateLessonModalOpen, setIsCreateLessonModalOpen] = useState(false);
   const [isCreatingLesson, setIsCreatingLesson] = useState(false);
@@ -271,6 +282,63 @@ export function ClassManagementDetail() {
       console.error("Failed to load class lessons", error);
     } finally {
       setIsLessonsLoading(false);
+    }
+  };
+
+  const openTopicModal = async () => {
+    if (!classItem?.id) return;
+    setIsTopicModalOpen(true);
+    setSelectedTopicIds([]);
+    setIsTopicsLoading(true);
+    try {
+      setAvailableTopics(
+        await fetchAvailableTopicsForClassroom(classItem.id),
+      );
+    } catch (error: any) {
+      console.error("Failed to load available topics", error);
+      alert(error?.response?.data?.message || "Không thể tải kho chủ đề");
+    } finally {
+      setIsTopicsLoading(false);
+    }
+  };
+
+  const toggleTopicSelection = (topicId: number) => {
+    setSelectedTopicIds((current) =>
+      current.includes(topicId)
+        ? current.filter((id) => id !== topicId)
+        : [...current, topicId],
+    );
+  };
+
+  const handleAssignTopics = async () => {
+    if (!classItem?.id || selectedTopicIds.length === 0) return;
+    setIsAssigningTopics(true);
+    try {
+      await assignTopicsToClassroom(classItem.id, selectedTopicIds);
+      await loadClassLessons();
+      setIsTopicModalOpen(false);
+      setSelectedTopicIds([]);
+    } catch (error: any) {
+      console.error("Failed to assign topics", error);
+      alert(error?.response?.data?.message || "Thêm chủ đề vào lớp thất bại");
+    } finally {
+      setIsAssigningTopics(false);
+    }
+  };
+
+  const handleRemoveTopic = async (topic: TopicItem) => {
+    if (!classItem?.id) return;
+    if (!window.confirm(`Gỡ chủ đề “${topic.name}” khỏi lớp học này?`)) return;
+
+    setRemovingTopicId(topic.id);
+    try {
+      await removeTopicFromClassroom(classItem.id, topic.id);
+      await loadClassLessons();
+    } catch (error: any) {
+      console.error("Failed to remove topic", error);
+      alert(error?.response?.data?.message || "Gỡ chủ đề khỏi lớp thất bại");
+    } finally {
+      setRemovingTopicId(null);
     }
   };
 
@@ -767,6 +835,95 @@ export function ClassManagementDetail() {
         </div>
       </div>
 
+      {/* Assigned Topics Section */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-8 py-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <FolderKanban className="w-6 h-6 text-primary-600" />
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                Chủ đề của lớp học
+              </h2>
+              <p className="text-sm text-gray-500">
+                Gán các chủ đề trong kho của giáo viên vào lớp này
+              </p>
+            </div>
+            <span className="text-sm text-gray-500">
+              ({topics.length} chủ đề)
+            </span>
+          </div>
+          <button
+            onClick={openTopicModal}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm shadow-sm"
+          >
+            <Plus size={16} />
+            Thêm Chủ Đề
+          </button>
+        </div>
+
+        <div className="p-6">
+          {isLessonsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
+              <span className="ml-2 text-gray-500">Đang tải chủ đề...</span>
+            </div>
+          ) : topics.length === 0 ? (
+            <div className="text-center py-10 bg-gray-50 rounded-xl">
+              <FolderKanban className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="font-medium text-gray-700">
+                Lớp học chưa được gán chủ đề
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Chọn chủ đề từ kho của bạn để học sinh bắt đầu học.
+              </p>
+              <button
+                onClick={openTopicModal}
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium text-sm"
+              >
+                <Plus size={16} />
+                Thêm Chủ Đề
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {topics.map((topic) => (
+                <div
+                  key={topic.id}
+                  className="flex items-start gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0">
+                    <FolderKanban size={20} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate font-semibold text-gray-900">
+                      {topic.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                      {topic.description || "Chưa có mô tả"}
+                    </p>
+                    <p className="mt-2 text-xs font-medium text-primary-700">
+                      {topic.vocabularyCount || 0} từ vựng
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveTopic(topic)}
+                    disabled={removingTopicId === topic.id}
+                    className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                    title="Gỡ khỏi lớp"
+                  >
+                    {removingTopicId === topic.id ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={18} />
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Class Lessons Section */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between gap-4">
@@ -988,6 +1145,97 @@ export function ClassManagementDetail() {
       </div>
 
       {/* Create Lesson Modal */}
+      <Modal
+        isOpen={isTopicModalOpen}
+        onClose={() => {
+          setIsTopicModalOpen(false);
+          setSelectedTopicIds([]);
+        }}
+        title="Thêm chủ đề vào lớp"
+        maxWidth="max-w-2xl"
+      >
+        <div className="space-y-5">
+          <p className="text-sm text-gray-600">
+            Chọn một hoặc nhiều chủ đề trong kho của bạn để gán vào lớp{" "}
+            <span className="font-semibold text-gray-900">{classItem.name}</span>.
+          </p>
+
+          {isTopicsLoading ? (
+            <div className="flex items-center justify-center py-12 text-gray-500">
+              <Loader2 size={24} className="mr-2 animate-spin" />
+              Đang tải kho chủ đề...
+            </div>
+          ) : availableTopics.length === 0 ? (
+            <div className="rounded-xl bg-gray-50 py-10 text-center">
+              <FolderKanban className="mx-auto h-12 w-12 text-gray-300" />
+              <p className="mt-3 font-medium text-gray-700">
+                Không còn chủ đề nào để thêm
+              </p>
+              <p className="mt-1 text-sm text-gray-500">
+                Hãy tạo chủ đề mới trong mục Quản lý chủ đề.
+              </p>
+            </div>
+          ) : (
+            <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
+              {availableTopics.map((topic) => {
+                const selected = selectedTopicIds.includes(topic.id);
+                return (
+                  <button
+                    type="button"
+                    key={topic.id}
+                    onClick={() => toggleTopicSelection(topic.id)}
+                    className={`w-full rounded-xl border p-4 text-left transition ${
+                      selected
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-gray-200 hover:border-primary-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded border ${
+                          selected
+                            ? "border-primary-600 bg-primary-600 text-white"
+                            : "border-gray-300 bg-white"
+                        }`}
+                      >
+                        {selected && <Check size={14} />}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold text-gray-900">
+                          {topic.name}
+                        </span>
+                        <span className="mt-1 block text-sm text-gray-500 line-clamp-2">
+                          {topic.description || "Chưa có mô tả"}
+                        </span>
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsTopicModalOpen(false)}
+              className="rounded-xl border border-gray-200 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              onClick={handleAssignTopics}
+              disabled={selectedTopicIds.length === 0 || isAssigningTopics}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 font-medium text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isAssigningTopics && <Loader2 size={17} className="animate-spin" />}
+              Thêm {selectedTopicIds.length || ""} chủ đề
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal
         isOpen={isCreateLessonModalOpen}
         onClose={() => {

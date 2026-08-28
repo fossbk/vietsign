@@ -58,7 +58,7 @@ import { ExamModal } from "./ExamModal";
 import { fetchTopicsByClassroom, TopicItem } from "@/services/topicService";
 import { fetchLessonStatistics } from "@/services/lessonService";
 
-type TabType = "lessons" | "exams" | "members";
+type TabType = "lessons" | "topics" | "exams" | "members";
 type DeleteType = "lesson" | "exam" | "member" | null;
 
 export function StudyDetail() {
@@ -333,6 +333,12 @@ export function StudyDetail() {
       count: lessons.length,
     },
     {
+      id: "topics" as TabType,
+      label: "Học theo chủ đề",
+      icon: FolderOpen,
+      count: topics.length,
+    },
+    {
       id: "exams" as TabType,
       label: "Kiểm tra",
       icon: ClipboardCheck,
@@ -444,7 +450,7 @@ export function StudyDetail() {
               </button>
             ))}
           </div>
-          {isTeacher && (
+          {isTeacher && activeTab !== "topics" && (
             <button
               onClick={() => handleAdd(activeTab)}
               className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition"
@@ -457,6 +463,65 @@ export function StudyDetail() {
 
       {/* Tab Content */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Topics Tab - read-only learning view */}
+        {activeTab === "topics" && (
+          <div className="p-6">
+            {topics.length === 0 ? (
+              <div className="py-14 text-center">
+                <FolderOpen className="mx-auto h-14 w-14 text-gray-300" />
+                <h3 className="mt-4 font-semibold text-gray-800">
+                  Lớp học chưa có chủ đề
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Giáo viên sẽ thêm chủ đề học tập cho lớp.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {topics.map((topic) => {
+                  const topicLessons = lessons.filter(
+                    (lesson) => lesson.topic_id === topic.id,
+                  );
+                  return (
+                    <article
+                      key={topic.id}
+                      className="rounded-xl border border-gray-100 bg-white p-5 transition hover:border-primary-200 hover:shadow-md"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                          <FolderOpen size={24} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-gray-900">
+                            {topic.name}
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                            {topic.description || "Chủ đề học tập của lớp"}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                            <span className="rounded-full bg-primary-50 px-2.5 py-1 text-primary-700">
+                              {topic.vocabularyCount || 0} từ vựng
+                            </span>
+                            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">
+                              {topicLessons.length} bài học
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab("lessons")}
+                        className="mt-5 w-full rounded-xl bg-primary-50 py-2.5 text-sm font-semibold text-primary-700 hover:bg-primary-100"
+                      >
+                        Xem bài học theo chủ đề
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Lessons Tab */}
         {activeTab === "lessons" && (
           <div className="p-6 space-y-8">

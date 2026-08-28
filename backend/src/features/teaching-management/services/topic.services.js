@@ -1,5 +1,115 @@
 const db = require("../../../db");
 
+let classroomTopicSchemaPromise;
+
+async function ensureClassroomTopicSchema() {
+  if (!classroomTopicSchemaPromise) {
+    classroomTopicSchemaPromise = (async () => {
+      await db.execute(`
+        CREATE TABLE IF NOT EXISTS classroom_topic (
+          classroom_topic_id BIGINT NOT NULL AUTO_INCREMENT,
+          classroom_id BIGINT NOT NULL,
+          topic_id BIGINT NOT NULL,
+          assigned_by BIGINT DEFAULT NULL,
+          assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          is_active TINYINT(1) NOT NULL DEFAULT 1,
+          PRIMARY KEY (classroom_topic_id),
+          UNIQUE KEY uq_classroom_topic (classroom_id, topic_id),
+          KEY idx_classroom_topic_topic (topic_id),
+          KEY idx_classroom_topic_assigned_by (assigned_by)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      `);
+
+      await db.execute(`
+        INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
+        SELECT class_room_id, topic_id, created_id, 1
+        FROM topic
+        WHERE class_room_id IS NOT NULL
+        ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)
+      `);
+    })().catch((error) => {
+      classroomTopicSchemaPromise = null;
+      throw error;
+    });
+  }
+
+  return classroomTopicSchemaPromise;
+}
+
+async function isGlobalAdmin(userId) {
+  const [rows] = await db.execute(
+    "SELECT code FROM `user` WHERE user_id = ? LIMIT 1",
+    [userId],
+  );
+  return ["ADMIN", "SUPER_ADMIN", "TEST"].includes(rows[0]?.code);
+}
+
+async function assertCanManageClassroom(userId, classroomId) {
+  if (await isGlobalAdmin(userId)) return;
+
+  const [rows] = await db.execute(
+    `SELECT 1
+     FROM class_room c
+     LEFT JOIN class_teacher ct ON ct.class_room_id = c.class_room_id
+     LEFT JOIN organization_manager om
+       ON om.organization_id = c.organization_id AND om.user_id = ?
+     WHERE c.class_room_id = ?
+       AND (
+         ct.user_id = ? OR
+         om.role_in_org IN ('CENTER_ADMIN', 'SCHOOL_ADMIN', 'FACILITY_MANAGER')
+       )
+     LIMIT 1`,
+    [userId, classroomId, userId],
+  );
+
+  if (rows.length === 0) {
+    throw { status: 403, message: "Bạn không phụ trách lớp học này" };
+  }
+}
+
+async function assertCanViewClassroom(userId, classroomId) {
+  if (await isGlobalAdmin(userId)) return;
+
+  const [rows] = await db.execute(
+    `SELECT 1
+     FROM class_room c
+     LEFT JOIN class_teacher ct ON ct.class_room_id = c.class_room_id
+     LEFT JOIN class_student cs ON cs.class_room_id = c.class_room_id
+     LEFT JOIN organization_manager om
+       ON om.organization_id = c.organization_id AND om.user_id = ?
+     WHERE c.class_room_id = ?
+       AND (
+         ct.user_id = ? OR
+         cs.user_id = ? OR
+         om.role_in_org IN ('CENTER_ADMIN', 'SCHOOL_ADMIN', 'FACILITY_MANAGER')
+       )
+     LIMIT 1`,
+    [userId, classroomId, userId, userId],
+  );
+
+  if (rows.length === 0) {
+    throw { status: 403, message: "Bạn không thuộc lớp học này" };
+  }
+}
+
+async function assertCanManageTopic(userId, topicId) {
+  if (await isGlobalAdmin(userId)) return;
+
+  const [rows] = await db.execute(
+    `SELECT 1
+     FROM topic t
+     LEFT JOIN \`user\` u ON u.user_id = ?
+     WHERE t.topic_id = ?
+       AND (t.created_id = ? OR (t.created_id IS NULL AND t.created_by = u.email))
+     LIMIT 1`,
+    [userId, topicId, userId],
+  );
+
+  if (rows.length === 0) {
+    throw { status: 403, message: "Bạn không có quyền quản lý chủ đề này" };
+  }
+}
+
 /**
  * Service layer for topic management.
  * Aligned with verified database schema: topic table (topic_id, content, class_room_id, etc.)
@@ -14,11 +124,16 @@ async function createTopic(
   isCommon,
 ) {
   try {
+    await ensureClassroomTopicSchema();
     if (!name) {
       throw {
         status: 400,
         message: "Topic name is required",
       };
+    }
+
+    if (classroomId && creatorId) {
+      await assertCanManageClassroom(creatorId, classroomId);
     }
 
     const query = `
@@ -34,6 +149,15 @@ async function createTopic(
       creatorId || null,
       isCommon ? 0 : 1, // is_private is bit(1), if common then is_private=0
     ]);
+
+    if (classroomId) {
+      await db.execute(
+        `INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
+         VALUES (?, ?, ?, 1)
+         ON DUPLICATE KEY UPDATE assigned_by = VALUES(assigned_by), is_active = 1`,
+        [classroomId, result.insertId, creatorId || null],
+      );
+    }
 
     return {
       id: result.insertId,
@@ -126,8 +250,9 @@ async function getTopicById(topicId) {
   }
 }
 
-async function getTopicsByClassroom(classroomId, limit, offset) {
+async function getTopicsByClassroom(classroomId, limit, offset, viewerId) {
   try {
+    await ensureClassroomTopicSchema();
     if (!classroomId) {
       throw {
         status: 400,
@@ -135,13 +260,25 @@ async function getTopicsByClassroom(classroomId, limit, offset) {
       };
     }
 
-    const countQuery =
-      "SELECT COUNT(*) as count FROM topic WHERE class_room_id = ?";
+    const countQuery = `
+      SELECT COUNT(DISTINCT t.topic_id) as count
+      FROM topic t
+      INNER JOIN classroom_topic ct ON ct.topic_id = t.topic_id
+      WHERE ct.classroom_id = ? AND ct.is_active = 1 AND COALESCE(t.is_active, 1) = 1
+    `;
     const [countResults] = await db.execute(countQuery, [classroomId]);
     const total = countResults[0].count;
 
-    const query = `SELECT topic_id as id, content as name, class_room_id as classroom_id, description, image_location 
-                   FROM topic WHERE class_room_id = ? LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`;
+    const query = `
+      SELECT t.topic_id as id, t.content as name, ct.classroom_id,
+             t.description, t.image_location, t.created_id as creator_id,
+             (SELECT COUNT(*) FROM vocabulary v WHERE v.topic_id = t.topic_id) as vocabulary_count
+      FROM topic t
+      INNER JOIN classroom_topic ct ON ct.topic_id = t.topic_id
+      WHERE ct.classroom_id = ? AND ct.is_active = 1 AND COALESCE(t.is_active, 1) = 1
+      ORDER BY ct.assigned_at DESC, t.topic_id DESC
+      LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}
+    `;
     const [data] = await db.execute(query, [classroomId]);
 
     return {
@@ -155,6 +292,108 @@ async function getTopicsByClassroom(classroomId, limit, offset) {
       status: err.status || 500,
       message: err.message || "Error fetching topics by classroom",
     };
+  }
+}
+
+async function getTopicsByOwner(userId, limit = 1000, offset = 0) {
+  try {
+    await ensureClassroomTopicSchema();
+    const admin = await isGlobalAdmin(userId);
+    const ownerClause = admin
+      ? ""
+      : "AND (t.created_id = ? OR (t.created_id IS NULL AND t.created_by = u.email))";
+    const params = admin ? [] : [userId, userId];
+
+    const [countRows] = await db.execute(
+      `SELECT COUNT(*) as count
+       FROM topic t
+       LEFT JOIN \`user\` u ON u.user_id = ?
+       WHERE COALESCE(t.is_active, 1) = 1 ${ownerClause}`,
+      admin ? [userId] : params,
+    );
+
+    const [data] = await db.execute(
+      `SELECT t.topic_id as id, t.content as name, t.description,
+              t.image_location, t.created_id as creator_id,
+              COUNT(DISTINCT ct.classroom_id) as classroom_count,
+              (SELECT COUNT(*) FROM vocabulary v WHERE v.topic_id = t.topic_id) as vocabulary_count
+       FROM topic t
+       LEFT JOIN \`user\` u ON u.user_id = ?
+       LEFT JOIN classroom_topic ct
+         ON ct.topic_id = t.topic_id AND ct.is_active = 1
+       WHERE COALESCE(t.is_active, 1) = 1 ${ownerClause}
+       GROUP BY t.topic_id, t.content, t.description, t.image_location, t.created_id
+       ORDER BY t.modified_date DESC, t.topic_id DESC
+       LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)}`,
+      admin ? [userId] : params,
+    );
+
+    return { data, total: countRows[0]?.count || 0, limit, offset };
+  } catch (err) {
+    throw { status: err.status || 500, message: err.message || "Error fetching owned topics" };
+  }
+}
+
+async function getAvailableTopicsForClassroom(userId, classroomId) {
+  try {
+    await ensureClassroomTopicSchema();
+    await assertCanManageClassroom(userId, classroomId);
+    const owned = await getTopicsByOwner(userId, 10000, 0);
+    const [assignedRows] = await db.execute(
+      "SELECT topic_id FROM classroom_topic WHERE classroom_id = ? AND is_active = 1",
+      [classroomId],
+    );
+    const assignedIds = new Set(assignedRows.map((row) => Number(row.topic_id)));
+    return owned.data.filter((topic) => !assignedIds.has(Number(topic.id)));
+  } catch (err) {
+    throw { status: err.status || 500, message: err.message || "Error fetching available topics" };
+  }
+}
+
+async function assignTopicsToClassroom(userId, classroomId, topicIds) {
+  try {
+    await ensureClassroomTopicSchema();
+    await assertCanManageClassroom(userId, classroomId);
+
+    const uniqueTopicIds = [...new Set((topicIds || []).map(Number).filter(Boolean))];
+    if (uniqueTopicIds.length === 0) {
+      throw { status: 400, message: "Vui lòng chọn ít nhất một chủ đề" };
+    }
+
+    if (viewerId) {
+      await assertCanViewClassroom(viewerId, classroomId);
+    }
+
+    for (const topicId of uniqueTopicIds) {
+      await assertCanManageTopic(userId, topicId);
+      await db.execute(
+        `INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
+         VALUES (?, ?, ?, 1)
+         ON DUPLICATE KEY UPDATE assigned_by = VALUES(assigned_by), assigned_at = NOW(), is_active = 1`,
+        [classroomId, topicId, userId],
+      );
+    }
+
+    return getTopicsByClassroom(classroomId, 10000, 0);
+  } catch (err) {
+    throw { status: err.status || 500, message: err.message || "Error assigning topics" };
+  }
+}
+
+async function removeTopicFromClassroom(userId, classroomId, topicId) {
+  try {
+    await ensureClassroomTopicSchema();
+    await assertCanManageClassroom(userId, classroomId);
+    const [result] = await db.execute(
+      "DELETE FROM classroom_topic WHERE classroom_id = ? AND topic_id = ?",
+      [classroomId, topicId],
+    );
+    if (result.affectedRows === 0) {
+      throw { status: 404, message: "Chủ đề chưa được gán vào lớp này" };
+    }
+    return { classroom_id: classroomId, topic_id: topicId };
+  } catch (err) {
+    throw { status: err.status || 500, message: err.message || "Error removing topic" };
   }
 }
 
@@ -223,8 +462,9 @@ async function searchTopicsByName(name, limit, offset) {
   }
 }
 
-async function updateTopic(topicId, updates) {
+async function updateTopic(topicId, updates, userId) {
   try {
+    await assertCanManageTopic(userId, topicId);
     if (!topicId) {
       throw {
         status: 400,
@@ -296,8 +536,10 @@ async function updateTopic(topicId, updates) {
   }
 }
 
-async function deleteTopic(topicId) {
+async function deleteTopic(topicId, userId) {
   try {
+    await ensureClassroomTopicSchema();
+    await assertCanManageTopic(userId, topicId);
     if (!topicId) {
       throw {
         status: 400,
@@ -305,7 +547,8 @@ async function deleteTopic(topicId) {
       };
     }
 
-    const query = "DELETE FROM topic WHERE topic_id = ?";
+    await db.execute("DELETE FROM classroom_topic WHERE topic_id = ?", [topicId]);
+    const query = "UPDATE topic SET is_active = 0, modified_date = NOW() WHERE topic_id = ?";
     const [result] = await db.execute(query, [topicId]);
 
     if (result.affectedRows === 0) {
@@ -378,6 +621,10 @@ module.exports = {
   getTopicById,
   getTopicsByClassroom,
   getTopicsByCreator,
+  getTopicsByOwner,
+  getAvailableTopicsForClassroom,
+  assignTopicsToClassroom,
+  removeTopicFromClassroom,
   searchTopicsByName,
   updateTopic,
   deleteTopic,

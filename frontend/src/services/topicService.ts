@@ -6,7 +6,25 @@ export interface TopicItem {
   id: number;
   name: string;
   classroomId?: number;
+  description?: string;
+  imageLocation?: string;
+  creatorId?: number;
+  classroomCount?: number;
+  vocabularyCount?: number;
 }
+
+const mapTopic = (topic: any): TopicItem => ({
+  id: Number(topic.topic_id || topic.id),
+  name: repairVietnameseMojibake(topic.name || topic.content || ""),
+  classroomId: topic.classroom_id
+    ? Number(topic.classroom_id)
+    : undefined,
+  description: repairVietnameseMojibake(topic.description || ""),
+  imageLocation: cleanUrl(topic.image_location),
+  creatorId: topic.creator_id ? Number(topic.creator_id) : undefined,
+  classroomCount: Number(topic.classroom_count || 0),
+  vocabularyCount: Number(topic.vocabulary_count || 0),
+});
 
 /**
  * Clean double slash trong URL (giữ nguyên protocol https://)
@@ -26,11 +44,7 @@ export async function fetchAllTopics(query: any = {}): Promise<TopicItem[]> {
     const items = Array.isArray(data) ? data : data.data || [];
 
     return Array.isArray(items)
-      ? items.map((t: any) => ({
-          id: t.topic_id || t.id,
-          name: repairVietnameseMojibake(t.name || t.content || ""),
-          classroomId: t.classroom_id,
-        }))
+      ? items.map(mapTopic)
       : [];
   } catch (error) {
     console.error("Error fetching topics:", error);
@@ -47,16 +61,42 @@ export async function fetchTopicsByClassroom(
     const items = Array.isArray(data) ? data : data.data || [];
 
     return Array.isArray(items)
-      ? items.map((t: any) => ({
-          id: t.topic_id || t.id,
-          name: repairVietnameseMojibake(t.name || t.content || ""),
-          classroomId: t.classroom_id,
-        }))
+      ? items.map(mapTopic)
       : [];
   } catch (error) {
     console.error("Error fetching topics by classroom:", error);
     return [];
   }
+}
+
+export async function fetchMyTopics(): Promise<TopicItem[]> {
+  const response = await Topics.getMyTopics();
+  const data = response.data || response;
+  const items = Array.isArray(data) ? data : data.data || [];
+  return Array.isArray(items) ? items.map(mapTopic) : [];
+}
+
+export async function fetchAvailableTopicsForClassroom(
+  classroomId: number,
+): Promise<TopicItem[]> {
+  const response = await Topics.getAvailableTopics(classroomId);
+  const data = response.data || response;
+  const items = Array.isArray(data) ? data : data.data || [];
+  return Array.isArray(items) ? items.map(mapTopic) : [];
+}
+
+export async function assignTopicsToClassroom(
+  classroomId: number,
+  topicIds: number[],
+): Promise<void> {
+  await Topics.assignTopics(classroomId, topicIds);
+}
+
+export async function removeTopicFromClassroom(
+  classroomId: number,
+  topicId: number,
+): Promise<void> {
+  await Topics.removeTopicFromClassroom(classroomId, topicId);
 }
 
 export async function fetchVocabulariesByTopic(
