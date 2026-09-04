@@ -57,8 +57,18 @@ async function isTokenRevoked(token) {
   return rows.length > 0;
 }
 
+async function isUserActive(userId) {
+  if (!userId) return false;
+  const [rows] = await db.execute(
+    "SELECT 1 FROM `user` WHERE user_id = ? AND is_deleted = 0 LIMIT 1",
+    [userId],
+  );
+  return rows.length > 0;
+}
+
 module.exports = {
   ensureRevokedTokenSchema,
   revokeToken,
   isTokenRevoked,
+  isUserActive,
 };

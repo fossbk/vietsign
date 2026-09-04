@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { isTokenRevoked } = require('../services/tokenRevocation.service');
+const { isTokenRevoked, isUserActive } = require('../services/tokenRevocation.service');
 
 async function authRequired(req, res, next){
     try{
@@ -11,6 +11,9 @@ async function authRequired(req, res, next){
         }
 
         const payload = jwt.verify(token, process.env.JWT_SECRET);
+        if (!(await isUserActive(payload.user_id))) {
+            return res.status(401).json({ message: "Account is inactive or deleted" });
+        }
         if (await isTokenRevoked(token)) {
             return res.status(401).json({ message: "Token has been revoked" });
         }

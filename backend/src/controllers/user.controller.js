@@ -1,6 +1,8 @@
 const db = require("../db");
 const services = require("../services/user.services");
 const bcrypt = require("bcrypt");
+const { hashPassword, verifyPassword } = require("../utils/password");
+const { revokeToken } = require("../services/tokenRevocation.service");
 
 
 // GET user/profile
@@ -140,6 +142,88 @@ async function createStudent(req, res) {
   } catch (err) {
     const status = err.status || 500;
     return res.status(status).json({ message: err.message });
+  }
+}
+
+async function changePassword(req, res) {
+  try {
+    const userId = req.user?.user_id;
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Mật khẩu hiện tại và mật khẩu mới là bắt buộc",
+      });
+    }
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({
+        message: "Mật khẩu mới phải có ít nhất 6 ký tự",
+      });
+    }
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        message: "Mật khẩu mới phải khác mật khẩu hiện tại",
+      });
+    }
+
+    const [rows] = await db.query(
+      "SELECT password, is_oauth2 FROM `user` WHERE user_id = ? AND is_deleted = 0 LIMIT 1",
+      [userId],
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+    }
+    if (rows[0].is_oauth2 && !rows[0].password) {
+      return res.status(400).json({
+        message: "Tài khoản đăng nhập liên kết chưa thiết lập mật khẩu",
+      });
+    }
+    if (!(await verifyPassword(currentPassword, rows[0].password))) {
+      return res.status(400).json({ message: "Mật khẩu hiện tại không đúng" });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    await db.query(
+      `UPDATE \`user\`
+       SET password = ?, modified_by = ?, modified_date = NOW()
+       WHERE user_id = ? AND is_deleted = 0`,
+      [hashedPassword, req.user?.email || "self", userId],
+    );
+
+    return res.json({ success: true, message: "Đổi mật khẩu thành công" });
+  } catch (error) {
+    console.error("changePassword error:", error);
+    return res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+}
+
+async function deleteOwnAccount(req, res) {
+  try {
+    const userId = req.user?.user_id;
+    const { password } = req.body || {};
+    if (!password) {
+      return res.status(400).json({ message: "Vui lòng nhập mật khẩu xác nhận" });
+    }
+
+    const [rows] = await db.query(
+      "SELECT password FROM `user` WHERE user_id = ? AND is_deleted = 0 LIMIT 1",
+      [userId],
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy tài khoản" });
+    }
+    if (!(await verifyPassword(password, rows[0].password))) {
+      return res.status(400).json({ message: "Mật khẩu xác nhận không đúng" });
+    }
+
+    await services.deleteUser(userId, req.user?.email || "self");
+    await revokeToken(req.authToken, req.user);
+    return res.json({ success: true, message: "Tài khoản đã được xóa" });
+  } catch (error) {
+    console.error("deleteOwnAccount error:", error);
+    return res
+      .status(error.status || 500)
+      .json({ message: error.message || "Lỗi server" });
   }
 }
 
@@ -458,6 +542,8 @@ async function resetUserPassword(req, res) {
 module.exports = {
   getProfile,
   updateProfile,
+  changePassword,
+  deleteOwnAccount,
   createUser,
   createTeacher,
   bulkCreateStudents,

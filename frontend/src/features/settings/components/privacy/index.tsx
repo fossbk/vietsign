@@ -3,11 +3,20 @@
 import React, { useState } from "react";
 import { Shield, Eye, Database, Lock, UserCheck, ShieldAlert, Fingerprint, FileText, Save, X, ArrowLeft, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { Modal } from "@/shared/components/common/Modal";
+import UserModel from "@/domain/entities/User";
+import { logout } from "@/core/store/slices/adminSlice";
 
 export const PrivacySettings: React.FC = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     profileVisibility: "public",
     showAchievements: true,
@@ -18,6 +27,37 @@ export const PrivacySettings: React.FC = () => {
 
   const handleSave = () => {
     setIsEditing(false);
+  };
+
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+    setIsDeleteModalOpen(false);
+    setDeletePassword("");
+    setDeleteError(null);
+  };
+
+  const handleDeleteAccount = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!deletePassword) {
+      setDeleteError("Vui lòng nhập mật khẩu để xác nhận.");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await UserModel.deleteAccount(deletePassword);
+      dispatch(logout());
+      router.replace("/");
+    } catch (error: any) {
+      setDeleteError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Xóa tài khoản thất bại. Vui lòng thử lại.",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -213,7 +253,10 @@ export const PrivacySettings: React.FC = () => {
                 <Database size={18} />
                 Tải về dữ liệu
               </button>
-              <button className="px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center gap-2">
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="px-4 py-2 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
+              >
                 <Lock size={18} />
                 Yêu cầu xóa tài khoản
               </button>
@@ -251,6 +294,53 @@ export const PrivacySettings: React.FC = () => {
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        title="Xóa tài khoản"
+        maxWidth="max-w-lg"
+      >
+        <form onSubmit={handleDeleteAccount} className="space-y-5">
+          <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+            Tài khoản sẽ bị vô hiệu hóa và bạn sẽ được đăng xuất khỏi hệ thống.
+            Hãy nhập mật khẩu để xác nhận thao tác này.
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              Mật khẩu hiện tại
+            </label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(event) => setDeletePassword(event.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-red-500"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+          {deleteError && (
+            <p className="text-sm text-red-600">{deleteError}</p>
+          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={closeDeleteModal}
+              disabled={isDeleting}
+              className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isDeleting}
+              className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 font-medium text-white hover:bg-red-700 disabled:opacity-60"
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa tài khoản"}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

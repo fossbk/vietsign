@@ -24,6 +24,8 @@ const {
   changeUserRole,
   resetUserPassword,
   bulkCreateStudents,
+  changePassword,
+  deleteOwnAccount,
 } = require("../controllers/user.controller");
 
 const { authRequired } = require("../middleware/auth.middleware");
@@ -45,6 +47,8 @@ router.post(
 // User profile routes
 router.get("/profile", authRequired, getProfile);
 router.put("/profile", authRequired, updateProfile);
+router.put("/change-password", authRequired, changePassword);
+router.delete("/account", authRequired, deleteOwnAccount);
 
 // Avatar upload (MinIO)
 const multer = require("multer");

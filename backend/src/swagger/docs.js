@@ -554,6 +554,67 @@ const swaggerDocs = {
     },
   },
 
+  "/users/change-password": {
+    put: {
+      tags: ["User"],
+      summary: "Change the current user's password",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["currentPassword", "newPassword"],
+              properties: {
+                currentPassword: { type: "string", format: "password" },
+                newPassword: {
+                  type: "string",
+                  format: "password",
+                  minLength: 6,
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: "Password changed successfully" },
+        400: { description: "Invalid input or current password" },
+        401: { description: "Unauthorized" },
+        404: { description: "User not found" },
+      },
+    },
+  },
+
+  "/users/account": {
+    delete: {
+      tags: ["User"],
+      summary: "Delete the current user's account",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["password"],
+              properties: {
+                password: { type: "string", format: "password" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: "Account deleted successfully" },
+        400: { description: "Missing or incorrect password" },
+        401: { description: "Unauthorized" },
+        404: { description: "User not found" },
+      },
+    },
+  },
+
   // Teacher Management APIs
   "/users/teachers": {
     get: {

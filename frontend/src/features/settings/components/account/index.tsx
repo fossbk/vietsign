@@ -95,15 +95,22 @@ export const AccountSettings: React.FC = () => {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+    if (passwordForm.newPassword.length < 6) {
+      setError("Mật khẩu mới phải có ít nhất 6 ký tự.");
+      return;
+    }
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setError("Mật khẩu mới phải khác mật khẩu hiện tại.");
+      return;
+    }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setError("Mật khẩu mới không khớp.");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
-    setSuccessMessage(null);
-
     try {
       await UserModel.changePassword({
         currentPassword: passwordForm.currentPassword,
@@ -119,7 +126,9 @@ export const AccountSettings: React.FC = () => {
     } catch (err: any) {
       console.error("Failed to change password", err);
       setError(
-        err.message || "Đổi mật khẩu thất bại. Kiểm tra lại mật khẩu cũ."
+        err?.response?.data?.message ||
+          err.message ||
+          "Đổi mật khẩu thất bại. Kiểm tra lại mật khẩu cũ."
       );
     } finally {
       setIsLoading(false);

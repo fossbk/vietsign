@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
-const bcrypt = require('bcrypt');
 const { revokeToken } = require('../services/tokenRevocation.service');
+const { hashPassword, verifyPassword } = require('../utils/password');
 
 function signToken(payload){
     return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -30,9 +30,10 @@ function signToken(payload){
 
 
         //4. Insert new user into database
+        const hashedPassword = await hashPassword(password);
         const [result] = await pool.query(
             'INSERT INTO `user` (name, email, password, phone_number, code, grade, is_deleted, is_oauth2, created_by) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)',
-            [name, email, password, phone_number || null, roleCode, null, 'anonymousUser']
+            [name, email, hashedPassword, phone_number || null, roleCode, null, 'anonymousUser']
         )
 
         return res.status(201).json({message: "User registered successfully ", userId: result.insertId});
@@ -52,7 +53,7 @@ async function login(req, res){
         }
 
         const [rows] = await pool.query(
-            "SELECT user_id, email, password, name FROM `user` WHERE email = ? LIMIT 1 ",
+            "SELECT user_id, email, password, name FROM `user` WHERE email = ? AND is_deleted = 0 LIMIT 1 ",
             [email]
         )
         if(rows.length === 0){
@@ -60,8 +61,7 @@ async function login(req, res){
         }
 
         const user = rows[0];
-        // const ok = await bcrypt.compare(String(password ?? ''), String(user.password ?? ''));
-        const ok = password === user.password;
+        const ok = await verifyPassword(password, user.password);
 
         if(!ok){
             return res.status(401).json({message: "Invalid email or password"})

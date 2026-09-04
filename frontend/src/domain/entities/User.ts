@@ -80,7 +80,7 @@ class UserModelClass extends Base {
 
   // DELETE /user/account - Xóa tài khoản
   deleteAccount = async (password: string): Promise<any> => {
-    const res = await this.apiDelete("/account");
+    const res = await this.apiDelete("/account", undefined, { password });
     return res.data;
   };
 
