@@ -9,6 +9,10 @@ const Auth = {
     const response = await http.post("/auth/register", data);
     return response.data;
   },
+  logout: async () => {
+    const response = await http.post("/auth/logout");
+    return response.data;
+  },
   verifyToken: async () => {
     const response = await http.get("/auth/verify");
     return response.data;

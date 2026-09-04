@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const { isTokenRevoked } = require('../services/tokenRevocation.service');
 
-function authRequired(req, res, next){
+async function authRequired(req, res, next){
     try{
         const auth = req.headers.authorization || "";
         const [type, token] = auth.split(" ");
@@ -10,7 +11,11 @@ function authRequired(req, res, next){
         }
 
         const payload = jwt.verify(token, process.env.JWT_SECRET);
+        if (await isTokenRevoked(token)) {
+            return res.status(401).json({ message: "Token has been revoked" });
+        }
         req.user = payload;
+        req.authToken = token;
         next();
 
     }

@@ -98,6 +98,32 @@ const swaggerDocs = {
     },
   },
 
+  "/auth/logout": {
+    post: {
+      tags: ["Authentication"],
+      summary: "Đăng xuất và thu hồi access token hiện tại",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: "Đăng xuất thành công",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  message: { type: "string", example: "Logout successful" },
+                },
+              },
+            },
+          },
+        },
+        401: {
+          description: "Thiếu token, token không hợp lệ hoặc đã bị thu hồi",
+        },
+      },
+    },
+  },
+
   // Protected Route Example
   // '/me': {
   //   get: {

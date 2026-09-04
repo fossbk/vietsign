@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const bcrypt = require('bcrypt');
+const { revokeToken } = require('../services/tokenRevocation.service');
 
 function signToken(payload){
     return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -82,7 +83,19 @@ async function login(req, res){
         return res.status(500).json({ message: 'Internal server error' });}
     }
 
+// POST /auth/logout
+async function logout(req, res) {
+    try {
+        await revokeToken(req.authToken, req.user);
+        return res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 module.exports = {
     login,
-    register
+    register,
+    logout
 };

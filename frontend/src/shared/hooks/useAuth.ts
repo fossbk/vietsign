@@ -118,16 +118,15 @@ export function useLogout() {
     const router = useRouter();
     const dispatch = useDispatch();
 
-    const handleLogout = () => {
-        // Clear localStorage
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-        
-        // Dispatch logout
-        dispatch(logout());
-        
-        // Redirect về trang chủ
-        router.push("/");
+    const handleLogout = async () => {
+        try {
+            await AuthModel.logout();
+        } catch (error) {
+            console.error("Logout API failed:", error);
+        } finally {
+            dispatch(logout());
+            router.push("/");
+        }
     };
 
     return { logout: handleLogout };

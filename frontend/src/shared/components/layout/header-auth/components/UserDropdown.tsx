@@ -9,10 +9,8 @@ import {
   HelpCircle,
   Keyboard,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
-import { logout } from "@/core/store/slices/adminSlice";
 import { useTheme } from "@/core/providers/ThemeProvider";
+import { useLogout } from "@/shared/hooks/useAuth";
 
 interface UserDropdownProps {
   user: any;
@@ -20,13 +18,11 @@ interface UserDropdownProps {
 }
 
 const UserDropdown: React.FC<UserDropdownProps> = ({ user, onClose }) => {
-  const dispatch = useDispatch();
-  const router = useRouter();
+  const { logout } = useLogout();
   const { theme, toggleTheme } = useTheme();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/");
+  const handleLogout = async () => {
+    await logout();
     onClose();
   };
 
