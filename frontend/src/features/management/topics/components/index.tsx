@@ -373,7 +373,7 @@ export function TopicsManagement() {
                 <div className="flex h-32 items-center justify-center bg-gray-50">
                   {topic.imageLocation ? (
                     <img
-                      src={topic.imageLocation}
+                      src={normalizeFileUrl(topic.imageLocation)}
                       alt={topic.name}
                       className="h-full w-full object-cover"
                     />
