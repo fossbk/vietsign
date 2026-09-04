@@ -23,9 +23,29 @@ router.post("/", upload.single("file"), async (req, res) => {
     let folder = req.body.folder || req.query.folder || "others";
 
     // Danh sách các folder hợp lệ theo yêu cầu
-    const validFolders = ["exam", "question", "avatar", "Data_FSL", "others"];
+    const validFolders = [
+      "exam",
+      "question",
+      "avatar",
+      "Data_FSL",
+      "topic",
+      "others",
+    ];
     if (!validFolders.includes(folder)) {
       folder = "others";
+    }
+
+    if (folder === "topic") {
+      if (!req.file.mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          message: "Topic illustration must be an image file",
+        });
+      }
+      if (req.file.size > 5 * 1024 * 1024) {
+        return res.status(400).json({
+          message: "Topic illustration must not exceed 5 MB",
+        });
+      }
     }
 
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

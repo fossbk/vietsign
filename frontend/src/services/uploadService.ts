@@ -87,7 +87,7 @@ export const normalizeFileUrl = (url: string): string => {
 
 export const uploadFile = async (
   file: File,
-  folder?: "exam" | "question" | "avatar" | "Data_FSL" | "others",
+  folder?: "exam" | "question" | "avatar" | "Data_FSL" | "topic" | "others",
 ): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);

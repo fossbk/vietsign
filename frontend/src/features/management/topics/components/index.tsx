@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   Check,
@@ -12,6 +12,8 @@ import {
   Search,
   School,
   Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
@@ -25,6 +27,7 @@ import {
 } from "@/services/topicService";
 import { fetchAllWords } from "@/services/dictionaryService";
 import { DictionaryItem } from "@/data/dictionaryData";
+import { normalizeFileUrl, uploadFile } from "@/services/uploadService";
 import { Modal } from "@/shared/components/common/Modal";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
 
@@ -40,6 +43,10 @@ export function TopicsManagement() {
   }>({ open: false, topic: null });
   const [form, setForm] = useState(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<TopicItem | null>(null);
   const [vocabularyModal, setVocabularyModal] = useState<{
     open: boolean;
@@ -69,6 +76,14 @@ export function TopicsManagement() {
     loadTopics();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const filteredTopics = useMemo(() => {
     const keyword = search.trim().toLocaleLowerCase("vi");
     if (!keyword) return topics;
@@ -81,6 +96,8 @@ export function TopicsManagement() {
 
   const openCreate = () => {
     setForm(EMPTY_FORM);
+    setImageFile(null);
+    setImagePreview("");
     setModal({ open: true, topic: null });
   };
 
@@ -90,7 +107,42 @@ export function TopicsManagement() {
       description: topic.description || "",
       image_location: topic.imageLocation || "",
     });
+    setImageFile(null);
+    setImagePreview(topic.imageLocation || "");
     setModal({ open: true, topic });
+  };
+
+  const closeTopicModal = () => {
+    setModal({ open: false, topic: null });
+    setImageFile(null);
+    setImagePreview("");
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Vui lòng chọn đúng định dạng file ảnh");
+      event.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ảnh không được vượt quá 5 MB");
+      event.target.value = "";
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview("");
+    setForm((current) => ({ ...current, image_location: "" }));
+    if (imageInputRef.current) imageInputRef.current.value = "";
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -99,10 +151,17 @@ export function TopicsManagement() {
 
     setIsSaving(true);
     try {
+      let imageLocation = form.image_location.trim() || null;
+      if (imageFile) {
+        setIsImageUploading(true);
+        imageLocation = await uploadFile(imageFile, "topic");
+        if (!imageLocation) throw new Error("Không nhận được đường dẫn ảnh");
+      }
+
       const payload = {
         name: form.name.trim(),
         description: form.description.trim() || null,
-        image_location: form.image_location.trim() || null,
+        image_location: imageLocation,
         is_common: false,
       };
 
@@ -114,7 +173,7 @@ export function TopicsManagement() {
         toast.success("Đã tạo chủ đề mới");
       }
 
-      setModal({ open: false, topic: null });
+      closeTopicModal();
       setForm(EMPTY_FORM);
       await loadTopics();
     } catch (error: any) {
@@ -124,6 +183,7 @@ export function TopicsManagement() {
           (modal.topic ? "Cập nhật chủ đề thất bại" : "Tạo chủ đề thất bại"),
       );
     } finally {
+      setIsImageUploading(false);
       setIsSaving(false);
     }
   };
@@ -372,7 +432,7 @@ export function TopicsManagement() {
 
       <Modal
         isOpen={modal.open}
-        onClose={() => setModal({ open: false, topic: null })}
+        onClose={closeTopicModal}
         title={modal.topic ? "Chỉnh sửa chủ đề" : "Tạo chủ đề"}
       >
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -409,20 +469,56 @@ export function TopicsManagement() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-              Đường dẫn ảnh minh họa
+              Ảnh minh họa
             </label>
             <input
-              type="url"
-              value={form.image_location}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  image_location: event.target.value,
-                }))
-              }
-              placeholder="https://..."
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              ref={imageInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleImageChange}
+              className="hidden"
             />
+            {imagePreview ? (
+              <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                <img
+                  src={
+                    imagePreview.startsWith("blob:")
+                      ? imagePreview
+                      : normalizeFileUrl(imagePreview)
+                  }
+                  alt="Xem trước ảnh minh họa"
+                  className="h-44 w-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-end gap-2 bg-black/50 p-3">
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100"
+                  >
+                    <Upload size={16} />
+                    Thay ảnh
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                  >
+                    <X size={16} />
+                    Gỡ ảnh
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="flex h-36 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 text-gray-500 transition hover:border-primary-500 hover:bg-primary-50 hover:text-primary-700"
+              >
+                <Upload size={28} />
+                <span className="mt-2 font-medium">Chọn ảnh từ máy tính</span>
+                <span className="mt-1 text-xs">JPG, PNG, WEBP hoặc GIF, tối đa 5 MB</span>
+              </button>
+            )}
           </div>
           <div className="rounded-xl border border-primary-100 bg-primary-50 px-4 py-3 text-sm text-primary-700">
             Chủ đề được lưu trong kho của bạn. Sau khi tạo, hãy vào lớp học
@@ -431,18 +527,22 @@ export function TopicsManagement() {
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
-              onClick={() => setModal({ open: false, topic: null })}
+              onClick={closeTopicModal}
               className="rounded-xl border border-gray-200 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
             >
               Hủy
             </button>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || isImageUploading}
               className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 font-medium text-white hover:bg-primary-700 disabled:opacity-60"
             >
               {isSaving && <Loader2 size={17} className="animate-spin" />}
-              {modal.topic ? "Lưu thay đổi" : "Tạo chủ đề"}
+              {isImageUploading
+                ? "Đang tải ảnh..."
+                : modal.topic
+                  ? "Lưu thay đổi"
+                  : "Tạo chủ đề"}
             </button>
           </div>
         </form>
