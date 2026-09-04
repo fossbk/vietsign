@@ -16,9 +16,3 @@ CREATE TABLE IF NOT EXISTS classroom_topic (
     FOREIGN KEY (topic_id) REFERENCES topic (topic_id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
-SELECT class_room_id, topic_id, created_id, 1
-FROM topic
-WHERE class_room_id IS NOT NULL
-ON DUPLICATE KEY UPDATE is_active = VALUES(is_active);

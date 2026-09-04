@@ -20,7 +20,6 @@ const createTopic = async (req, res) => {
   try {
     const {
       name,
-      classroom_id,
       image_location,
       description,
       is_common,
@@ -37,7 +36,6 @@ const createTopic = async (req, res) => {
 
     const topic = await topicService.createTopic(
       name,
-      classroom_id,
       image_location,
       description,
       req.user ? req.user.user_id : null,

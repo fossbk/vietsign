@@ -21,13 +21,6 @@ async function ensureClassroomTopicSchema() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
       `);
 
-      await db.execute(`
-        INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
-        SELECT class_room_id, topic_id, created_id, 1
-        FROM topic
-        WHERE class_room_id IS NOT NULL
-        ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)
-      `);
     })().catch((error) => {
       classroomTopicSchemaPromise = null;
       throw error;
@@ -150,7 +143,6 @@ async function assertCanManageTopic(userId, topicId) {
 
 async function createTopic(
   name,
-  classroomId,
   imageLocation,
   description,
   creatorId,
@@ -165,37 +157,23 @@ async function createTopic(
       };
     }
 
-    if (classroomId && creatorId) {
-      await assertCanManageClassroom(creatorId, classroomId);
-    }
-
     const query = `
       INSERT INTO topic (content, class_room_id, image_location, description, created_id, is_private, created_date, modified_date)
-      VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+      VALUES (?, NULL, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     const [result] = await db.execute(query, [
       name,
-      classroomId || null,
       imageLocation || null,
       description || null,
       creatorId || null,
       isCommon ? 0 : 1, // is_private is bit(1), if common then is_private=0
     ]);
 
-    if (classroomId) {
-      await db.execute(
-        `INSERT INTO classroom_topic (classroom_id, topic_id, assigned_by, is_active)
-         VALUES (?, ?, ?, 1)
-         ON DUPLICATE KEY UPDATE assigned_by = VALUES(assigned_by), is_active = 1`,
-        [classroomId, result.insertId, creatorId || null],
-      );
-    }
-
     return {
       id: result.insertId,
       name,
-      classroom_id: classroomId,
+      classroom_id: null,
       image_location: imageLocation,
       description,
       creator_id: creatorId,
