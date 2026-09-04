@@ -133,6 +133,12 @@ export async function replaceTopicVocabularies(
   await Topics.replaceTopicVocabularies(topicId, vocabularyIds);
 }
 
+export async function fetchTopicStudentStatistics(classroomId: number, topicId: number): Promise<any[]> {
+  const response = await Topics.getTopicStudentStatistics(classroomId, topicId);
+  const data = response.data || response;
+  return Array.isArray(data) ? data : [];
+}
+
 export async function fetchVocabulariesByTopic(
   topicId: number,
 ): Promise<any[]> {

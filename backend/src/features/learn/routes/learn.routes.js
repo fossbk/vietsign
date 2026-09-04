@@ -1,6 +1,7 @@
 const express = require("express");
 const learnController = require("../controllers/learn.controller");
 const { authRequired } = require("../../../middleware/auth.middleware");
+const topicActivityController = require("../controllers/topicActivity.controller");
 
 const router = express.Router();
 
@@ -63,6 +64,16 @@ router.get(
   "/topics/:topicId/steps",
   authRequired,
   learnController.getTopicLearningSteps,
+);
+router.post(
+  "/topics/:topicId/quiz-attempts",
+  authRequired,
+  topicActivityController.saveQuizAttempt,
+);
+router.post(
+  "/topics/:topicId/game-attempts",
+  authRequired,
+  topicActivityController.saveGameAttempt,
 );
 
 // ============================================================================

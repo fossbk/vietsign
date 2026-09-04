@@ -57,6 +57,11 @@ export class TopicModel extends Base {
     return res.data;
   };
 
+  getTopicStudentStatistics = async (classroomId: number, topicId: number) => {
+    const res = await this.apiGet(`/classroom/${classroomId}/${topicId}/statistics`);
+    return res.data;
+  };
+
   createTopic = async (data: any) => {
     const res = await this.apiPost("", data);
     return res.data;

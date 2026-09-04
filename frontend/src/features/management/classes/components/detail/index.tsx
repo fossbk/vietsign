@@ -22,6 +22,7 @@ import {
   FileText,
   FolderKanban,
   Check,
+  BarChart3,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useParams, useRouter } from "next/navigation";
@@ -55,6 +56,7 @@ import {
   fetchAvailableTopicsForClassroom,
   fetchTopicsByClassroom,
   removeTopicFromClassroom,
+  fetchTopicStudentStatistics,
   type TopicItem,
 } from "@/services/topicService";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
@@ -114,6 +116,10 @@ export function ClassManagementDetail() {
   const [isTopicsLoading, setIsTopicsLoading] = useState(false);
   const [isAssigningTopics, setIsAssigningTopics] = useState(false);
   const [removingTopicId, setRemovingTopicId] = useState<number | null>(null);
+  const [topicStats, setTopicStats] = useState<any[]>([]);
+  const [topicStatsTopic, setTopicStatsTopic] = useState<TopicItem | null>(null);
+  const [isTopicStatsOpen, setIsTopicStatsOpen] = useState(false);
+  const [isTopicStatsLoading, setIsTopicStatsLoading] = useState(false);
   const [isLessonsLoading, setIsLessonsLoading] = useState(false);
   const [isCreateLessonModalOpen, setIsCreateLessonModalOpen] = useState(false);
   const [isCreatingLesson, setIsCreatingLesson] = useState(false);
@@ -339,6 +345,21 @@ export function ClassManagementDetail() {
       alert(error?.response?.data?.message || "Gỡ chủ đề khỏi lớp thất bại");
     } finally {
       setRemovingTopicId(null);
+    }
+  };
+
+  const openTopicStats = async (topic: TopicItem) => {
+    if (!id) return;
+    setTopicStatsTopic(topic);
+    setIsTopicStatsOpen(true);
+    setIsTopicStatsLoading(true);
+    try {
+      setTopicStats(await fetchTopicStudentStatistics(id, topic.id));
+    } catch (error) {
+      console.error("Failed to load topic statistics", error);
+      alert("Không thể tải kết quả chủ đề");
+    } finally {
+      setIsTopicStatsLoading(false);
     }
   };
 
@@ -906,6 +927,13 @@ export function ClassManagementDetail() {
                     </p>
                   </div>
                   <button
+                    onClick={() => openTopicStats(topic)}
+                    className="rounded-lg p-2 text-primary-600 hover:bg-primary-50"
+                    title="Xem kết quả học sinh"
+                  >
+                    <BarChart3 size={18} />
+                  </button>
+                  <button
                     onClick={() => handleRemoveTopic(topic)}
                     disabled={removingTopicId === topic.id}
                     className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
@@ -1145,6 +1173,26 @@ export function ClassManagementDetail() {
       </div>
 
       {/* Create Lesson Modal */}
+      <Modal
+        isOpen={isTopicStatsOpen}
+        onClose={() => setIsTopicStatsOpen(false)}
+        title={`Kết quả: ${topicStatsTopic?.name || "Chủ đề"}`}
+        maxWidth="max-w-6xl"
+      >
+        {isTopicStatsLoading ? (
+          <div className="py-12 text-center text-gray-500">Đang tải kết quả...</div>
+        ) : topicStats.length === 0 ? (
+          <div className="py-12 text-center text-gray-500">Chưa có học sinh hoặc chưa có dữ liệu.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead><tr className="border-b border-gray-100 text-gray-500"><th className="p-3">Học sinh</th><th className="p-3">Tiến độ</th><th className="p-3">Kiểm tra gần nhất</th><th className="p-3">Điểm kiểm tra cao nhất</th><th className="p-3">Lật thẻ gần nhất</th><th className="p-3">Điểm lật thẻ cao nhất</th></tr></thead>
+              <tbody>{topicStats.map((student) => <tr key={student.studentId} className="border-b border-gray-50"><td className="p-3 font-semibold text-gray-800">{student.studentName}</td><td className="p-3"><div className="flex items-center gap-2"><div className="h-2 w-24 rounded-full bg-gray-100"><div className="h-full rounded-full bg-primary-600" style={{ width: `${student.progressPercent}%` }} /></div><span>{student.progressPercent}%</span></div></td><td className="p-3">{student.quizLatestScore}%</td><td className="p-3 font-semibold text-primary-700">{student.quizBestScore}%</td><td className="p-3">{student.gameLatestScore}</td><td className="p-3 font-semibold text-orange-600">{student.gameBestScore}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+      </Modal>
+
       <Modal
         isOpen={isTopicModalOpen}
         onClose={() => {

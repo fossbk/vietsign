@@ -1,4 +1,5 @@
 const topicService = require("../services/topic.services");
+const topicActivityService = require("../../learn/services/topicActivity.services");
 
 const sendTopicError = (res, error, fallbackMessage) => {
   const status = error.status || 500;
@@ -513,6 +514,21 @@ const getTopicStatistics = async (req, res) => {
   }
 };
 
+const getTopicStudentStatistics = async (req, res) => {
+  try {
+    const classroomId = Number(req.params.classroom_id);
+    const topicId = Number(req.params.topic_id);
+    if (!classroomId || !topicId) {
+      return res.status(400).json({ success: false, message: "ID lớp hoặc chủ đề không hợp lệ" });
+    }
+    await topicService.assertCanViewClassroom(req.user.user_id, classroomId);
+    const data = await topicActivityService.getTopicStudentStatistics(topicId, classroomId);
+    return res.status(200).json({ success: true, data, total: data.length, message: "Đã lấy thống kê chủ đề" });
+  } catch (error) {
+    return sendTopicError(res, error, "Không thể lấy thống kê chủ đề");
+  }
+};
+
 module.exports = {
   createTopic,
   getMyTopics,
@@ -530,4 +546,5 @@ module.exports = {
   deleteTopic,
   deleteTopicsByClassroom,
   getTopicStatistics,
+  getTopicStudentStatistics,
 };

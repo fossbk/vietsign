@@ -748,6 +748,7 @@ async function getTopicStatistics(classroomId) {
 }
 
 module.exports = {
+  assertCanViewClassroom,
   ensureTopicVocabularySchema,
   createTopic,
   getTopics,

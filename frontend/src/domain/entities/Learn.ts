@@ -172,6 +172,16 @@ class LearnModelClass extends Base {
     return res.data;
   };
 
+  saveTopicQuizAttempt = async (topicId: number, data: any) => {
+    const res = await this.apiPost(`/topics/${topicId}/quiz-attempts`, data);
+    return res.data;
+  };
+
+  saveTopicGameAttempt = async (topicId: number, data: any) => {
+    const res = await this.apiPost(`/topics/${topicId}/game-attempts`, data);
+    return res.data;
+  };
+
   /**
    * POST /learn/vocabulary/learned - Đánh dấu từ vựng đã học
    */

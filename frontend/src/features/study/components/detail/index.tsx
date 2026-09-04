@@ -509,10 +509,10 @@ export function StudyDetail() {
                         </div>
                       </div>
                       <button
-                        onClick={() => setActiveTab("lessons")}
+                        onClick={() => router.push(`/study/${id}/topics/${topic.id}`)}
                         className="mt-5 w-full rounded-xl bg-primary-50 py-2.5 text-sm font-semibold text-primary-700 hover:bg-primary-100"
                       >
-                        Xem bài học theo chủ đề
+                        Học theo chủ đề
                       </button>
                     </article>
                   );

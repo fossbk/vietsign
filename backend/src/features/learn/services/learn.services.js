@@ -1127,6 +1127,33 @@ async function markVocabularyLearned(userId, vocabularyId) {
 }
 
 async function getUserVocabularyProgress(userId, topicId) {
+  if (topicId) {
+    const [rows] = await db.execute(
+      `SELECT
+         tv.vocabulary_id as vocabularyId,
+         COALESCE(uvp.is_learned, 0) as isLearned,
+         uvp.learned_at as learnedAt,
+         COALESCE(uvp.review_count, 0) as reviewCount,
+         v.content as word
+       FROM topic_vocabulary tv
+       INNER JOIN vocabulary v ON v.vocabulary_id = tv.vocabulary_id
+       LEFT JOIN user_vocabulary_progress uvp
+         ON uvp.user_id = ? AND uvp.vocabulary_id = tv.vocabulary_id
+       WHERE tv.topic_id = ? AND v.status = 'APPROVED'
+       ORDER BY tv.vocabulary_id ASC`,
+      [userId, topicId],
+    );
+    const learnedCount = rows.filter((row) => Number(row.isLearned) === 1).length;
+    return {
+      vocabularies: rows,
+      summary: {
+        total: rows.length,
+        learned: learnedCount,
+        remaining: rows.length - learnedCount,
+      },
+    };
+  }
+
   let query = `
     SELECT
       uvp.vocabulary_id as vocabularyId,

@@ -18,6 +18,12 @@ router.get('/mine', authRequired, topicController.getMyTopics);
 router.get('/search/by-name', authRequired, topicController.searchTopicsByName);
 router.get('/statistics', authRequired, topicController.getTopicStatistics);
 router.get(
+  '/classroom/:classroom_id/:topic_id/statistics',
+  authRequired,
+  checkOrgRole(['TEACHER', 'SUPER_ADMIN', 'CENTER_ADMIN', 'SCHOOL_ADMIN']),
+  topicController.getTopicStudentStatistics
+);
+router.get(
   '/classroom/:classroom_id/available',
   authRequired,
   topicController.getAvailableTopicsForClassroom
