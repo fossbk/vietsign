@@ -1,0 +1,1332 @@
+[
+  {
+    "lesson_code": "L1.BT.01",
+    "level_code": "L1",
+    "topic_code": "BT",
+    "title": "Bài 1: A a, B b, \\ (thanh huyền)",
+    "description": "",
+    "content_status": "ready",
+    "display_order": 1,
+    "activities": [
+      {
+        "activity_code": "L1.BT.01.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "title": "1. Thẻ lật thông minh (trẻ làm ký hiệu theo video mẫu)",
+        "instruction": "3 thẻ chữ A, B, thanh huyền và 3 thẻ tranh \"bà, ba, ba ba\" đặt cạnh nhau. Trẻ chạm vào từng thẻ thì mặt trong được lật ra là video chữ cái ngón tay A. Trẻ sẽ xem là làm chữ cái ngón tay A theo mẫu. Tương tự với thẻ B và dấu huyền. Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.",
+        "display_order": 1,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw",
+          "targetWords": [
+            "Chữ A",
+            "Chữ B",
+            "Dấu huyền"
+          ]
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=tsREwMZdHmg",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.V02",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=W6GFoY2STdc",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.V03",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=4eomxDxnBhw",
+            "display_order": 3
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.01.T02",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "title": "2. Nối kí hiệu tương ứng với hình",
+        "instruction": "Chia làm 2 cột:\n1 cột là chữ a, b, thanh huyền và thẻ tranh bà, ba, ba ba\n1 cột là kí hiệu sắp xếp ngẫu nhiên \nHS sẽ nối hai cột với nhau",
+        "display_order": 2,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": "Sách bài tập bổ trợ Tiếng Việt tập 2 - trang....",
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.01.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.01.T03",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "3. Xem hình chọn kí hiệu tương ứng",
+        "instruction": "1 thẻ hình ở dòng trên\n2 video kí hiệu ở dòng dưới\nHS nhìn thẻ hình, xem và chọn video kí hiệu phù hợp\nThực hiện lần lượt với thẻ chữ A (A và dấu huyền), B (dấu huyền và B) và thẻ tranh bà (bà và ba)",
+        "display_order": 3,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg  \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc  \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw \n- Bà: https://www.youtube.com/watch?v=ZKcsAk7u0Fw \n- Ba: quay bổ sung",
+          "targetWords": [
+            "Chữ A",
+            "Chữ B",
+            "Dấu huyền",
+            "Bà",
+            "Ba"
+          ]
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=tsREwMZdHmg",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.V02",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=W6GFoY2STdc",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.V03",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=4eomxDxnBhw",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.01.V04",
+            "media_type": "video",
+            "source_url": "https://www.youtube.com/watch?v=ZKcsAk7u0Fw",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.01.T04",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "4. Xem video kí hiệu chọn thẻ tranh tương ứng",
+        "instruction": "1 video kí hiệu ở dòng trên\n2 thẻ tranh ở dòng dưới\nHS xem video và chọn thẻ tranh tương ứng\nThực hiện lần lượt với các video dấu huyền (thẻ chữ A và thẻ dấu huyền), ba (thẻ bà và ba), ba ba (thẻ ba ba và B)",
+        "display_order": 4,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": "- Ba ba: https://qipedc.moet.gov.vn/dictionary (đánh từ khóa ba ba vào tìm kiếm)",
+          "targetWords": [
+            "Ba ba"
+          ]
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://qipedc.moet.gov.vn/dictionary",
+            "display_order": 1
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.01.T05",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "5. Chọn thẻ chữ tương ứng với kí hiệu",
+        "instruction": "1 video kí hiệu ở dòng trên\n2 thẻ chữ ở dòng dưới\nThực hiện lần lượt video kí hiệu chữ A (thẻ chữ A và Bà), chữ B (thẻ chữ ba và B), bà (thẻ chữ bà và ba ba), dấu huyền (thẻ dấu huyền và bà), ba (thẻ chữ ba và baba), ba ba (thẻ chữ bà và ba ba)",
+        "display_order": 5,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.01.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.01.T06",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "title": "6. Làm kí hiệu tương ứng với hình",
+        "instruction": "Từng thẻ tranh A, B, dấu huyền, bà, ba, ba ba xuất hiện\nHướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh",
+        "display_order": 6,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.01.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.01.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lesson_code": "L1.BT.02",
+    "level_code": "L1",
+    "topic_code": "BT",
+    "title": "Bài 2: C c, E e, Ê ê, / (thanh sắc)",
+    "description": "Từ trong bài: ca, cà, cá, bè, bé, bế",
+    "content_status": "ready",
+    "display_order": 2,
+    "activities": [
+      {
+        "activity_code": "L1.BT.02.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "title": "1.Thẻ lật thông minh (giới thiệu kí hiệu mới)",
+        "instruction": "Chia 3 phần để không quá 6 thẻ/phần:\n - Phần 1: 4 thẻ chữ C, E, Ê, thanh sắc\n - Phần 2: 3 thẻ tranh ca, cà, cá\n - Phần 3: 3 thẻ tranh bè, bé, bế\n Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu tương ứng, trẻ xem và làm theo mẫu.\n Lưu ý: Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.",
+        "display_order": 1,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T02",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "title": "2. Nối kí hiệu tương ứng với hình",
+        "instruction": "Chia làm 2 cột, mỗi lượt tối đa 5 cặp:\n 1 cột là chữ c, e, ê, thanh sắc và thẻ tranh ca, cà, cá, bè, bé, bế\n 1 cột là kí hiệu sắp xếp ngẫu nhiên\n HS sẽ nối hai cột với nhau\n Lượt 1: c, e, ê, thanh sắc - Lượt 2: ca, cà, cá - Lượt 3: bè, bé, bế",
+        "display_order": 2,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T03",
+        "activity_level": "T",
+        "game_type": "JigsawPuzzleGame",
+        "title": "3. Ghép hình",
+        "instruction": "Thẻ ghép 2 miếng có khớp răng cưa: một nửa là ảnh kí hiệu, nửa kia là mặt chữ tương ứng.\n Các miếng xáo trộn, HS kéo - thả để ghép. Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì miếng bật về chỗ cũ kèm rung nhẹ (không mất thẻ).\n Mỗi lượt tối đa 5 cặp. Lượt 1 dùng chữ cái, lượt 2 dùng từ.",
+        "display_order": 3,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T04",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "4. Xem video kí hiệu chọn thẻ chữ",
+        "instruction": "1 video kí hiệu ở dòng trên\n 3 thẻ chữ ở dòng dưới (nâng lên 3 lựa chọn vì đây là hoạt động chính)\n '- video ca (ca / cà / cá), video cà (ca / cà / cá), video cá (ca / cà / cá),\n '- video bè (bè / bé / bế), video bé (bè / bé / bế), video bế (bè / bé / bế)\n -Vị trí đáp án xáo trộn mỗi lần. Sai thì phát lại video rồi cho chọn lại (tối đa 2 lần).",
+        "display_order": 4,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T05",
+        "activity_level": "T",
+        "game_type": "BucketDropGame",
+        "title": "5.  Thả hình",
+        "instruction": "3 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC, mỗi giỏ có biểu tượng kí hiệu dấu thanh ở trên.\n HS kéo các thẻ từ (ba, bà, ca, cà, cá, be, bè, bé) vào đúng giỏ. Mỗi thẻ vừa hiện mặt chữ vừa có nút nhỏ xem lại video kí hiệu.\n Vùng thả rộng và sáng lên khi kéo tới. Thả sai thì thẻ bật ra chứ không mất.",
+        "display_order": 5,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T06",
+        "activity_level": "T",
+        "game_type": "MemoryCardGame",
+        "title": "6. Lật thẻ tìm cặp",
+        "instruction": "Bảng 12 thẻ úp (6 cặp): 1 thẻ mặt chữ - 1 thẻ kí hiệu, lấy đúng 6 từ ca, cà, cá, bè, bé, bế.\n HS lật 2 thẻ mỗi lượt; đúng cặp thì thẻ sáng lên và ở lại, sai thì úp lại sau 1 giây.\n KHÔNG đếm giờ, chỉ đếm số lượt lật; hết bài hiện số sao theo số lượt.",
+        "display_order": 6,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.02.T07",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "title": "7. Làm kí hiệu tương ứng với hình",
+        "instruction": "Từng thẻ C, E, Ê, thanh sắc, ca, cà, cá, bè, bé, bế xuất hiện\n Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh",
+        "display_order": 7,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.02.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.02.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.02.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.02.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lesson_code": "L1.BT.03",
+    "level_code": "L1",
+    "topic_code": "BT",
+    "title": "Bài 3: Số 1, 2, 3, 4, 5",
+    "description": "",
+    "content_status": "ready",
+    "display_order": 3,
+    "activities": [
+      {
+        "activity_code": "L1.BT.03.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "title": "1. Thẻ lật thông minh (giới thiệu kí hiệu số)",
+        "instruction": "5 thẻ chữ số 1, 2, 3, 4, 5. Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu số bằng ngón tay, trẻ xem và làm theo mẫu.\n Mỗi thẻ chữ số hiện kèm số chấm tròn tương ứng để HS gắn số với lượng ngay từ đầu. Video có nút tua lại và chọn tốc độ nhanh/chậm.",
+        "display_order": 1,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.03.T02",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "2. Đếm đồ vật và chọn kí hiệu số",
+        "instruction": "Hiện một nhóm đồ vật (ví dụ 3 con cá) xếp thành hàng đều, không chồng lấn.\n HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự 1, 2, 3… để hỗ trợ đếm.\n Sau đó HS chọn 1 trong 3 video kí hiệu số ở dòng dưới.\n Đồ vật lấy theo từ đã học (ba ba, cá, cà) để vừa ôn từ vừa học số.",
+        "display_order": 2,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.03.T03",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "title": "3. Nối số lượng - kí hiệu",
+        "instruction": "Chia làm 2 cột, 5 cặp:\n 1 cột là thẻ tranh nhóm đồ vật (1-5 vật)\n 1 cột là kí hiệu số sắp xếp ngẫu nhiên\n HS sẽ nối hai cột với nhau",
+        "display_order": 3,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.03.T04",
+        "activity_level": "T",
+        "game_type": "JigsawPuzzleGame",
+        "title": "4. Ghép hình thẻ 2 miếng (chữ số - kí hiệu)",
+        "instruction": "Thẻ ghép 2 miếng: nửa là chữ số, nửa là ảnh bàn tay làm kí hiệu số. 5 cặp mỗi lượt.\n Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì bật về chỗ cũ.",
+        "display_order": 4,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.03.T05",
+        "activity_level": "T",
+        "game_type": "SequenceOrderGame",
+        "title": "5. Sắp xếp thứ tự 1 → 5",
+        "instruction": "5 thẻ kí hiệu số xáo trộn ở dòng trên, 5 ô trống viền nét đứt ở dòng dưới.\n HS kéo - thả vào đúng thứ tự tăng dần. Các ô có sẵn hình bậc thang cao dần để gợi ý trực quan.\n Chỉ kiểm tra khi HS bấm nút Kiểm tra. Làm lại thì giữ nguyên các ô đã đúng.",
+        "display_order": 5,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.03.T06",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "title": "6. Làm kí hiệu tương ứng với hình",
+        "instruction": "Từng thẻ số 1, 2, 3, 4, 5 và các thẻ nhóm đồ vật xuất hiện\n Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh",
+        "display_order": 6,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.03.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.03.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.03.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.03.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lesson_code": "L1.BT.04",
+    "level_code": "L1",
+    "topic_code": "BT",
+    "title": "Bài 4: Số 6, 7, 8, 9, 10",
+    "description": "",
+    "content_status": "ready",
+    "display_order": 4,
+    "activities": [
+      {
+        "activity_code": "L1.BT.04.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "title": "1. Thẻ lật thông minh (giới thiệu kí hiệu số)",
+        "instruction": "5 thẻ chữ số 6, 7, 8, 9, 10 kèm số chấm tròn tương ứng (xếp 2 hàng cho dễ nhìn).\n Trẻ chạm vào thẻ thì lật ra video kí hiệu số, trẻ xem và làm theo mẫu.\n Các số dễ nhầm (6-9, 7-8) quay thêm 1 góc nghiêng, HS bấm nút đổi góc để xem. Có nút kính lúp phóng to bàn tay.",
+        "display_order": 1,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T02",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "2. Phân biệt",
+        "instruction": "1 video kí hiệu số ở dòng trên\n 2 thẻ chữ số ở dòng dưới, luôn là cặp dễ nhầm:\n video 6 (6 và 9), video 9 (9 và 6), video 7 (7 và 8), video 8 (8 và 7), video 10 (10 và 5 - ôn Bài 3)\n Video chạy mặc định, có nút kính lúp. Chọn sai thì phát lại video chậm có KHOANH TRÒN vị trí ngón tay khác biệt giữa 2 số, rồi cho chọn lại.",
+        "display_order": 2,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T03",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "3. Đếm đồ vật và chọn kí hiệu số",
+        "instruction": "Hiện nhóm 6-10 đồ vật xếp thành hai hàng đều nhau(số lượng lớn nên xếp 1 hàng sẽ khó đếm).\n HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự.\n Sau đó HS chọn 1 trong 3 video kí hiệu số.",
+        "display_order": 3,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T04",
+        "activity_level": "T",
+        "game_type": "SequenceOrderGame",
+        "title": "4. Điền số còn thiếu trong dãy",
+        "instruction": "Dãy số có 1-2 ô trống, ví dụ: 6, 7, __, 9, __ \n HS kéo thẻ kí hiệu số vào ô trống. Mỗi lượt 3 dãy.\n Mức nâng cao: dãy đếm ngược 10, 9, __, 7, __",
+        "display_order": 4,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T05",
+        "activity_level": "T",
+        "game_type": "SequenceOrderGame",
+        "title": "5. Sắp xếp thứ tự 6 → 10",
+        "instruction": "5 thẻ kí hiệu số xáo trộn, HS kéo - thả theo thứ tự tăng dần.\n Mức nâng cao (mở khoá sau khi làm đúng): sắp xếp cả dãy 1 → 10 bằng thẻ kí hiệu.",
+        "display_order": 5,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T06",
+        "activity_level": "T",
+        "game_type": "MemoryCardGame",
+        "title": "6. Lật thẻ tìm cặp (trò chơi củng cố)",
+        "instruction": "10 thẻ úp (5 cặp): 1 thẻ chữ số - 1 thẻ kí hiệu số 6-10. Luật như trò lật thẻ ở Bài 2, không đếm giờ.",
+        "display_order": 6,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.04.T07",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "title": "7. Làm kí hiệu tương ứng với hình",
+        "instruction": "Từng thẻ số 6, 7, 8, 9, 10 và các thẻ nhóm đồ vật xuất hiện\n Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh",
+        "display_order": 7,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.04.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.04.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.04.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.04.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lesson_code": "L1.BT.05",
+    "level_code": "L1",
+    "topic_code": "BT",
+    "title": "Bài 5: o, ô, ? (thanh hỏi)",
+    "description": "Từ trong bài: bò, cỏ, bó, cò, bố, cô, cổ, bộ, bể cá, cô bé, cổ cò",
+    "content_status": "ready",
+    "display_order": 5,
+    "activities": [
+      {
+        "activity_code": "L1.BT.05.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "title": "1. Thẻ lật thông minh (giới thiệu kí hiệu mới)",
+        "instruction": "Chia 4 phần để không quá 6 thẻ/phần:\n - Phần 1: 3 thẻ chữ O, Ô, thanh hỏi\n - Phần 2: 4 thẻ tranh bò, cỏ, bó, cò (từ có o)\n - Phần 3: 4 thẻ tranh bố, cô, cổ, bộ (từ có ô)\n - Phần 4: 3 thẻ tranh bể cá, cô bé, cổ cò (từ 2 tiếng)\n Trẻ chạm vào thẻ thì lật ra video kí hiệu, trẻ xem và làm theo mẫu.\n Lưu ý: o và ô chỉ khác dấu mũ → khi hiện mặt chữ cho dấu mũ nhấp nháy 2 lần.",
+        "display_order": 1,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T02",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "title": "2. Nối từ - kí hiệu (chia lượt theo nhóm)",
+        "instruction": "Chia làm 2 cột, mỗi lượt tối đa 4 cặp cùng nhóm để HS so sánh được các từ gần giống nhau:\n Lượt 1: o, ô, thanh hỏi - Lượt 2: bò, cỏ, bó, cò - Lượt 3: bố, cô, cổ, bộ\n 1 cột là mặt chữ, 1 cột là kí hiệu sắp xếp ngẫu nhiên. HS nối hai cột với nhau.",
+        "display_order": 2,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T03",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "title": "3. Nối từ - hình ảnh",
+        "instruction": "Như hoạt động 2 nhưng cột phải là tranh minh họa nghĩa của từ, không phải kí hiệu.\n Mục đích: tách bạch 2 việc - nhớ kí hiệu và hiểu nghĩa từ. Mỗi lượt 4 cặp cùng nhóm.",
+        "display_order": 3,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T04",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "title": "4. Xem video kí hiệu chọn thẻ chữ",
+        "instruction": "1 video kí hiệu ở dòng trên\n 3 thẻ chữ ở dòng dưới\n Bộ nhiễu lấy đúng các cặp dễ nhầm trong bài:\n bò (bò / bó / bộ), bó (bò / bó / bộ), bộ (bò / bó / bộ),\n cò (cò / cỏ / cô), cỏ (cò / cỏ / cô), cổ (cổ / cô / cỏ)\n Mỗi lượt 6 câu, vị trí đáp án xáo trộn. Sai thì hiện đáp án kèm video kí hiệu chậm 0.5x.",
+        "display_order": 4,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T05",
+        "activity_level": "T",
+        "game_type": "JigsawPuzzleGame",
+        "title": "5. Ghép hình từ 2 tiếng (bể cá, cô bé, cổ cò)",
+        "instruction": "Hoạt động riêng cho từ 2 tiếng: thẻ ghép 2 miếng, nửa là tranh minh họa, nửa là kí hiệu của cả từ.\n Chú ý: từ 2 tiếng làm 1 thẻ kí hiệu duy nhất, không tách rời khi kéo thả, để HS hiểu đây là một đơn vị nghĩa chứ không phải 2 từ rời.",
+        "display_order": 5,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T06",
+        "activity_level": "T",
+        "game_type": "BucketDropGame",
+        "title": "6. Kéo thả phân loại theo dấu thanh",
+        "instruction": "4 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC / DẤU HỎI, mỗi giỏ có biểu tượng kí hiệu dấu thanh.\n HS kéo các thẻ từ (bo, bò, bó, cỏ, cò, cô, cổ, bộ, ba, bà, ca, cá…) vào đúng giỏ. Mỗi thẻ có nút nhỏ xem lại video kí hiệu.\n Mỗi lượt tối đa 8 thẻ. Thả sai thì thẻ bật ra chứ không mất.",
+        "display_order": 6,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      },
+      {
+        "activity_code": "L1.BT.05.T07",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "title": "7. Làm kí hiệu tương ứng với hình",
+        "instruction": "Từng thẻ O, Ô, thanh hỏi và 11 từ trong bài xuất hiện (chia theo 4 nhóm như hoạt động 1)\n Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh",
+        "display_order": 7,
+        "pass_score": 80.0,
+        "game_config": {
+          "source": null,
+          "targetWords": null
+        },
+        "media": [
+          {
+            "media_code": "L1.BT.05.V01",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.05.V02",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.05.V03",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "display_order": 3
+          },
+          {
+            "media_code": "L1.BT.05.V04",
+            "media_type": "video",
+            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "display_order": 4
+          }
+        ]
+      }
+    ]
+  }
+]
