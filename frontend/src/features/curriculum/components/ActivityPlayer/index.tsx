@@ -37,9 +37,9 @@ export function ActivityPlayer() {
       CurriculumModel.getActivityByCode(activityCode),
       lessonCode ? CurriculumModel.getLessonByCode(lessonCode) : Promise.resolve(null),
     ])
-      .then(([actData, lessonData]) => {
-        setActivity(actData);
-        if (lessonData) setLesson(lessonData);
+      .then(([actData, lessonData]: any) => {
+        setActivity(actData?.data ?? actData);
+        if (lessonData) setLesson(lessonData?.data ?? lessonData);
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được hoạt động.";

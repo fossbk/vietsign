@@ -58,19 +58,24 @@ class CurriculumModelClass extends Base {
   /** GET /curriculum/lessons — danh sách bài học theo level/topic */
   getLessons = async (params?: { level?: string; topic?: string }): Promise<CurriculumLesson[]> => {
     const res = await this.apiGet("/lessons", params);
-    return (res as any).data;
+    const body = (res as any)?.data;
+    if (Array.isArray(body)) return body;
+    if (Array.isArray(body?.data)) return body.data;
+    return [];
   };
 
   /** GET /curriculum/lessons/:lessonCode — chi tiết bài học kèm danh sách activity */
   getLessonByCode = async (lessonCode: string): Promise<CurriculumLesson> => {
     const res = await this.apiGet(`/lessons/${lessonCode}`);
-    return (res as any).data;
+    const body = (res as any)?.data;
+    return body?.data ?? body;
   };
 
   /** GET /curriculum/activities/:activityCode — chi tiết activity kèm media */
   getActivityByCode = async (activityCode: string): Promise<CurriculumActivity> => {
     const res = await this.apiGet(`/activities/${activityCode}`);
-    return (res as any).data;
+    const body = (res as any)?.data;
+    return body?.data ?? body;
   };
 
   /** POST /curriculum/activities/:activityId/submit */
@@ -79,13 +84,15 @@ class CurriculumModelClass extends Base {
     payload: SubmitProgressPayload,
   ) => {
     const res = await this.apiPost(`/activities/${activityId}/submit`, payload);
-    return (res as any).data;
+    const body = (res as any)?.data;
+    return body?.data ?? body;
   };
 
   /** GET /curriculum/users/:userId/progress */
   getUserProgress = async (userId: number, lessonId?: number) => {
     const res = await this.apiGet(`/users/${userId}/progress`, lessonId ? { lesson_id: lessonId } : undefined);
-    return (res as any).data;
+    const body = (res as any)?.data;
+    return body?.data ?? body;
   };
 }
 

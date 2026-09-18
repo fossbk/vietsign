@@ -64,15 +64,17 @@ export function CurriculumList() {
     if (selectedTopic !== "ALL") params.topic = selectedTopic;
 
     CurriculumModel.getLessons(params)
-      .then((data) => {
-        setLessons(data || []);
+      .then((data: any) => {
+        const list = Array.isArray(data) ? data : data?.data || [];
+        setLessons(list);
         // Auto-expand first lesson if available
-        if (data && data.length > 0) {
-          handleToggleLesson(data[0].lesson_code);
+        if (list && list.length > 0) {
+          handleToggleLesson(list[0].lesson_code);
         }
       })
       .catch((err) => {
         console.error("Failed to load curriculum lessons", err);
+        setLessons([]);
       })
       .finally(() => setLoading(false));
   }, [selectedLevel, selectedTopic]);
@@ -88,8 +90,9 @@ export function CurriculumList() {
     if (!lessonDetails[code]) {
       setLoadingDetails((prev) => ({ ...prev, [code]: true }));
       CurriculumModel.getLessonByCode(code)
-        .then((data) => {
-          setLessonDetails((prev) => ({ ...prev, [code]: data }));
+        .then((data: any) => {
+          const detail = data?.data ?? data;
+          setLessonDetails((prev) => ({ ...prev, [code]: detail }));
         })
         .catch((err) => {
           console.error("Failed to load lesson detail", err);
