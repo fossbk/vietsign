@@ -15,111 +15,117 @@ ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `description` = VALUES(`descr
 
 -- 2. Activities
 INSERT INTO `curriculum_activity` (`activity_id`, `lesson_id`, `activity_code`, `activity_level`, `game_type`, `title`, `instruction`, `display_order`, `game_config`, `pass_score`, `is_active`) VALUES
-(1, 1, 'L1.BT.01.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (trẻ làm ký hiệu theo video mẫu)', '3 thẻ chữ A, B, thanh huyền và 3 thẻ tranh "bà, ba, ba ba" đặt cạnh nhau. Trẻ chạm vào từng thẻ thì mặt trong được lật ra là video chữ cái ngón tay A. Trẻ sẽ xem là làm chữ cái ngón tay A theo mẫu. Tương tự với thẻ B và dấu huyền. Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, '{"source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw", "targetWords": ["Chữ A", "Chữ B", "Dấu huyền"]}', 80.0, 1),
+(1, 1, 'L1.BT.01.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (trẻ làm ký hiệu theo video mẫu)', '3 thẻ chữ A, B, thanh huyền và 3 thẻ tranh "bà, ba, ba ba" đặt cạnh nhau. Trẻ chạm vào từng thẻ thì mặt trong được lật ra là video chữ cái ngón tay A. Trẻ sẽ xem là làm chữ cái ngón tay A theo mẫu. Tương tự với thẻ B và dấu huyền. Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, JSON_OBJECT('source', '- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg 
+- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc 
+- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw', 'targetWords', JSON_ARRAY('Chữ A', 'Chữ B', 'Dấu huyền')), 80.0, 1),
 (2, 1, 'L1.BT.01.T02', 'T', 'LineMatchingGame', '2. Nối kí hiệu tương ứng với hình', 'Chia làm 2 cột:
 1 cột là chữ a, b, thanh huyền và thẻ tranh bà, ba, ba ba
 1 cột là kí hiệu sắp xếp ngẫu nhiên 
-HS sẽ nối hai cột với nhau', 2, '{"source": "Sách bài tập bổ trợ Tiếng Việt tập 2 - trang....", "targetWords": null}', 80.0, 1),
+HS sẽ nối hai cột với nhau', 2, JSON_OBJECT('source', 'Sách bài tập bổ trợ Tiếng Việt tập 2 - trang....', 'targetWords', NULL), 80.0, 1),
 (3, 1, 'L1.BT.01.T03', 'T', 'ChoiceQuizGame', '3. Xem hình chọn kí hiệu tương ứng', '1 thẻ hình ở dòng trên
 2 video kí hiệu ở dòng dưới
 HS nhìn thẻ hình, xem và chọn video kí hiệu phù hợp
-Thực hiện lần lượt với thẻ chữ A (A và dấu huyền), B (dấu huyền và B) và thẻ tranh bà (bà và ba)', 3, '{"source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg  \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc  \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw \n- Bà: https://www.youtube.com/watch?v=ZKcsAk7u0Fw \n- Ba: quay bổ sung", "targetWords": ["Chữ A", "Chữ B", "Dấu huyền", "Bà", "Ba"]}', 80.0, 1),
+Thực hiện lần lượt với thẻ chữ A (A và dấu huyền), B (dấu huyền và B) và thẻ tranh bà (bà và ba)', 3, JSON_OBJECT('source', '- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg  
+- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc  
+- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw 
+- Bà: https://www.youtube.com/watch?v=ZKcsAk7u0Fw 
+- Ba: quay bổ sung', 'targetWords', JSON_ARRAY('Chữ A', 'Chữ B', 'Dấu huyền', 'Bà', 'Ba')), 80.0, 1),
 (4, 1, 'L1.BT.01.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ tranh tương ứng', '1 video kí hiệu ở dòng trên
 2 thẻ tranh ở dòng dưới
 HS xem video và chọn thẻ tranh tương ứng
-Thực hiện lần lượt với các video dấu huyền (thẻ chữ A và thẻ dấu huyền), ba (thẻ bà và ba), ba ba (thẻ ba ba và B)', 4, '{"source": "- Ba ba: https://qipedc.moet.gov.vn/dictionary (đánh từ khóa ba ba vào tìm kiếm)", "targetWords": ["Ba ba"]}', 80.0, 1),
+Thực hiện lần lượt với các video dấu huyền (thẻ chữ A và thẻ dấu huyền), ba (thẻ bà và ba), ba ba (thẻ ba ba và B)', 4, JSON_OBJECT('source', '- Ba ba: https://qipedc.moet.gov.vn/dictionary (đánh từ khóa ba ba vào tìm kiếm)', 'targetWords', JSON_ARRAY('Ba ba')), 80.0, 1),
 (5, 1, 'L1.BT.01.T05', 'T', 'ChoiceQuizGame', '5. Chọn thẻ chữ tương ứng với kí hiệu', '1 video kí hiệu ở dòng trên
 2 thẻ chữ ở dòng dưới
-Thực hiện lần lượt video kí hiệu chữ A (thẻ chữ A và Bà), chữ B (thẻ chữ ba và B), bà (thẻ chữ bà và ba ba), dấu huyền (thẻ dấu huyền và bà), ba (thẻ chữ ba và baba), ba ba (thẻ chữ bà và ba ba)', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+Thực hiện lần lượt video kí hiệu chữ A (thẻ chữ A và Bà), chữ B (thẻ chữ ba và B), bà (thẻ chữ bà và ba ba), dấu huyền (thẻ dấu huyền và bà), ba (thẻ chữ ba và baba), ba ba (thẻ chữ bà và ba ba)', 5, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (6, 1, 'L1.BT.01.T06', 'T', 'VideoPracticeRecorder', '6. Làm kí hiệu tương ứng với hình', 'Từng thẻ tranh A, B, dấu huyền, bà, ba, ba ba xuất hiện
-Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (7, 2, 'L1.BT.02.T01', 'T', 'FlipCardViewer', '1.Thẻ lật thông minh (giới thiệu kí hiệu mới)', 'Chia 3 phần để không quá 6 thẻ/phần:
  - Phần 1: 4 thẻ chữ C, E, Ê, thanh sắc
  - Phần 2: 3 thẻ tranh ca, cà, cá
  - Phần 3: 3 thẻ tranh bè, bé, bế
  Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu tương ứng, trẻ xem và làm theo mẫu.
- Lưu ý: Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+ Lưu ý: Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (8, 2, 'L1.BT.02.T02', 'T', 'LineMatchingGame', '2. Nối kí hiệu tương ứng với hình', 'Chia làm 2 cột, mỗi lượt tối đa 5 cặp:
  1 cột là chữ c, e, ê, thanh sắc và thẻ tranh ca, cà, cá, bè, bé, bế
  1 cột là kí hiệu sắp xếp ngẫu nhiên
  HS sẽ nối hai cột với nhau
- Lượt 1: c, e, ê, thanh sắc - Lượt 2: ca, cà, cá - Lượt 3: bè, bé, bế', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+ Lượt 1: c, e, ê, thanh sắc - Lượt 2: ca, cà, cá - Lượt 3: bè, bé, bế', 2, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (9, 2, 'L1.BT.02.T03', 'T', 'JigsawPuzzleGame', '3. Ghép hình', 'Thẻ ghép 2 miếng có khớp răng cưa: một nửa là ảnh kí hiệu, nửa kia là mặt chữ tương ứng.
  Các miếng xáo trộn, HS kéo - thả để ghép. Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì miếng bật về chỗ cũ kèm rung nhẹ (không mất thẻ).
- Mỗi lượt tối đa 5 cặp. Lượt 1 dùng chữ cái, lượt 2 dùng từ.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mỗi lượt tối đa 5 cặp. Lượt 1 dùng chữ cái, lượt 2 dùng từ.', 3, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (10, 2, 'L1.BT.02.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ chữ', '1 video kí hiệu ở dòng trên
  3 thẻ chữ ở dòng dưới (nâng lên 3 lựa chọn vì đây là hoạt động chính)
  \'- video ca (ca / cà / cá), video cà (ca / cà / cá), video cá (ca / cà / cá),
  \'- video bè (bè / bé / bế), video bé (bè / bé / bế), video bế (bè / bé / bế)
- -Vị trí đáp án xáo trộn mỗi lần. Sai thì phát lại video rồi cho chọn lại (tối đa 2 lần).', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+ -Vị trí đáp án xáo trộn mỗi lần. Sai thì phát lại video rồi cho chọn lại (tối đa 2 lần).', 4, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (11, 2, 'L1.BT.02.T05', 'T', 'BucketDropGame', '5.  Thả hình', '3 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC, mỗi giỏ có biểu tượng kí hiệu dấu thanh ở trên.
  HS kéo các thẻ từ (ba, bà, ca, cà, cá, be, bè, bé) vào đúng giỏ. Mỗi thẻ vừa hiện mặt chữ vừa có nút nhỏ xem lại video kí hiệu.
- Vùng thả rộng và sáng lên khi kéo tới. Thả sai thì thẻ bật ra chứ không mất.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+ Vùng thả rộng và sáng lên khi kéo tới. Thả sai thì thẻ bật ra chứ không mất.', 5, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (12, 2, 'L1.BT.02.T06', 'T', 'MemoryCardGame', '6. Lật thẻ tìm cặp', 'Bảng 12 thẻ úp (6 cặp): 1 thẻ mặt chữ - 1 thẻ kí hiệu, lấy đúng 6 từ ca, cà, cá, bè, bé, bế.
  HS lật 2 thẻ mỗi lượt; đúng cặp thì thẻ sáng lên và ở lại, sai thì úp lại sau 1 giây.
- KHÔNG đếm giờ, chỉ đếm số lượt lật; hết bài hiện số sao theo số lượt.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+ KHÔNG đếm giờ, chỉ đếm số lượt lật; hết bài hiện số sao theo số lượt.', 6, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (13, 2, 'L1.BT.02.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ C, E, Ê, thanh sắc, ca, cà, cá, bè, bé, bế xuất hiện
- Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1),
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (14, 3, 'L1.BT.03.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu số)', '5 thẻ chữ số 1, 2, 3, 4, 5. Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu số bằng ngón tay, trẻ xem và làm theo mẫu.
- Mỗi thẻ chữ số hiện kèm số chấm tròn tương ứng để HS gắn số với lượng ngay từ đầu. Video có nút tua lại và chọn tốc độ nhanh/chậm.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mỗi thẻ chữ số hiện kèm số chấm tròn tương ứng để HS gắn số với lượng ngay từ đầu. Video có nút tua lại và chọn tốc độ nhanh/chậm.', 1, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (15, 3, 'L1.BT.03.T02', 'T', 'ChoiceQuizGame', '2. Đếm đồ vật và chọn kí hiệu số', 'Hiện một nhóm đồ vật (ví dụ 3 con cá) xếp thành hàng đều, không chồng lấn.
  HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự 1, 2, 3… để hỗ trợ đếm.
  Sau đó HS chọn 1 trong 3 video kí hiệu số ở dòng dưới.
- Đồ vật lấy theo từ đã học (ba ba, cá, cà) để vừa ôn từ vừa học số.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+ Đồ vật lấy theo từ đã học (ba ba, cá, cà) để vừa ôn từ vừa học số.', 2, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (16, 3, 'L1.BT.03.T03', 'T', 'LineMatchingGame', '3. Nối số lượng - kí hiệu', 'Chia làm 2 cột, 5 cặp:
  1 cột là thẻ tranh nhóm đồ vật (1-5 vật)
  1 cột là kí hiệu số sắp xếp ngẫu nhiên
- HS sẽ nối hai cột với nhau', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+ HS sẽ nối hai cột với nhau', 3, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (17, 3, 'L1.BT.03.T04', 'T', 'JigsawPuzzleGame', '4. Ghép hình thẻ 2 miếng (chữ số - kí hiệu)', 'Thẻ ghép 2 miếng: nửa là chữ số, nửa là ảnh bàn tay làm kí hiệu số. 5 cặp mỗi lượt.
- Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì bật về chỗ cũ.', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+ Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì bật về chỗ cũ.', 4, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (18, 3, 'L1.BT.03.T05', 'T', 'SequenceOrderGame', '5. Sắp xếp thứ tự 1 → 5', '5 thẻ kí hiệu số xáo trộn ở dòng trên, 5 ô trống viền nét đứt ở dòng dưới.
  HS kéo - thả vào đúng thứ tự tăng dần. Các ô có sẵn hình bậc thang cao dần để gợi ý trực quan.
- Chỉ kiểm tra khi HS bấm nút Kiểm tra. Làm lại thì giữ nguyên các ô đã đúng.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+ Chỉ kiểm tra khi HS bấm nút Kiểm tra. Làm lại thì giữ nguyên các ô đã đúng.', 5, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (19, 3, 'L1.BT.03.T06', 'T', 'VideoPracticeRecorder', '6. Làm kí hiệu tương ứng với hình', 'Từng thẻ số 1, 2, 3, 4, 5 và các thẻ nhóm đồ vật xuất hiện
- Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (20, 4, 'L1.BT.04.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu số)', '5 thẻ chữ số 6, 7, 8, 9, 10 kèm số chấm tròn tương ứng (xếp 2 hàng cho dễ nhìn).
  Trẻ chạm vào thẻ thì lật ra video kí hiệu số, trẻ xem và làm theo mẫu.
- Các số dễ nhầm (6-9, 7-8) quay thêm 1 góc nghiêng, HS bấm nút đổi góc để xem. Có nút kính lúp phóng to bàn tay.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+ Các số dễ nhầm (6-9, 7-8) quay thêm 1 góc nghiêng, HS bấm nút đổi góc để xem. Có nút kính lúp phóng to bàn tay.', 1, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (21, 4, 'L1.BT.04.T02', 'T', 'ChoiceQuizGame', '2. Phân biệt', '1 video kí hiệu số ở dòng trên
  2 thẻ chữ số ở dòng dưới, luôn là cặp dễ nhầm:
  video 6 (6 và 9), video 9 (9 và 6), video 7 (7 và 8), video 8 (8 và 7), video 10 (10 và 5 - ôn Bài 3)
- Video chạy mặc định, có nút kính lúp. Chọn sai thì phát lại video chậm có KHOANH TRÒN vị trí ngón tay khác biệt giữa 2 số, rồi cho chọn lại.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+ Video chạy mặc định, có nút kính lúp. Chọn sai thì phát lại video chậm có KHOANH TRÒN vị trí ngón tay khác biệt giữa 2 số, rồi cho chọn lại.', 2, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (22, 4, 'L1.BT.04.T03', 'T', 'ChoiceQuizGame', '3. Đếm đồ vật và chọn kí hiệu số', 'Hiện nhóm 6-10 đồ vật xếp thành hai hàng đều nhau(số lượng lớn nên xếp 1 hàng sẽ khó đếm).
  HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự.
- Sau đó HS chọn 1 trong 3 video kí hiệu số.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+ Sau đó HS chọn 1 trong 3 video kí hiệu số.', 3, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (23, 4, 'L1.BT.04.T04', 'T', 'SequenceOrderGame', '4. Điền số còn thiếu trong dãy', 'Dãy số có 1-2 ô trống, ví dụ: 6, 7, __, 9, __ 
  HS kéo thẻ kí hiệu số vào ô trống. Mỗi lượt 3 dãy.
- Mức nâng cao: dãy đếm ngược 10, 9, __, 7, __', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mức nâng cao: dãy đếm ngược 10, 9, __, 7, __', 4, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (24, 4, 'L1.BT.04.T05', 'T', 'SequenceOrderGame', '5. Sắp xếp thứ tự 6 → 10', '5 thẻ kí hiệu số xáo trộn, HS kéo - thả theo thứ tự tăng dần.
- Mức nâng cao (mở khoá sau khi làm đúng): sắp xếp cả dãy 1 → 10 bằng thẻ kí hiệu.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
-(25, 4, 'L1.BT.04.T06', 'T', 'MemoryCardGame', '6. Lật thẻ tìm cặp (trò chơi củng cố)', '10 thẻ úp (5 cặp): 1 thẻ chữ số - 1 thẻ kí hiệu số 6-10. Luật như trò lật thẻ ở Bài 2, không đếm giờ.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mức nâng cao (mở khoá sau khi làm đúng): sắp xếp cả dãy 1 → 10 bằng thẻ kí hiệu.', 5, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
+(25, 4, 'L1.BT.04.T06', 'T', 'MemoryCardGame', '6. Lật thẻ tìm cặp (trò chơi củng cố)', '10 thẻ úp (5 cặp): 1 thẻ chữ số - 1 thẻ kí hiệu số 6-10. Luật như trò lật thẻ ở Bài 2, không đếm giờ.', 6, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (26, 4, 'L1.BT.04.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ số 6, 7, 8, 9, 10 và các thẻ nhóm đồ vật xuất hiện
- Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1),
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (27, 5, 'L1.BT.05.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu mới)', 'Chia 4 phần để không quá 6 thẻ/phần:
  - Phần 1: 3 thẻ chữ O, Ô, thanh hỏi
  - Phần 2: 4 thẻ tranh bò, cỏ, bó, cò (từ có o)
  - Phần 3: 4 thẻ tranh bố, cô, cổ, bộ (từ có ô)
  - Phần 4: 3 thẻ tranh bể cá, cô bé, cổ cò (từ 2 tiếng)
  Trẻ chạm vào thẻ thì lật ra video kí hiệu, trẻ xem và làm theo mẫu.
- Lưu ý: o và ô chỉ khác dấu mũ → khi hiện mặt chữ cho dấu mũ nhấp nháy 2 lần.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+ Lưu ý: o và ô chỉ khác dấu mũ → khi hiện mặt chữ cho dấu mũ nhấp nháy 2 lần.', 1, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (28, 5, 'L1.BT.05.T02', 'T', 'LineMatchingGame', '2. Nối từ - kí hiệu (chia lượt theo nhóm)', 'Chia làm 2 cột, mỗi lượt tối đa 4 cặp cùng nhóm để HS so sánh được các từ gần giống nhau:
  Lượt 1: o, ô, thanh hỏi - Lượt 2: bò, cỏ, bó, cò - Lượt 3: bố, cô, cổ, bộ
- 1 cột là mặt chữ, 1 cột là kí hiệu sắp xếp ngẫu nhiên. HS nối hai cột với nhau.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+ 1 cột là mặt chữ, 1 cột là kí hiệu sắp xếp ngẫu nhiên. HS nối hai cột với nhau.', 2, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (29, 5, 'L1.BT.05.T03', 'T', 'LineMatchingGame', '3. Nối từ - hình ảnh', 'Như hoạt động 2 nhưng cột phải là tranh minh họa nghĩa của từ, không phải kí hiệu.
- Mục đích: tách bạch 2 việc - nhớ kí hiệu và hiểu nghĩa từ. Mỗi lượt 4 cặp cùng nhóm.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mục đích: tách bạch 2 việc - nhớ kí hiệu và hiểu nghĩa từ. Mỗi lượt 4 cặp cùng nhóm.', 3, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (30, 5, 'L1.BT.05.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ chữ', '1 video kí hiệu ở dòng trên
  3 thẻ chữ ở dòng dưới
  Bộ nhiễu lấy đúng các cặp dễ nhầm trong bài:
  bò (bò / bó / bộ), bó (bò / bó / bộ), bộ (bò / bó / bộ),
  cò (cò / cỏ / cô), cỏ (cò / cỏ / cô), cổ (cổ / cô / cỏ)
- Mỗi lượt 6 câu, vị trí đáp án xáo trộn. Sai thì hiện đáp án kèm video kí hiệu chậm 0.5x.', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mỗi lượt 6 câu, vị trí đáp án xáo trộn. Sai thì hiện đáp án kèm video kí hiệu chậm 0.5x.', 4, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (31, 5, 'L1.BT.05.T05', 'T', 'JigsawPuzzleGame', '5. Ghép hình từ 2 tiếng (bể cá, cô bé, cổ cò)', 'Hoạt động riêng cho từ 2 tiếng: thẻ ghép 2 miếng, nửa là tranh minh họa, nửa là kí hiệu của cả từ.
- Chú ý: từ 2 tiếng làm 1 thẻ kí hiệu duy nhất, không tách rời khi kéo thả, để HS hiểu đây là một đơn vị nghĩa chứ không phải 2 từ rời.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+ Chú ý: từ 2 tiếng làm 1 thẻ kí hiệu duy nhất, không tách rời khi kéo thả, để HS hiểu đây là một đơn vị nghĩa chứ không phải 2 từ rời.', 5, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (32, 5, 'L1.BT.05.T06', 'T', 'BucketDropGame', '6. Kéo thả phân loại theo dấu thanh', '4 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC / DẤU HỎI, mỗi giỏ có biểu tượng kí hiệu dấu thanh.
  HS kéo các thẻ từ (bo, bò, bó, cỏ, cò, cô, cổ, bộ, ba, bà, ca, cá…) vào đúng giỏ. Mỗi thẻ có nút nhỏ xem lại video kí hiệu.
- Mỗi lượt tối đa 8 thẻ. Thả sai thì thẻ bật ra chứ không mất.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+ Mỗi lượt tối đa 8 thẻ. Thả sai thì thẻ bật ra chứ không mất.', 6, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1),
 (33, 5, 'L1.BT.05.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ O, Ô, thanh hỏi và 11 từ trong bài xuất hiện (chia theo 4 nhóm như hoạt động 1)
- Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1)
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, JSON_OBJECT('source', NULL, 'targetWords', NULL), 80.0, 1)
 ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `instruction` = VALUES(`instruction`), `game_config` = VALUES(`game_config`);
 
 -- 3. Media
