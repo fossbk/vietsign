@@ -1,3 +1,255 @@
-INSERT INTO `curriculum_lesson` VALUES (2,'L1.BT.01','L1','BT','B├ái 1: A a, B b, \\ (thanh huyß╗ün)','','ready',1,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(3,'L1.BT.02','L1','BT','B├ái 2: C c, E e, ├è ├¬, / (thanh sß║»c)','Tß╗½ trong b├ái: ca, c├á, c├í, b├¿, b├⌐, bß║┐','ready',2,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(4,'L1.BT.03','L1','BT','B├ái 3: Sß╗æ 1, 2, 3, 4, 5','','ready',3,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(5,'L1.BT.04','L1','BT','B├ái 4: Sß╗æ 6, 7, 8, 9, 10','','ready',4,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(6,'L1.BT.05','L1','BT','B├ái 5: o, ├┤, ? (thanh hß╗Åi)','Tß╗½ trong b├ái: b├▓, cß╗Å, b├│, c├▓, bß╗æ, c├┤, cß╗ò, bß╗Ö, bß╗â c├í, c├┤ b├⌐, cß╗ò c├▓','ready',5,1,'2026-09-18 16:09:35','2026-09-18 16:09:35');
-INSERT INTO `curriculum_activity` VALUES (2,2,'L1.BT.01.T01','T','FlipCardViewer','1. Thß║╗ lß║¡t th├┤ng minh (trß║╗ l├ám k├╜ hiß╗çu theo video mß║½u)','3 thß║╗ chß╗» A, B, thanh huyß╗ün v├á 3 thß║╗ tranh \"b├á, ba, ba ba\" ─æß║╖t cß║ính nhau. Trß║╗ chß║ím v├áo tß╗½ng thß║╗ th├¼ mß║╖t trong ─æ╞░ß╗úc lß║¡t ra l├á video chß╗» c├íi ng├│n tay A. Trß║╗ sß║╜ xem l├á l├ám chß╗» c├íi ng├│n tay A theo mß║½u. T╞░╞íng tß╗▒ vß╗¢i thß║╗ B v├á dß║Ñu huyß╗ün. Mß╗ùi video c├│ thß╗â chß╗ìn tß╗æc ─æß╗Ö nhanh, chß║¡m, tua lß║íi.',1,'{\"source\": \"- Chß╗» A: https://www.youtube.com/watch?v=tsREwMZdHmg \\n- Chß╗» B: https://www.youtube.com/watch?v=W6GFoY2STdc \\n- Dß║Ñu huyß╗ün: https://www.youtube.com/watch?v=4eomxDxnBhw\", \"targetWords\": [\"Chß╗» A\", \"Chß╗» B\", \"Dß║Ñu huyß╗ün\"]}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(3,2,'L1.BT.01.T02','T','LineMatchingGame','2. Nß╗æi k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Chia l├ám 2 cß╗Öt:\n1 cß╗Öt l├á chß╗» a, b, thanh huyß╗ün v├á thß║╗ tranh b├á, ba, ba ba\n1 cß╗Öt l├á k├¡ hiß╗çu sß║»p xß║┐p ngß║½u nhi├¬n \nHS sß║╜ nß╗æi hai cß╗Öt vß╗¢i nhau',2,'{\"source\": \"S├ích b├ái tß║¡p bß╗ò trß╗ú Tiß║┐ng Viß╗çt tß║¡p 2 - trang....\", \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(4,2,'L1.BT.01.T03','T','ChoiceQuizGame','3. Xem h├¼nh chß╗ìn k├¡ hiß╗çu t╞░╞íng ß╗⌐ng','1 thß║╗ h├¼nh ß╗ƒ d├▓ng tr├¬n\n2 video k├¡ hiß╗çu ß╗ƒ d├▓ng d╞░ß╗¢i\nHS nh├¼n thß║╗ h├¼nh, xem v├á chß╗ìn video k├¡ hiß╗çu ph├╣ hß╗úp\nThß╗▒c hiß╗çn lß║ºn l╞░ß╗út vß╗¢i thß║╗ chß╗» A (A v├á dß║Ñu huyß╗ün), B (dß║Ñu huyß╗ün v├á B) v├á thß║╗ tranh b├á (b├á v├á ba)',3,'{\"source\": \"- Chß╗» A: https://www.youtube.com/watch?v=tsREwMZdHmg  \\n- Chß╗» B: https://www.youtube.com/watch?v=W6GFoY2STdc  \\n- Dß║Ñu huyß╗ün: https://www.youtube.com/watch?v=4eomxDxnBhw \\n- B├á: https://www.youtube.com/watch?v=ZKcsAk7u0Fw \\n- Ba: quay bß╗ò sung\", \"targetWords\": [\"Chß╗» A\", \"Chß╗» B\", \"Dß║Ñu huyß╗ün\", \"B├á\", \"Ba\"]}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(5,2,'L1.BT.01.T04','T','ChoiceQuizGame','4. Xem video k├¡ hiß╗çu chß╗ìn thß║╗ tranh t╞░╞íng ß╗⌐ng','1 video k├¡ hiß╗çu ß╗ƒ d├▓ng tr├¬n\n2 thß║╗ tranh ß╗ƒ d├▓ng d╞░ß╗¢i\nHS xem video v├á chß╗ìn thß║╗ tranh t╞░╞íng ß╗⌐ng\nThß╗▒c hiß╗çn lß║ºn l╞░ß╗út vß╗¢i c├íc video dß║Ñu huyß╗ün (thß║╗ chß╗» A v├á thß║╗ dß║Ñu huyß╗ün), ba (thß║╗ b├á v├á ba), ba ba (thß║╗ ba ba v├á B)',4,'{\"source\": \"- Ba ba: https://qipedc.moet.gov.vn/dictionary (─æ├ính tß╗½ kh├│a ba ba v├áo t├¼m kiß║┐m)\", \"targetWords\": [\"Ba ba\"]}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(6,2,'L1.BT.01.T05','T','ChoiceQuizGame','5. Chß╗ìn thß║╗ chß╗» t╞░╞íng ß╗⌐ng vß╗¢i k├¡ hiß╗çu','1 video k├¡ hiß╗çu ß╗ƒ d├▓ng tr├¬n\n2 thß║╗ chß╗» ß╗ƒ d├▓ng d╞░ß╗¢i\nThß╗▒c hiß╗çn lß║ºn l╞░ß╗út video k├¡ hiß╗çu chß╗» A (thß║╗ chß╗» A v├á B├á), chß╗» B (thß║╗ chß╗» ba v├á B), b├á (thß║╗ chß╗» b├á v├á ba ba), dß║Ñu huyß╗ün (thß║╗ dß║Ñu huyß╗ün v├á b├á), ba (thß║╗ chß╗» ba v├á baba), ba ba (thß║╗ chß╗» b├á v├á ba ba)',5,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(7,2,'L1.BT.01.T06','T','VideoPracticeRecorder','6. L├ám k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Tß╗½ng thß║╗ tranh A, B, dß║Ñu huyß╗ün, b├á, ba, ba ba xuß║Ñt hiß╗çn\nH╞░ß╗¢ng dß║½n ng╞░ß╗¥i d├╣ng tß╗▒ quay video v├á ─æ─âng tß║úi video ─æß╗â gi├ío vi├¬n kiß╗âm tra v├á c├│ thß╗â phß║ún hß╗ôi trß╗▒c tiß║┐p tr├¬n b├ái ─æ─âng cß╗ºa hß╗ìc sinh',6,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(8,3,'L1.BT.02.T01','T','FlipCardViewer','1.Thß║╗ lß║¡t th├┤ng minh (giß╗¢i thiß╗çu k├¡ hiß╗çu mß╗¢i)','Chia 3 phß║ºn ─æß╗â kh├┤ng qu├í 6 thß║╗/phß║ºn:\n - Phß║ºn 1: 4 thß║╗ chß╗» C, E, ├è, thanh sß║»c\n - Phß║ºn 2: 3 thß║╗ tranh ca, c├á, c├í\n - Phß║ºn 3: 3 thß║╗ tranh b├¿, b├⌐, bß║┐\n Trß║╗ chß║ím v├áo tß╗½ng thß║╗ th├¼ mß║╖t trong lß║¡t ra l├á video k├¡ hiß╗çu t╞░╞íng ß╗⌐ng, trß║╗ xem v├á l├ám theo mß║½u.\n L╞░u ├╜: Mß╗ùi video c├│ thß╗â chß╗ìn tß╗æc ─æß╗Ö nhanh, chß║¡m, tua lß║íi.',1,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(9,3,'L1.BT.02.T02','T','LineMatchingGame','2. Nß╗æi k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Chia l├ám 2 cß╗Öt, mß╗ùi l╞░ß╗út tß╗æi ─æa 5 cß║╖p:\n 1 cß╗Öt l├á chß╗» c, e, ├¬, thanh sß║»c v├á thß║╗ tranh ca, c├á, c├í, b├¿, b├⌐, bß║┐\n 1 cß╗Öt l├á k├¡ hiß╗çu sß║»p xß║┐p ngß║½u nhi├¬n\n HS sß║╜ nß╗æi hai cß╗Öt vß╗¢i nhau\n L╞░ß╗út 1: c, e, ├¬, thanh sß║»c - L╞░ß╗út 2: ca, c├á, c├í - L╞░ß╗út 3: b├¿, b├⌐, bß║┐',2,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(10,3,'L1.BT.02.T03','T','JigsawPuzzleGame','3. Gh├⌐p h├¼nh','Thß║╗ gh├⌐p 2 miß║┐ng c├│ khß╗¢p r─âng c╞░a: mß╗Öt nß╗¡a l├á ß║únh k├¡ hiß╗çu, nß╗¡a kia l├á mß║╖t chß╗» t╞░╞íng ß╗⌐ng.\n C├íc miß║┐ng x├ío trß╗Ön, HS k├⌐o - thß║ú ─æß╗â gh├⌐p. Gh├⌐p ─æ├║ng th├¼ 2 miß║┐ng d├¡nh liß╗ün v├á s├íng l├¬n, gh├⌐p sai th├¼ miß║┐ng bß║¡t vß╗ü chß╗ù c┼⌐ k├¿m rung nhß║╣ (kh├┤ng mß║Ñt thß║╗).\n Mß╗ùi l╞░ß╗út tß╗æi ─æa 5 cß║╖p. L╞░ß╗út 1 d├╣ng chß╗» c├íi, l╞░ß╗út 2 d├╣ng tß╗½.',3,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(11,3,'L1.BT.02.T04','T','ChoiceQuizGame','4. Xem video k├¡ hiß╗çu chß╗ìn thß║╗ chß╗»','1 video k├¡ hiß╗çu ß╗ƒ d├▓ng tr├¬n\n 3 thß║╗ chß╗» ß╗ƒ d├▓ng d╞░ß╗¢i (n├óng l├¬n 3 lß╗▒a chß╗ìn v├¼ ─æ├óy l├á hoß║ít ─æß╗Öng ch├¡nh)\n \'- video ca (ca / c├á / c├í), video c├á (ca / c├á / c├í), video c├í (ca / c├á / c├í),\n \'- video b├¿ (b├¿ / b├⌐ / bß║┐), video b├⌐ (b├¿ / b├⌐ / bß║┐), video bß║┐ (b├¿ / b├⌐ / bß║┐)\n -Vß╗ï tr├¡ ─æ├íp ├ín x├ío trß╗Ön mß╗ùi lß║ºn. Sai th├¼ ph├ít lß║íi video rß╗ôi cho chß╗ìn lß║íi (tß╗æi ─æa 2 lß║ºn).',4,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(12,3,'L1.BT.02.T05','T','BucketDropGame','5.  Thß║ú h├¼nh','3 giß╗Å: KH├öNG Dß║ñU / Dß║ñU HUYß╗ÇN / Dß║ñU Sß║«C, mß╗ùi giß╗Å c├│ biß╗âu t╞░ß╗úng k├¡ hiß╗çu dß║Ñu thanh ß╗ƒ tr├¬n.\n HS k├⌐o c├íc thß║╗ tß╗½ (ba, b├á, ca, c├á, c├í, be, b├¿, b├⌐) v├áo ─æ├║ng giß╗Å. Mß╗ùi thß║╗ vß╗½a hiß╗çn mß║╖t chß╗» vß╗½a c├│ n├║t nhß╗Å xem lß║íi video k├¡ hiß╗çu.\n V├╣ng thß║ú rß╗Öng v├á s├íng l├¬n khi k├⌐o tß╗¢i. Thß║ú sai th├¼ thß║╗ bß║¡t ra chß╗⌐ kh├┤ng mß║Ñt.',5,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(13,3,'L1.BT.02.T06','T','MemoryCardGame','6. Lß║¡t thß║╗ t├¼m cß║╖p','Bß║úng 12 thß║╗ ├║p (6 cß║╖p): 1 thß║╗ mß║╖t chß╗» - 1 thß║╗ k├¡ hiß╗çu, lß║Ñy ─æ├║ng 6 tß╗½ ca, c├á, c├í, b├¿, b├⌐, bß║┐.\n HS lß║¡t 2 thß║╗ mß╗ùi l╞░ß╗út; ─æ├║ng cß║╖p th├¼ thß║╗ s├íng l├¬n v├á ß╗ƒ lß║íi, sai th├¼ ├║p lß║íi sau 1 gi├óy.\n KH├öNG ─æß║┐m giß╗¥, chß╗ë ─æß║┐m sß╗æ l╞░ß╗út lß║¡t; hß║┐t b├ái hiß╗çn sß╗æ sao theo sß╗æ l╞░ß╗út.',6,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(14,3,'L1.BT.02.T07','T','VideoPracticeRecorder','7. L├ám k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Tß╗½ng thß║╗ C, E, ├è, thanh sß║»c, ca, c├á, c├í, b├¿, b├⌐, bß║┐ xuß║Ñt hiß╗çn\n H╞░ß╗¢ng dß║½n ng╞░ß╗¥i d├╣ng tß╗▒ quay video v├á ─æ─âng tß║úi video ─æß╗â gi├ío vi├¬n kiß╗âm tra v├á c├│ thß╗â phß║ún hß╗ôi trß╗▒c tiß║┐p tr├¬n b├ái ─æ─âng cß╗ºa hß╗ìc sinh',7,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(15,4,'L1.BT.03.T01','T','FlipCardViewer','1. Thß║╗ lß║¡t th├┤ng minh (giß╗¢i thiß╗çu k├¡ hiß╗çu sß╗æ)','5 thß║╗ chß╗» sß╗æ 1, 2, 3, 4, 5. Trß║╗ chß║ím v├áo tß╗½ng thß║╗ th├¼ mß║╖t trong lß║¡t ra l├á video k├¡ hiß╗çu sß╗æ bß║▒ng ng├│n tay, trß║╗ xem v├á l├ám theo mß║½u.\n Mß╗ùi thß║╗ chß╗» sß╗æ hiß╗çn k├¿m sß╗æ chß║Ñm tr├▓n t╞░╞íng ß╗⌐ng ─æß╗â HS gß║»n sß╗æ vß╗¢i l╞░ß╗úng ngay tß╗½ ─æß║ºu. Video c├│ n├║t tua lß║íi v├á chß╗ìn tß╗æc ─æß╗Ö nhanh/chß║¡m.',1,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(16,4,'L1.BT.03.T02','T','ChoiceQuizGame','2. ─Éß║┐m ─æß╗ô vß║¡t v├á chß╗ìn k├¡ hiß╗çu sß╗æ','Hiß╗çn mß╗Öt nh├│m ─æß╗ô vß║¡t (v├¡ dß╗Ñ 3 con c├í) xß║┐p th├ánh h├áng ─æß╗üu, kh├┤ng chß╗ông lß║Ñn.\n HS chß║ím v├áo tß╗½ng ─æß╗ô vß║¡t th├¼ ─æß╗ô vß║¡t s├íng l├¬n v├á hiß╗çn sß╗æ thß╗⌐ tß╗▒ 1, 2, 3ΓÇª ─æß╗â hß╗ù trß╗ú ─æß║┐m.\n Sau ─æ├│ HS chß╗ìn 1 trong 3 video k├¡ hiß╗çu sß╗æ ß╗ƒ d├▓ng d╞░ß╗¢i.\n ─Éß╗ô vß║¡t lß║Ñy theo tß╗½ ─æ├ú hß╗ìc (ba ba, c├í, c├á) ─æß╗â vß╗½a ├┤n tß╗½ vß╗½a hß╗ìc sß╗æ.',2,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(17,4,'L1.BT.03.T03','T','LineMatchingGame','3. Nß╗æi sß╗æ l╞░ß╗úng - k├¡ hiß╗çu','Chia l├ám 2 cß╗Öt, 5 cß║╖p:\n 1 cß╗Öt l├á thß║╗ tranh nh├│m ─æß╗ô vß║¡t (1-5 vß║¡t)\n 1 cß╗Öt l├á k├¡ hiß╗çu sß╗æ sß║»p xß║┐p ngß║½u nhi├¬n\n HS sß║╜ nß╗æi hai cß╗Öt vß╗¢i nhau',3,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(18,4,'L1.BT.03.T04','T','JigsawPuzzleGame','4. Gh├⌐p h├¼nh thß║╗ 2 miß║┐ng (chß╗» sß╗æ - k├¡ hiß╗çu)','Thß║╗ gh├⌐p 2 miß║┐ng: nß╗¡a l├á chß╗» sß╗æ, nß╗¡a l├á ß║únh b├án tay l├ám k├¡ hiß╗çu sß╗æ. 5 cß║╖p mß╗ùi l╞░ß╗út.\n Gh├⌐p ─æ├║ng th├¼ 2 miß║┐ng d├¡nh liß╗ün v├á s├íng l├¬n, gh├⌐p sai th├¼ bß║¡t vß╗ü chß╗ù c┼⌐.',4,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(19,4,'L1.BT.03.T05','T','SequenceOrderGame','5. Sß║»p xß║┐p thß╗⌐ tß╗▒ 1 ΓåÆ 5','5 thß║╗ k├¡ hiß╗çu sß╗æ x├ío trß╗Ön ß╗ƒ d├▓ng tr├¬n, 5 ├┤ trß╗æng viß╗ün n├⌐t ─æß╗⌐t ß╗ƒ d├▓ng d╞░ß╗¢i.\n HS k├⌐o - thß║ú v├áo ─æ├║ng thß╗⌐ tß╗▒ t─âng dß║ºn. C├íc ├┤ c├│ sß║╡n h├¼nh bß║¡c thang cao dß║ºn ─æß╗â gß╗úi ├╜ trß╗▒c quan.\n Chß╗ë kiß╗âm tra khi HS bß║Ñm n├║t Kiß╗âm tra. L├ám lß║íi th├¼ giß╗» nguy├¬n c├íc ├┤ ─æ├ú ─æ├║ng.',5,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(20,4,'L1.BT.03.T06','T','VideoPracticeRecorder','6. L├ám k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Tß╗½ng thß║╗ sß╗æ 1, 2, 3, 4, 5 v├á c├íc thß║╗ nh├│m ─æß╗ô vß║¡t xuß║Ñt hiß╗çn\n H╞░ß╗¢ng dß║½n ng╞░ß╗¥i d├╣ng tß╗▒ quay video v├á ─æ─âng tß║úi video ─æß╗â gi├ío vi├¬n kiß╗âm tra v├á c├│ thß╗â phß║ún hß╗ôi trß╗▒c tiß║┐p tr├¬n b├ái ─æ─âng cß╗ºa hß╗ìc sinh',6,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(21,5,'L1.BT.04.T01','T','FlipCardViewer','1. Thß║╗ lß║¡t th├┤ng minh (giß╗¢i thiß╗çu k├¡ hiß╗çu sß╗æ)','5 thß║╗ chß╗» sß╗æ 6, 7, 8, 9, 10 k├¿m sß╗æ chß║Ñm tr├▓n t╞░╞íng ß╗⌐ng (xß║┐p 2 h├áng cho dß╗à nh├¼n).\n Trß║╗ chß║ím v├áo thß║╗ th├¼ lß║¡t ra video k├¡ hiß╗çu sß╗æ, trß║╗ xem v├á l├ám theo mß║½u.\n C├íc sß╗æ dß╗à nhß║ºm (6-9, 7-8) quay th├¬m 1 g├│c nghi├¬ng, HS bß║Ñm n├║t ─æß╗òi g├│c ─æß╗â xem. C├│ n├║t k├¡nh l├║p ph├│ng to b├án tay.',1,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(22,5,'L1.BT.04.T02','T','ChoiceQuizGame','2. Ph├ón biß╗çt','1 video k├¡ hiß╗çu sß╗æ ß╗ƒ d├▓ng tr├¬n\n 2 thß║╗ chß╗» sß╗æ ß╗ƒ d├▓ng d╞░ß╗¢i, lu├┤n l├á cß║╖p dß╗à nhß║ºm:\n video 6 (6 v├á 9), video 9 (9 v├á 6), video 7 (7 v├á 8), video 8 (8 v├á 7), video 10 (10 v├á 5 - ├┤n B├ái 3)\n Video chß║íy mß║╖c ─æß╗ïnh, c├│ n├║t k├¡nh l├║p. Chß╗ìn sai th├¼ ph├ít lß║íi video chß║¡m c├│ KHOANH TR├ÆN vß╗ï tr├¡ ng├│n tay kh├íc biß╗çt giß╗»a 2 sß╗æ, rß╗ôi cho chß╗ìn lß║íi.',2,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(23,5,'L1.BT.04.T03','T','ChoiceQuizGame','3. ─Éß║┐m ─æß╗ô vß║¡t v├á chß╗ìn k├¡ hiß╗çu sß╗æ','Hiß╗çn nh├│m 6-10 ─æß╗ô vß║¡t xß║┐p th├ánh hai h├áng ─æß╗üu nhau(sß╗æ l╞░ß╗úng lß╗¢n n├¬n xß║┐p 1 h├áng sß║╜ kh├│ ─æß║┐m).\n HS chß║ím v├áo tß╗½ng ─æß╗ô vß║¡t th├¼ ─æß╗ô vß║¡t s├íng l├¬n v├á hiß╗çn sß╗æ thß╗⌐ tß╗▒.\n Sau ─æ├│ HS chß╗ìn 1 trong 3 video k├¡ hiß╗çu sß╗æ.',3,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(24,5,'L1.BT.04.T04','T','SequenceOrderGame','4. ─Éiß╗ün sß╗æ c├▓n thiß║┐u trong d├úy','D├úy sß╗æ c├│ 1-2 ├┤ trß╗æng, v├¡ dß╗Ñ: 6, 7, __, 9, __ \n HS k├⌐o thß║╗ k├¡ hiß╗çu sß╗æ v├áo ├┤ trß╗æng. Mß╗ùi l╞░ß╗út 3 d├úy.\n Mß╗⌐c n├óng cao: d├úy ─æß║┐m ng╞░ß╗úc 10, 9, __, 7, __',4,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(25,5,'L1.BT.04.T05','T','SequenceOrderGame','5. Sß║»p xß║┐p thß╗⌐ tß╗▒ 6 ΓåÆ 10','5 thß║╗ k├¡ hiß╗çu sß╗æ x├ío trß╗Ön, HS k├⌐o - thß║ú theo thß╗⌐ tß╗▒ t─âng dß║ºn.\n Mß╗⌐c n├óng cao (mß╗ƒ kho├í sau khi l├ám ─æ├║ng): sß║»p xß║┐p cß║ú d├úy 1 ΓåÆ 10 bß║▒ng thß║╗ k├¡ hiß╗çu.',5,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(26,5,'L1.BT.04.T06','T','MemoryCardGame','6. Lß║¡t thß║╗ t├¼m cß║╖p (tr├▓ ch╞íi cß╗ºng cß╗æ)','10 thß║╗ ├║p (5 cß║╖p): 1 thß║╗ chß╗» sß╗æ - 1 thß║╗ k├¡ hiß╗çu sß╗æ 6-10. Luß║¡t nh╞░ tr├▓ lß║¡t thß║╗ ß╗ƒ B├ái 2, kh├┤ng ─æß║┐m giß╗¥.',6,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(27,5,'L1.BT.04.T07','T','VideoPracticeRecorder','7. L├ám k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Tß╗½ng thß║╗ sß╗æ 6, 7, 8, 9, 10 v├á c├íc thß║╗ nh├│m ─æß╗ô vß║¡t xuß║Ñt hiß╗çn\n H╞░ß╗¢ng dß║½n ng╞░ß╗¥i d├╣ng tß╗▒ quay video v├á ─æ─âng tß║úi video ─æß╗â gi├ío vi├¬n kiß╗âm tra v├á c├│ thß╗â phß║ún hß╗ôi trß╗▒c tiß║┐p tr├¬n b├ái ─æ─âng cß╗ºa hß╗ìc sinh',7,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(28,6,'L1.BT.05.T01','T','FlipCardViewer','1. Thß║╗ lß║¡t th├┤ng minh (giß╗¢i thiß╗çu k├¡ hiß╗çu mß╗¢i)','Chia 4 phß║ºn ─æß╗â kh├┤ng qu├í 6 thß║╗/phß║ºn:\n - Phß║ºn 1: 3 thß║╗ chß╗» O, ├ö, thanh hß╗Åi\n - Phß║ºn 2: 4 thß║╗ tranh b├▓, cß╗Å, b├│, c├▓ (tß╗½ c├│ o)\n - Phß║ºn 3: 4 thß║╗ tranh bß╗æ, c├┤, cß╗ò, bß╗Ö (tß╗½ c├│ ├┤)\n - Phß║ºn 4: 3 thß║╗ tranh bß╗â c├í, c├┤ b├⌐, cß╗ò c├▓ (tß╗½ 2 tiß║┐ng)\n Trß║╗ chß║ím v├áo thß║╗ th├¼ lß║¡t ra video k├¡ hiß╗çu, trß║╗ xem v├á l├ám theo mß║½u.\n L╞░u ├╜: o v├á ├┤ chß╗ë kh├íc dß║Ñu m┼⌐ ΓåÆ khi hiß╗çn mß║╖t chß╗» cho dß║Ñu m┼⌐ nhß║Ñp nh├íy 2 lß║ºn.',1,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(29,6,'L1.BT.05.T02','T','LineMatchingGame','2. Nß╗æi tß╗½ - k├¡ hiß╗çu (chia l╞░ß╗út theo nh├│m)','Chia l├ám 2 cß╗Öt, mß╗ùi l╞░ß╗út tß╗æi ─æa 4 cß║╖p c├╣ng nh├│m ─æß╗â HS so s├ính ─æ╞░ß╗úc c├íc tß╗½ gß║ºn giß╗æng nhau:\n L╞░ß╗út 1: o, ├┤, thanh hß╗Åi - L╞░ß╗út 2: b├▓, cß╗Å, b├│, c├▓ - L╞░ß╗út 3: bß╗æ, c├┤, cß╗ò, bß╗Ö\n 1 cß╗Öt l├á mß║╖t chß╗», 1 cß╗Öt l├á k├¡ hiß╗çu sß║»p xß║┐p ngß║½u nhi├¬n. HS nß╗æi hai cß╗Öt vß╗¢i nhau.',2,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(30,6,'L1.BT.05.T03','T','LineMatchingGame','3. Nß╗æi tß╗½ - h├¼nh ß║únh','Nh╞░ hoß║ít ─æß╗Öng 2 nh╞░ng cß╗Öt phß║úi l├á tranh minh hß╗ìa ngh─⌐a cß╗ºa tß╗½, kh├┤ng phß║úi k├¡ hiß╗çu.\n Mß╗Ñc ─æ├¡ch: t├ích bß║ích 2 viß╗çc - nhß╗¢ k├¡ hiß╗çu v├á hiß╗âu ngh─⌐a tß╗½. Mß╗ùi l╞░ß╗út 4 cß║╖p c├╣ng nh├│m.',3,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(31,6,'L1.BT.05.T04','T','ChoiceQuizGame','4. Xem video k├¡ hiß╗çu chß╗ìn thß║╗ chß╗»','1 video k├¡ hiß╗çu ß╗ƒ d├▓ng tr├¬n\n 3 thß║╗ chß╗» ß╗ƒ d├▓ng d╞░ß╗¢i\n Bß╗Ö nhiß╗àu lß║Ñy ─æ├║ng c├íc cß║╖p dß╗à nhß║ºm trong b├ái:\n b├▓ (b├▓ / b├│ / bß╗Ö), b├│ (b├▓ / b├│ / bß╗Ö), bß╗Ö (b├▓ / b├│ / bß╗Ö),\n c├▓ (c├▓ / cß╗Å / c├┤), cß╗Å (c├▓ / cß╗Å / c├┤), cß╗ò (cß╗ò / c├┤ / cß╗Å)\n Mß╗ùi l╞░ß╗út 6 c├óu, vß╗ï tr├¡ ─æ├íp ├ín x├ío trß╗Ön. Sai th├¼ hiß╗çn ─æ├íp ├ín k├¿m video k├¡ hiß╗çu chß║¡m 0.5x.',4,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(32,6,'L1.BT.05.T05','T','JigsawPuzzleGame','5. Gh├⌐p h├¼nh tß╗½ 2 tiß║┐ng (bß╗â c├í, c├┤ b├⌐, cß╗ò c├▓)','Hoß║ít ─æß╗Öng ri├¬ng cho tß╗½ 2 tiß║┐ng: thß║╗ gh├⌐p 2 miß║┐ng, nß╗¡a l├á tranh minh hß╗ìa, nß╗¡a l├á k├¡ hiß╗çu cß╗ºa cß║ú tß╗½.\n Ch├║ ├╜: tß╗½ 2 tiß║┐ng l├ám 1 thß║╗ k├¡ hiß╗çu duy nhß║Ñt, kh├┤ng t├ích rß╗¥i khi k├⌐o thß║ú, ─æß╗â HS hiß╗âu ─æ├óy l├á mß╗Öt ─æ╞ín vß╗ï ngh─⌐a chß╗⌐ kh├┤ng phß║úi 2 tß╗½ rß╗¥i.',5,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(33,6,'L1.BT.05.T06','T','BucketDropGame','6. K├⌐o thß║ú ph├ón loß║íi theo dß║Ñu thanh','4 giß╗Å: KH├öNG Dß║ñU / Dß║ñU HUYß╗ÇN / Dß║ñU Sß║«C / Dß║ñU Hß╗ÄI, mß╗ùi giß╗Å c├│ biß╗âu t╞░ß╗úng k├¡ hiß╗çu dß║Ñu thanh.\n HS k├⌐o c├íc thß║╗ tß╗½ (bo, b├▓, b├│, cß╗Å, c├▓, c├┤, cß╗ò, bß╗Ö, ba, b├á, ca, c├íΓÇª) v├áo ─æ├║ng giß╗Å. Mß╗ùi thß║╗ c├│ n├║t nhß╗Å xem lß║íi video k├¡ hiß╗çu.\n Mß╗ùi l╞░ß╗út tß╗æi ─æa 8 thß║╗. Thß║ú sai th├¼ thß║╗ bß║¡t ra chß╗⌐ kh├┤ng mß║Ñt.',6,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(34,6,'L1.BT.05.T07','T','VideoPracticeRecorder','7. L├ám k├¡ hiß╗çu t╞░╞íng ß╗⌐ng vß╗¢i h├¼nh','Tß╗½ng thß║╗ O, ├ö, thanh hß╗Åi v├á 11 tß╗½ trong b├ái xuß║Ñt hiß╗çn (chia theo 4 nh├│m nh╞░ hoß║ít ─æß╗Öng 1)\n H╞░ß╗¢ng dß║½n ng╞░ß╗¥i d├╣ng tß╗▒ quay video v├á ─æ─âng tß║úi video ─æß╗â gi├ío vi├¬n kiß╗âm tra v├á c├│ thß╗â phß║ún hß╗ôi trß╗▒c tiß║┐p tr├¬n b├ái ─æ─âng cß╗ºa hß╗ìc sinh',7,'{\"source\": null, \"targetWords\": null}',80.00,1,'2026-09-18 16:09:35','2026-09-18 16:09:35');
-INSERT INTO `curriculum_media` VALUES (1,2,'L1.BT.01.V01','video','https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4',1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(2,2,'L1.BT.01.V02','video','https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4',2,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(3,2,'L1.BT.01.V03','video','https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4',3,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(7,3,'L1.BT.01.V04','video','https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4',4,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(21,8,'L1.BT.02.V01','video','https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4',1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(22,8,'L1.BT.02.V02','video','https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4',2,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(23,8,'L1.BT.02.V03','video','https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4',3,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(24,8,'L1.BT.02.V04','video','https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4',4,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(49,15,'L1.BT.03.V01','video','https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4',1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(50,15,'L1.BT.03.V02','video','https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4',2,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(51,15,'L1.BT.03.V03','video','https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4',3,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(52,15,'L1.BT.03.V04','video','https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4',4,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(73,21,'L1.BT.04.V01','video','https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4',1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(74,21,'L1.BT.04.V02','video','https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4',2,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(75,21,'L1.BT.04.V03','video','https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4',3,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(76,21,'L1.BT.04.V04','video','https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4',4,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(101,28,'L1.BT.05.V01','video','https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4',1,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(102,28,'L1.BT.05.V02','video','https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4',2,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(103,28,'L1.BT.05.V03','video','https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4',3,'2026-09-18 16:09:35','2026-09-18 16:09:35'),(104,28,'L1.BT.05.V04','video','https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4',4,'2026-09-18 16:09:35','2026-09-18 16:09:35');
+-- ==============================================================================
+-- Seed Data: 20260918_seed_curriculum_lop1.sql (UTF-8 Clean)
+-- ==============================================================================
+
+SET NAMES utf8mb4;
+
+-- 1. Lessons
+INSERT INTO `curriculum_lesson` (`lesson_id`, `lesson_code`, `level_code`, `topic_code`, `title`, `description`, `content_status`, `display_order`, `is_active`) VALUES
+(1, 'L1.BT.01', 'L1', 'BT', 'Bài 1: A a, B b, \ (thanh huyền)', '', 'ready', 1, 1),
+(2, 'L1.BT.02', 'L1', 'BT', 'Bài 2: C c, E e, Ê ê, / (thanh sắc)', 'Từ trong bài: ca, cà, cá, bè, bé, bế', 'ready', 2, 1),
+(3, 'L1.BT.03', 'L1', 'BT', 'Bài 3: Số 1, 2, 3, 4, 5', '', 'ready', 3, 1),
+(4, 'L1.BT.04', 'L1', 'BT', 'Bài 4: Số 6, 7, 8, 9, 10', '', 'ready', 4, 1),
+(5, 'L1.BT.05', 'L1', 'BT', 'Bài 5: o, ô, ? (thanh hỏi)', 'Từ trong bài: bò, cỏ, bó, cò, bố, cô, cổ, bộ, bể cá, cô bé, cổ cò', 'ready', 5, 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `description` = VALUES(`description`), `content_status` = VALUES(`content_status`);
+
+-- 2. Activities
+INSERT INTO `curriculum_activity` (`activity_id`, `lesson_id`, `activity_code`, `activity_level`, `game_type`, `title`, `instruction`, `display_order`, `game_config`, `pass_score`, `is_active`) VALUES
+(1, 1, 'L1.BT.01.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (trẻ làm ký hiệu theo video mẫu)', '3 thẻ chữ A, B, thanh huyền và 3 thẻ tranh "bà, ba, ba ba" đặt cạnh nhau. Trẻ chạm vào từng thẻ thì mặt trong được lật ra là video chữ cái ngón tay A. Trẻ sẽ xem là làm chữ cái ngón tay A theo mẫu. Tương tự với thẻ B và dấu huyền. Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, '{"source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw", "targetWords": ["Chữ A", "Chữ B", "Dấu huyền"]}', 80.0, 1),
+(2, 1, 'L1.BT.01.T02', 'T', 'LineMatchingGame', '2. Nối kí hiệu tương ứng với hình', 'Chia làm 2 cột:
+1 cột là chữ a, b, thanh huyền và thẻ tranh bà, ba, ba ba
+1 cột là kí hiệu sắp xếp ngẫu nhiên 
+HS sẽ nối hai cột với nhau', 2, '{"source": "Sách bài tập bổ trợ Tiếng Việt tập 2 - trang....", "targetWords": null}', 80.0, 1),
+(3, 1, 'L1.BT.01.T03', 'T', 'ChoiceQuizGame', '3. Xem hình chọn kí hiệu tương ứng', '1 thẻ hình ở dòng trên
+2 video kí hiệu ở dòng dưới
+HS nhìn thẻ hình, xem và chọn video kí hiệu phù hợp
+Thực hiện lần lượt với thẻ chữ A (A và dấu huyền), B (dấu huyền và B) và thẻ tranh bà (bà và ba)', 3, '{"source": "- Chữ A: https://www.youtube.com/watch?v=tsREwMZdHmg  \n- Chữ B: https://www.youtube.com/watch?v=W6GFoY2STdc  \n- Dấu huyền: https://www.youtube.com/watch?v=4eomxDxnBhw \n- Bà: https://www.youtube.com/watch?v=ZKcsAk7u0Fw \n- Ba: quay bổ sung", "targetWords": ["Chữ A", "Chữ B", "Dấu huyền", "Bà", "Ba"]}', 80.0, 1),
+(4, 1, 'L1.BT.01.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ tranh tương ứng', '1 video kí hiệu ở dòng trên
+2 thẻ tranh ở dòng dưới
+HS xem video và chọn thẻ tranh tương ứng
+Thực hiện lần lượt với các video dấu huyền (thẻ chữ A và thẻ dấu huyền), ba (thẻ bà và ba), ba ba (thẻ ba ba và B)', 4, '{"source": "- Ba ba: https://qipedc.moet.gov.vn/dictionary (đánh từ khóa ba ba vào tìm kiếm)", "targetWords": ["Ba ba"]}', 80.0, 1),
+(5, 1, 'L1.BT.01.T05', 'T', 'ChoiceQuizGame', '5. Chọn thẻ chữ tương ứng với kí hiệu', '1 video kí hiệu ở dòng trên
+2 thẻ chữ ở dòng dưới
+Thực hiện lần lượt video kí hiệu chữ A (thẻ chữ A và Bà), chữ B (thẻ chữ ba và B), bà (thẻ chữ bà và ba ba), dấu huyền (thẻ dấu huyền và bà), ba (thẻ chữ ba và baba), ba ba (thẻ chữ bà và ba ba)', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+(6, 1, 'L1.BT.01.T06', 'T', 'VideoPracticeRecorder', '6. Làm kí hiệu tương ứng với hình', 'Từng thẻ tranh A, B, dấu huyền, bà, ba, ba ba xuất hiện
+Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+(7, 2, 'L1.BT.02.T01', 'T', 'FlipCardViewer', '1.Thẻ lật thông minh (giới thiệu kí hiệu mới)', 'Chia 3 phần để không quá 6 thẻ/phần:
+ - Phần 1: 4 thẻ chữ C, E, Ê, thanh sắc
+ - Phần 2: 3 thẻ tranh ca, cà, cá
+ - Phần 3: 3 thẻ tranh bè, bé, bế
+ Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu tương ứng, trẻ xem và làm theo mẫu.
+ Lưu ý: Mỗi video có thể chọn tốc độ nhanh, chậm, tua lại.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+(8, 2, 'L1.BT.02.T02', 'T', 'LineMatchingGame', '2. Nối kí hiệu tương ứng với hình', 'Chia làm 2 cột, mỗi lượt tối đa 5 cặp:
+ 1 cột là chữ c, e, ê, thanh sắc và thẻ tranh ca, cà, cá, bè, bé, bế
+ 1 cột là kí hiệu sắp xếp ngẫu nhiên
+ HS sẽ nối hai cột với nhau
+ Lượt 1: c, e, ê, thanh sắc - Lượt 2: ca, cà, cá - Lượt 3: bè, bé, bế', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+(9, 2, 'L1.BT.02.T03', 'T', 'JigsawPuzzleGame', '3. Ghép hình', 'Thẻ ghép 2 miếng có khớp răng cưa: một nửa là ảnh kí hiệu, nửa kia là mặt chữ tương ứng.
+ Các miếng xáo trộn, HS kéo - thả để ghép. Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì miếng bật về chỗ cũ kèm rung nhẹ (không mất thẻ).
+ Mỗi lượt tối đa 5 cặp. Lượt 1 dùng chữ cái, lượt 2 dùng từ.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+(10, 2, 'L1.BT.02.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ chữ', '1 video kí hiệu ở dòng trên
+ 3 thẻ chữ ở dòng dưới (nâng lên 3 lựa chọn vì đây là hoạt động chính)
+ \'- video ca (ca / cà / cá), video cà (ca / cà / cá), video cá (ca / cà / cá),
+ \'- video bè (bè / bé / bế), video bé (bè / bé / bế), video bế (bè / bé / bế)
+ -Vị trí đáp án xáo trộn mỗi lần. Sai thì phát lại video rồi cho chọn lại (tối đa 2 lần).', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+(11, 2, 'L1.BT.02.T05', 'T', 'BucketDropGame', '5.  Thả hình', '3 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC, mỗi giỏ có biểu tượng kí hiệu dấu thanh ở trên.
+ HS kéo các thẻ từ (ba, bà, ca, cà, cá, be, bè, bé) vào đúng giỏ. Mỗi thẻ vừa hiện mặt chữ vừa có nút nhỏ xem lại video kí hiệu.
+ Vùng thả rộng và sáng lên khi kéo tới. Thả sai thì thẻ bật ra chứ không mất.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+(12, 2, 'L1.BT.02.T06', 'T', 'MemoryCardGame', '6. Lật thẻ tìm cặp', 'Bảng 12 thẻ úp (6 cặp): 1 thẻ mặt chữ - 1 thẻ kí hiệu, lấy đúng 6 từ ca, cà, cá, bè, bé, bế.
+ HS lật 2 thẻ mỗi lượt; đúng cặp thì thẻ sáng lên và ở lại, sai thì úp lại sau 1 giây.
+ KHÔNG đếm giờ, chỉ đếm số lượt lật; hết bài hiện số sao theo số lượt.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+(13, 2, 'L1.BT.02.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ C, E, Ê, thanh sắc, ca, cà, cá, bè, bé, bế xuất hiện
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1),
+(14, 3, 'L1.BT.03.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu số)', '5 thẻ chữ số 1, 2, 3, 4, 5. Trẻ chạm vào từng thẻ thì mặt trong lật ra là video kí hiệu số bằng ngón tay, trẻ xem và làm theo mẫu.
+ Mỗi thẻ chữ số hiện kèm số chấm tròn tương ứng để HS gắn số với lượng ngay từ đầu. Video có nút tua lại và chọn tốc độ nhanh/chậm.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+(15, 3, 'L1.BT.03.T02', 'T', 'ChoiceQuizGame', '2. Đếm đồ vật và chọn kí hiệu số', 'Hiện một nhóm đồ vật (ví dụ 3 con cá) xếp thành hàng đều, không chồng lấn.
+ HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự 1, 2, 3… để hỗ trợ đếm.
+ Sau đó HS chọn 1 trong 3 video kí hiệu số ở dòng dưới.
+ Đồ vật lấy theo từ đã học (ba ba, cá, cà) để vừa ôn từ vừa học số.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+(16, 3, 'L1.BT.03.T03', 'T', 'LineMatchingGame', '3. Nối số lượng - kí hiệu', 'Chia làm 2 cột, 5 cặp:
+ 1 cột là thẻ tranh nhóm đồ vật (1-5 vật)
+ 1 cột là kí hiệu số sắp xếp ngẫu nhiên
+ HS sẽ nối hai cột với nhau', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+(17, 3, 'L1.BT.03.T04', 'T', 'JigsawPuzzleGame', '4. Ghép hình thẻ 2 miếng (chữ số - kí hiệu)', 'Thẻ ghép 2 miếng: nửa là chữ số, nửa là ảnh bàn tay làm kí hiệu số. 5 cặp mỗi lượt.
+ Ghép đúng thì 2 miếng dính liền và sáng lên, ghép sai thì bật về chỗ cũ.', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+(18, 3, 'L1.BT.03.T05', 'T', 'SequenceOrderGame', '5. Sắp xếp thứ tự 1 → 5', '5 thẻ kí hiệu số xáo trộn ở dòng trên, 5 ô trống viền nét đứt ở dòng dưới.
+ HS kéo - thả vào đúng thứ tự tăng dần. Các ô có sẵn hình bậc thang cao dần để gợi ý trực quan.
+ Chỉ kiểm tra khi HS bấm nút Kiểm tra. Làm lại thì giữ nguyên các ô đã đúng.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+(19, 3, 'L1.BT.03.T06', 'T', 'VideoPracticeRecorder', '6. Làm kí hiệu tương ứng với hình', 'Từng thẻ số 1, 2, 3, 4, 5 và các thẻ nhóm đồ vật xuất hiện
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+(20, 4, 'L1.BT.04.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu số)', '5 thẻ chữ số 6, 7, 8, 9, 10 kèm số chấm tròn tương ứng (xếp 2 hàng cho dễ nhìn).
+ Trẻ chạm vào thẻ thì lật ra video kí hiệu số, trẻ xem và làm theo mẫu.
+ Các số dễ nhầm (6-9, 7-8) quay thêm 1 góc nghiêng, HS bấm nút đổi góc để xem. Có nút kính lúp phóng to bàn tay.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+(21, 4, 'L1.BT.04.T02', 'T', 'ChoiceQuizGame', '2. Phân biệt', '1 video kí hiệu số ở dòng trên
+ 2 thẻ chữ số ở dòng dưới, luôn là cặp dễ nhầm:
+ video 6 (6 và 9), video 9 (9 và 6), video 7 (7 và 8), video 8 (8 và 7), video 10 (10 và 5 - ôn Bài 3)
+ Video chạy mặc định, có nút kính lúp. Chọn sai thì phát lại video chậm có KHOANH TRÒN vị trí ngón tay khác biệt giữa 2 số, rồi cho chọn lại.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+(22, 4, 'L1.BT.04.T03', 'T', 'ChoiceQuizGame', '3. Đếm đồ vật và chọn kí hiệu số', 'Hiện nhóm 6-10 đồ vật xếp thành hai hàng đều nhau(số lượng lớn nên xếp 1 hàng sẽ khó đếm).
+ HS chạm vào từng đồ vật thì đồ vật sáng lên và hiện số thứ tự.
+ Sau đó HS chọn 1 trong 3 video kí hiệu số.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+(23, 4, 'L1.BT.04.T04', 'T', 'SequenceOrderGame', '4. Điền số còn thiếu trong dãy', 'Dãy số có 1-2 ô trống, ví dụ: 6, 7, __, 9, __ 
+ HS kéo thẻ kí hiệu số vào ô trống. Mỗi lượt 3 dãy.
+ Mức nâng cao: dãy đếm ngược 10, 9, __, 7, __', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+(24, 4, 'L1.BT.04.T05', 'T', 'SequenceOrderGame', '5. Sắp xếp thứ tự 6 → 10', '5 thẻ kí hiệu số xáo trộn, HS kéo - thả theo thứ tự tăng dần.
+ Mức nâng cao (mở khoá sau khi làm đúng): sắp xếp cả dãy 1 → 10 bằng thẻ kí hiệu.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+(25, 4, 'L1.BT.04.T06', 'T', 'MemoryCardGame', '6. Lật thẻ tìm cặp (trò chơi củng cố)', '10 thẻ úp (5 cặp): 1 thẻ chữ số - 1 thẻ kí hiệu số 6-10. Luật như trò lật thẻ ở Bài 2, không đếm giờ.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+(26, 4, 'L1.BT.04.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ số 6, 7, 8, 9, 10 và các thẻ nhóm đồ vật xuất hiện
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1),
+(27, 5, 'L1.BT.05.T01', 'T', 'FlipCardViewer', '1. Thẻ lật thông minh (giới thiệu kí hiệu mới)', 'Chia 4 phần để không quá 6 thẻ/phần:
+ - Phần 1: 3 thẻ chữ O, Ô, thanh hỏi
+ - Phần 2: 4 thẻ tranh bò, cỏ, bó, cò (từ có o)
+ - Phần 3: 4 thẻ tranh bố, cô, cổ, bộ (từ có ô)
+ - Phần 4: 3 thẻ tranh bể cá, cô bé, cổ cò (từ 2 tiếng)
+ Trẻ chạm vào thẻ thì lật ra video kí hiệu, trẻ xem và làm theo mẫu.
+ Lưu ý: o và ô chỉ khác dấu mũ → khi hiện mặt chữ cho dấu mũ nhấp nháy 2 lần.', 1, '{"source": null, "targetWords": null}', 80.0, 1),
+(28, 5, 'L1.BT.05.T02', 'T', 'LineMatchingGame', '2. Nối từ - kí hiệu (chia lượt theo nhóm)', 'Chia làm 2 cột, mỗi lượt tối đa 4 cặp cùng nhóm để HS so sánh được các từ gần giống nhau:
+ Lượt 1: o, ô, thanh hỏi - Lượt 2: bò, cỏ, bó, cò - Lượt 3: bố, cô, cổ, bộ
+ 1 cột là mặt chữ, 1 cột là kí hiệu sắp xếp ngẫu nhiên. HS nối hai cột với nhau.', 2, '{"source": null, "targetWords": null}', 80.0, 1),
+(29, 5, 'L1.BT.05.T03', 'T', 'LineMatchingGame', '3. Nối từ - hình ảnh', 'Như hoạt động 2 nhưng cột phải là tranh minh họa nghĩa của từ, không phải kí hiệu.
+ Mục đích: tách bạch 2 việc - nhớ kí hiệu và hiểu nghĩa từ. Mỗi lượt 4 cặp cùng nhóm.', 3, '{"source": null, "targetWords": null}', 80.0, 1),
+(30, 5, 'L1.BT.05.T04', 'T', 'ChoiceQuizGame', '4. Xem video kí hiệu chọn thẻ chữ', '1 video kí hiệu ở dòng trên
+ 3 thẻ chữ ở dòng dưới
+ Bộ nhiễu lấy đúng các cặp dễ nhầm trong bài:
+ bò (bò / bó / bộ), bó (bò / bó / bộ), bộ (bò / bó / bộ),
+ cò (cò / cỏ / cô), cỏ (cò / cỏ / cô), cổ (cổ / cô / cỏ)
+ Mỗi lượt 6 câu, vị trí đáp án xáo trộn. Sai thì hiện đáp án kèm video kí hiệu chậm 0.5x.', 4, '{"source": null, "targetWords": null}', 80.0, 1),
+(31, 5, 'L1.BT.05.T05', 'T', 'JigsawPuzzleGame', '5. Ghép hình từ 2 tiếng (bể cá, cô bé, cổ cò)', 'Hoạt động riêng cho từ 2 tiếng: thẻ ghép 2 miếng, nửa là tranh minh họa, nửa là kí hiệu của cả từ.
+ Chú ý: từ 2 tiếng làm 1 thẻ kí hiệu duy nhất, không tách rời khi kéo thả, để HS hiểu đây là một đơn vị nghĩa chứ không phải 2 từ rời.', 5, '{"source": null, "targetWords": null}', 80.0, 1),
+(32, 5, 'L1.BT.05.T06', 'T', 'BucketDropGame', '6. Kéo thả phân loại theo dấu thanh', '4 giỏ: KHÔNG DẤU / DẤU HUYỀN / DẤU SẮC / DẤU HỎI, mỗi giỏ có biểu tượng kí hiệu dấu thanh.
+ HS kéo các thẻ từ (bo, bò, bó, cỏ, cò, cô, cổ, bộ, ba, bà, ca, cá…) vào đúng giỏ. Mỗi thẻ có nút nhỏ xem lại video kí hiệu.
+ Mỗi lượt tối đa 8 thẻ. Thả sai thì thẻ bật ra chứ không mất.', 6, '{"source": null, "targetWords": null}', 80.0, 1),
+(33, 5, 'L1.BT.05.T07', 'T', 'VideoPracticeRecorder', '7. Làm kí hiệu tương ứng với hình', 'Từng thẻ O, Ô, thanh hỏi và 11 từ trong bài xuất hiện (chia theo 4 nhóm như hoạt động 1)
+ Hướng dẫn người dùng tự quay video và đăng tải video để giáo viên kiểm tra và có thể phản hồi trực tiếp trên bài đăng của học sinh', 7, '{"source": null, "targetWords": null}', 80.0, 1)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `instruction` = VALUES(`instruction`), `game_config` = VALUES(`game_config`);
+
+-- 3. Media
+INSERT INTO `curriculum_media` (`media_id`, `activity_id`, `media_code`, `media_type`, `source_url`, `display_order`) VALUES
+(1, 1, 'L1.BT.01.V01', 'video', 'https://www.youtube.com/watch?v=tsREwMZdHmg', 1),
+(2, 1, 'L1.BT.01.V02', 'video', 'https://www.youtube.com/watch?v=W6GFoY2STdc', 2),
+(3, 1, 'L1.BT.01.V03', 'video', 'https://www.youtube.com/watch?v=4eomxDxnBhw', 3),
+(4, 2, 'L1.BT.01.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4', 1),
+(5, 2, 'L1.BT.01.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4', 2),
+(6, 2, 'L1.BT.01.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4', 3),
+(7, 2, 'L1.BT.01.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4', 4),
+(8, 3, 'L1.BT.01.V01', 'video', 'https://www.youtube.com/watch?v=tsREwMZdHmg', 1),
+(9, 3, 'L1.BT.01.V02', 'video', 'https://www.youtube.com/watch?v=W6GFoY2STdc', 2),
+(10, 3, 'L1.BT.01.V03', 'video', 'https://www.youtube.com/watch?v=4eomxDxnBhw', 3),
+(11, 3, 'L1.BT.01.V04', 'video', 'https://www.youtube.com/watch?v=ZKcsAk7u0Fw', 4),
+(12, 4, 'L1.BT.01.V01', 'video', 'https://qipedc.moet.gov.vn/dictionary', 1),
+(13, 5, 'L1.BT.01.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4', 1),
+(14, 5, 'L1.BT.01.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4', 2),
+(15, 5, 'L1.BT.01.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4', 3),
+(16, 5, 'L1.BT.01.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4', 4),
+(17, 6, 'L1.BT.01.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4', 1),
+(18, 6, 'L1.BT.01.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4', 2),
+(19, 6, 'L1.BT.01.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4', 3),
+(20, 6, 'L1.BT.01.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4', 4),
+(21, 7, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(22, 7, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(23, 7, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(24, 7, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(25, 8, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(26, 8, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(27, 8, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(28, 8, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(29, 9, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(30, 9, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(31, 9, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(32, 9, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(33, 10, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(34, 10, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(35, 10, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(36, 10, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(37, 11, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(38, 11, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(39, 11, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(40, 11, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(41, 12, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(42, 12, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(43, 12, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(44, 12, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(45, 13, 'L1.BT.02.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4', 1),
+(46, 13, 'L1.BT.02.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4', 2),
+(47, 13, 'L1.BT.02.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4', 3),
+(48, 13, 'L1.BT.02.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4', 4),
+(49, 14, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(50, 14, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(51, 14, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(52, 14, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(53, 15, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(54, 15, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(55, 15, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(56, 15, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(57, 16, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(58, 16, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(59, 16, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(60, 16, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(61, 17, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(62, 17, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(63, 17, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(64, 17, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(65, 18, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(66, 18, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(67, 18, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(68, 18, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(69, 19, 'L1.BT.03.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4', 1),
+(70, 19, 'L1.BT.03.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4', 2),
+(71, 19, 'L1.BT.03.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4', 3),
+(72, 19, 'L1.BT.03.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4', 4),
+(73, 20, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(74, 20, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(75, 20, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(76, 20, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(77, 21, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(78, 21, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(79, 21, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(80, 21, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(81, 22, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(82, 22, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(83, 22, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(84, 22, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(85, 23, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(86, 23, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(87, 23, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(88, 23, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(89, 24, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(90, 24, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(91, 24, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(92, 24, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(93, 25, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(94, 25, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(95, 25, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(96, 25, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(97, 26, 'L1.BT.04.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4', 1),
+(98, 26, 'L1.BT.04.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4', 2),
+(99, 26, 'L1.BT.04.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4', 3),
+(100, 26, 'L1.BT.04.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4', 4),
+(101, 27, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(102, 27, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(103, 27, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(104, 27, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(105, 28, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(106, 28, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(107, 28, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(108, 28, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(109, 29, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(110, 29, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(111, 29, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(112, 29, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(113, 30, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(114, 30, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(115, 30, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(116, 30, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(117, 31, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(118, 31, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(119, 31, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(120, 31, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(121, 32, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(122, 32, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(123, 32, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(124, 32, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4),
+(125, 33, 'L1.BT.05.V01', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4', 1),
+(126, 33, 'L1.BT.05.V02', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4', 2),
+(127, 33, 'L1.BT.05.V03', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4', 3),
+(128, 33, 'L1.BT.05.V04', 'video', 'https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4', 4)
+ON DUPLICATE KEY UPDATE `source_url` = VALUES(`source_url`), `display_order` = VALUES(`display_order`);
