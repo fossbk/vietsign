@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Loader2, AlertCircle, Camera, Video, StopCircle, RotateCcw, CheckCircle, UploadCloud, Play, Trophy } from "lucide-react";
+import { Loader2, AlertCircle, Camera, StopCircle, RotateCcw, CheckCircle, UploadCloud, ArrowLeft, ArrowRight } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { uploadFile } from "@/services/uploadService";
+import { getMediaLabel } from "../gameUtils";
 
 interface VideoPracticeRecorderProps {
   activityCode: string;
@@ -20,6 +22,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
 
   // Sample media to mimic
   const [sampleMedia, setSampleMedia] = useState<CurriculumMedia | null>(null);
+  const [sampleIndex, setSampleIndex] = useState(0);
 
   // Recording states
   const [isRecording, setIsRecording] = useState(false);
@@ -30,6 +33,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   // Submitting states
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const videoLiveRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -46,6 +50,8 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
     setRecordedUrl(null);
     setIsRecording(false);
     setRecordingSeconds(0);
+    setSampleIndex(0);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
@@ -72,6 +78,15 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
     };
   }, [loadData]);
 
+  useEffect(() => () => {
+    if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+  }, [recordedUrl]);
+
+  useEffect(() => {
+    const media = activity?.media?.[sampleIndex];
+    if (media) setSampleMedia(media);
+  }, [activity, sampleIndex]);
+
   // Start Camera Recording
   const startRecording = async () => {
     try {
@@ -86,7 +101,11 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
         videoLiveRef.current.play();
       }
 
-      const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+      const preferredMime = ["video/webm;codecs=vp9", "video/webm", "video/mp4"]
+        .find((mime) => MediaRecorder.isTypeSupported(mime));
+      const recorder = preferredMime
+        ? new MediaRecorder(stream, { mimeType: preferredMime })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -97,7 +116,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "video/webm" });
         setRecordedBlob(blob);
         setRecordedUrl(URL.createObjectURL(blob));
         // Stop camera tracks
@@ -142,20 +161,28 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   const handleSubmit = async () => {
     if (!activity || !recordedBlob || submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
 
     try {
-      // In a production system with file storage, upload blob via /upload first.
-      // Here we submit the progress record with blob URL reference for grading.
+      const extension = recordedBlob.type.includes("mp4") ? "mp4" : "webm";
+      const file = new File([recordedBlob], `${activity.activity_code}-${Date.now()}.${extension}`, {
+        type: recordedBlob.type || `video/${extension}`,
+      });
+      const submissionVideoUrl = await uploadFile(file, "others");
+      if (!submissionVideoUrl) throw new Error("Upload không trả về đường dẫn video");
+
       await CurriculumModel.submitProgress(activity.activity_id, {
-        score: 100, // Participation completion score; teacher grades actual score in feedback
-        stars: 3,
+        score: 0,
+        stars: 0,
         durationSeconds,
         isCompleted: true,
+        submissionVideoUrl,
         gameResultDetails: {
           recordingDurationSeconds: recordingSeconds,
           blobSize: recordedBlob.size,
+          sampleMediaId: sampleMedia?.media_id,
           submittedAt: new Date().toISOString(),
         },
       });
@@ -163,7 +190,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
       onComplete?.();
     } catch (err) {
       console.error("Failed to submit video practice", err);
-      alert("Lỗi khi nộp bài quay video. Bạn hãy thử lại nhé!");
+      setSubmitError("Không thể tải video lên hoặc lưu bài nộp. Video vẫn còn trên màn hình để bạn thử lại.");
     } finally {
       setSubmitting(false);
     }
@@ -211,8 +238,6 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
             Video thực hành cử chỉ tay của bạn đã được gửi tới giáo viên để chấm và nhận xét.
           </p>
         </div>
-
-        <div className="flex gap-3 text-4xl">⭐⭐⭐</div>
 
         <button
           onClick={loadData}
@@ -271,6 +296,13 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
               </div>
             )}
           </div>
+          {(activity.media?.length || 0) > 1 && (
+            <div className="flex items-center justify-between rounded-xl bg-gray-100 px-3 py-2">
+              <button type="button" disabled={sampleIndex === 0} onClick={() => setSampleIndex((index) => Math.max(0, index - 1))} className="rounded-lg p-2 disabled:opacity-30"><ArrowLeft size={18} /></button>
+              <span className="text-sm font-bold">Mẫu {sampleIndex + 1}/{activity.media.length}: {sampleMedia ? getMediaLabel(activity, sampleMedia, sampleIndex) : ""}</span>
+              <button type="button" disabled={sampleIndex >= activity.media.length - 1} onClick={() => setSampleIndex((index) => Math.min(activity.media.length - 1, index + 1))} className="rounded-lg p-2 disabled:opacity-30"><ArrowRight size={18} /></button>
+            </div>
+          )}
         </div>
 
         {/* Right: Camera / Recorded Video */}
@@ -324,6 +356,8 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
       </div>
 
       {/* Recording & Submit Action Bar */}
+      {submitError && <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center font-bold text-red-700">{submitError}</div>}
+
       <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-center gap-4">
         {!isRecording && !recordedUrl && (
           <button

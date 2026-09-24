@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, AlertCircle, RotateCcw, Trophy, CheckCircle, ArrowRight, X } from "lucide-react";
+import { Loader2, AlertCircle, RotateCcw, CheckCircle } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { getActivityLabels, getGameConfig, shuffle } from "../gameUtils";
 
 interface SequenceOrderGameProps {
   activityCode: string;
@@ -30,11 +31,14 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
   const [trayCardIds, setTrayCardIds] = useState<number[]>([]);
   // Slot placements: slot index (0..N-1) -> cardId or null
   const [slotPlacements, setSlotPlacements] = useState<(number | null)[]>([]);
+  const [lockedSlots, setLockedSlots] = useState<Set<number>>(new Set());
+  const [fixedSlots, setFixedSlots] = useState<Set<number>>(new Set());
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [stars, setStars] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
 
@@ -44,26 +48,37 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
     setIsSubmitted(false);
     setScore(0);
     setStars(0);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
       .then((data) => {
         setActivity(data);
         const mediaList = data.media || [];
-        const count = Math.min(mediaList.length, 5); // 3 to 5 items in sequence for young children
+        const config = getGameConfig(data);
+        const labels = getActivityLabels(data);
+        const count = Math.min(mediaList.length, 10);
 
         const seqCards: SequenceCard[] = mediaList.slice(0, count).map((m, idx) => ({
           id: m.media_id,
           correctIndex: idx,
-          label: m.media_code || `Bước ${idx + 1}`,
+          label: labels[idx] || m.media_code || `Bước ${idx + 1}`,
           media: m,
         }));
 
         setCards(seqCards);
         // Shuffle tray
-        const shuffledIds = seqCards.map((c) => c.id).sort(() => Math.random() - 0.5);
-        setTrayCardIds(shuffledIds);
-        setSlotPlacements(new Array(seqCards.length).fill(null));
+        const configuredFixed = new Set(
+          (Array.isArray(config.fixedSlots) ? config.fixedSlots : [])
+            .map(Number)
+            .filter((index) => Number.isInteger(index) && index >= 0 && index < seqCards.length),
+        );
+        const placements = new Array(seqCards.length).fill(null) as (number | null)[];
+        configuredFixed.forEach((index) => { placements[index] = seqCards[index].id; });
+        setFixedSlots(configuredFixed);
+        setLockedSlots(configuredFixed);
+        setTrayCardIds(shuffle(seqCards.filter((_, index) => !configuredFixed.has(index)).map((c) => c.id)));
+        setSlotPlacements(placements);
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được trò chơi sắp xếp.";
@@ -93,6 +108,7 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
   // Remove card from slot and return to tray
   const handleSlotClick = (slotIdx: number) => {
     if (isSubmitted) return;
+    if (lockedSlots.has(slotIdx)) return;
     const cardId = slotPlacements[slotIdx];
     if (cardId === null) return;
 
@@ -109,9 +125,10 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
     if (!activity || isSubmitted || submitting) return;
 
     let correctCount = 0;
-    const total = cards.length;
+    const total = cards.length - fixedSlots.size;
 
     slotPlacements.forEach((cardId, slotIdx) => {
+      if (fixedSlots.has(slotIdx)) return;
       const card = cards.find((c) => c.id === cardId);
       if (card && card.correctIndex === slotIdx) {
         correctCount++;
@@ -146,6 +163,7 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
       }
     } catch (err) {
       console.error("Failed to submit sequence order progress", err);
+      setSubmitError("Đã chấm kết quả nhưng chưa lưu được tiến độ. Hãy kiểm tra kết nối.");
     } finally {
       setSubmitting(false);
     }
@@ -179,6 +197,26 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
   }
 
   const allSlotsFilled = slotPlacements.every((p) => p !== null);
+
+  const retryIncorrect = () => {
+    const nextPlacements = [...slotPlacements];
+    const retryIds: number[] = [];
+    const nextLocked = new Set(fixedSlots);
+    nextPlacements.forEach((cardId, slotIdx) => {
+      const card = cards.find((item) => item.id === cardId);
+      if (card?.correctIndex === slotIdx) {
+        nextLocked.add(slotIdx);
+      } else if (cardId !== null) {
+        retryIds.push(cardId);
+        nextPlacements[slotIdx] = null;
+      }
+    });
+    setLockedSlots(nextLocked);
+    setSlotPlacements(nextPlacements);
+    setTrayCardIds(shuffle(retryIds));
+    setIsSubmitted(false);
+    setSubmitError(null);
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
@@ -316,6 +354,8 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
       </div>
 
       {/* Evaluation Banner */}
+      {submitError && <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center font-bold text-red-700">{submitError}</div>}
+
       {isSubmitted && (
         <div
           className={`p-6 rounded-3xl border-2 text-center animate-in zoom-in duration-300 ${
@@ -360,10 +400,10 @@ export const SequenceOrderGame: React.FC<SequenceOrderGameProps> = ({
         </button>
       ) : (
         <button
-          onClick={initGame}
+          onClick={score >= (activity.pass_score || 80) ? initGame : retryIncorrect}
           className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-lg transition-all"
         >
-          <RotateCcw size={24} /> Sắp xếp lại từ đầu
+          <RotateCcw size={24} /> {score >= (activity.pass_score || 80) ? "Sắp xếp lại từ đầu" : "Làm lại phần chưa đúng"}
         </button>
       )}
     </div>

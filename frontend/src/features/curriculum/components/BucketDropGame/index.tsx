@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, AlertCircle, RotateCcw, Trophy, CheckCircle } from "lucide-react";
+import { Loader2, AlertCircle, RotateCcw, Trophy } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { getGameConfig, getMediaLabel, shuffle } from "../gameUtils";
 
 interface BucketDropGameProps {
   activityCode: string;
@@ -49,6 +50,7 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
 
@@ -60,6 +62,7 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
     setIsFinished(false);
     setDroppedBucketId(null);
     setFeedback(null);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
@@ -68,25 +71,29 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
         const mediaList = data.media || [];
 
         // Setup 2 buckets from config or default groups
-        const cfgBuckets = (data.game_config?.buckets as Bucket[]) || [
+        const config = getGameConfig(data);
+        const cfgBuckets = (Array.isArray(config.buckets) ? config.buckets as Bucket[] : null) || [
           { id: 1, label: "Nhóm 1", color: "blue" },
           { id: 2, label: "Nhóm 2", color: "emerald" },
         ];
         setBuckets(cfgBuckets);
 
-        // Assign media items to buckets (alternating or from config)
-        const dropItems: DropItem[] = mediaList.map((m, idx) => {
-          const targetBucketId = cfgBuckets[idx % cfgBuckets.length]?.id || 1;
+        const configuredItems = Array.isArray(config.items) ? config.items as Array<{ label?: string; targetBucketId?: number; mediaIndex?: number }> : [];
+        const sourceItems: Array<{ label?: string; targetBucketId?: number; mediaIndex?: number }> = configuredItems.length > 0
+          ? configuredItems
+          : mediaList.map((_, index) => ({ mediaIndex: index }));
+        const dropItems: DropItem[] = sourceItems.map((configured, idx) => {
+          const media = mediaList[configured.mediaIndex ?? idx] || mediaList[idx % mediaList.length];
           return {
-            id: m.media_id,
-            media: m,
-            targetBucketId,
-            label: m.media_code || `Ký hiệu ${idx + 1}`,
+            id: idx + 1,
+            media,
+            targetBucketId: configured.targetBucketId || cfgBuckets[idx % cfgBuckets.length]?.id || 1,
+            label: configured.label || getMediaLabel(data, media, configured.mediaIndex ?? idx),
           };
         });
 
         // Shuffle items order
-        setItems(dropItems.sort(() => Math.random() - 0.5));
+        setItems(shuffle(dropItems));
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được trò chơi thả giỏ.";
@@ -109,14 +116,14 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
     setDroppedBucketId(bucketId);
     setFeedback(isCorrect ? "correct" : "wrong");
 
-    if (isCorrect) {
-      setCorrectCount((c) => c + 1);
-    }
+    if (isCorrect) setCorrectCount((c) => c + 1);
 
     // Advance to next item after animation
     setTimeout(async () => {
       setDroppedBucketId(null);
       setFeedback(null);
+
+      if (!isCorrect) return;
 
       if (currentItemIndex < items.length - 1) {
         setCurrentItemIndex((i) => i + 1);
@@ -150,6 +157,7 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
             }
           } catch (err) {
             console.error("Failed to submit bucket drop progress", err);
+            setSubmitError("Đã hoàn thành nhưng chưa lưu được tiến độ. Hãy kiểm tra kết nối.");
           } finally {
             setSubmitting(false);
           }
@@ -177,6 +185,7 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
         <p className="text-gray-500">{error || "Hoạt động này chưa có danh sách ký hiệu để phân loại."}</p>
         <button
           onClick={initGame}
+          disabled={submitting}
           className="mt-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors text-lg"
         >
           Thử lại
@@ -217,9 +226,11 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
           <div className="text-5xl font-black text-primary-600">{finalScore}</div>
         </div>
 
+        {submitError && <div className="rounded-2xl border-2 border-red-200 bg-red-50 px-6 py-4 font-bold text-red-700">{submitError}</div>}
+
         <button
           onClick={initGame}
-          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg"
+          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg disabled:opacity-50"
         >
           <RotateCcw size={24} /> Chơi lại lần nữa
         </button>
@@ -262,7 +273,11 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
       </div>
 
       {/* Current Sign Card to Drop */}
-      <div className="relative mx-auto w-full max-w-sm aspect-video bg-gray-900 rounded-3xl overflow-hidden shadow-xl border-4 border-white flex items-center justify-center transition-all duration-300">
+      <div
+        draggable
+        onDragStart={(event) => event.dataTransfer.setData("text/plain", String(currentItem.id))}
+        className="relative mx-auto w-full max-w-sm aspect-video bg-gray-900 rounded-3xl overflow-hidden shadow-xl border-4 border-white flex items-center justify-center transition-all duration-300 cursor-grab active:cursor-grabbing"
+      >
         {currentItem.media.media_type === "image" ? (
           <img
             src={currentItem.media.source_url}
@@ -295,6 +310,8 @@ export const BucketDropGame: React.FC<BucketDropGameProps> = ({
             <div
               key={bucket.id}
               onClick={() => handleDropIntoBucket(bucket.id)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => { event.preventDefault(); handleDropIntoBucket(bucket.id); }}
               className={`relative flex flex-col items-center justify-between p-6 min-h-[180px] rounded-3xl border-4 transition-all duration-300 cursor-pointer shadow-md select-none ${
                 colorCfg.light
               } ${

@@ -107,6 +107,12 @@ async function seed() {
         insertedActivities++;
 
         // 3. Insert or Update Media
+        // The seed is authoritative for curriculum media. Replace the activity's
+        // rows so removed placeholders do not survive a re-seed.
+        await connection.execute(
+          "DELETE FROM curriculum_media WHERE activity_id = ?",
+          [activityId],
+        );
         if (act.media && act.media.length > 0) {
           for (const m of act.media) {
             await connection.execute(
@@ -114,6 +120,7 @@ async function seed() {
                 (activity_id, media_code, media_type, source_url, display_order)
                VALUES (?, ?, ?, ?, ?)
                ON DUPLICATE KEY UPDATE
+                activity_id = VALUES(activity_id),
                 media_type = VALUES(media_type),
                 source_url = VALUES(source_url),
                 display_order = VALUES(display_order)`,

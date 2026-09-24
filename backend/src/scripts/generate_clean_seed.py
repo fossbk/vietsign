@@ -36,27 +36,15 @@ for l_idx, l in enumerate(lessons, 1):
         instr = a['instruction'].replace("'", "\\'") if a['instruction'] else ''
         
         cfg = a.get('game_config') or {}
-        source_val = cfg.get('source')
-        words = cfg.get('targetWords')
-        
-        if source_val:
-            s_escaped = source_val.replace("'", "\\'")
-            source_expr = f"'{s_escaped}'"
-        else:
-            source_expr = "NULL"
-            
-        if words:
-            w_escaped = [f"'{w.replace("'", "\\'")}'" for w in words]
-            words_expr = f"JSON_ARRAY({', '.join(w_escaped)})"
-        else:
-            words_expr = "NULL"
-            
-        config_expr = f"JSON_OBJECT('source', {source_expr}, 'targetWords', {words_expr})"
+        cfg_json = json.dumps(cfg, ensure_ascii=False, separators=(',', ':'))
+        config_expr = "'" + cfg_json.replace("\\", "\\\\").replace("'", "\\'") + "'"
         
         act_vals.append(f"({a_id}, {l_idx}, '{a['activity_code']}', '{a['activity_level']}', '{a['game_type']}', '{title}', '{instr}', {a['display_order']}, {config_expr}, {a['pass_score']}, 1)")
         
         for m in a.get('media', []):
-            media_list.append(f"({media_counter}, {a_id}, '{m['media_code']}', '{m['media_type']}', '{m['source_url']}', {m['display_order']})")
+            media_code = m['media_code'].replace("'", "\\'")
+            source_url = m['source_url'].replace("'", "\\'")
+            media_list.append(f"({media_counter}, {a_id}, '{media_code}', '{m['media_type']}', '{source_url}', {m['display_order']})")
             media_counter += 1
 
 sql_lines.append(",\n".join(act_vals))
@@ -67,10 +55,10 @@ if media_list:
     sql_lines.append("-- 3. Media")
     sql_lines.append("INSERT INTO `curriculum_media` (`media_id`, `activity_id`, `media_code`, `media_type`, `source_url`, `display_order`) VALUES")
     sql_lines.append(",\n".join(media_list))
-    sql_lines.append("ON DUPLICATE KEY UPDATE `source_url` = VALUES(`source_url`), `display_order` = VALUES(`display_order`);\n")
+    sql_lines.append("ON DUPLICATE KEY UPDATE `activity_id` = VALUES(`activity_id`), `media_type` = VALUES(`media_type`), `source_url` = VALUES(`source_url`), `display_order` = VALUES(`display_order`);\n")
 
 output_sql = "\n".join(sql_lines)
 with open("database/migrations/20260918_seed_curriculum_lop1.sql", "w", encoding="utf-8") as f:
     f.write(output_sql)
 
-print(f"Generated clean UTF-8 SQL file with JSON_OBJECT: {len(lessons)} lessons, {len(act_vals)} activities, {len(media_list)} media rows.")
+print(f"Generated clean UTF-8 SQL file: {len(lessons)} lessons, {len(act_vals)} activities, {len(media_list)} media rows.")

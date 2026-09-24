@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight, RotateCcw, CheckCircle, Loader2, ZoomIn, ZoomOut, AlertCircle } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { getMediaLabel } from "../gameUtils";
 
 // ─────────────────────────────────────────────
 // PROPS
@@ -23,14 +24,8 @@ const ZOOM_LEVELS = [1, 1.5, 2, 2.5];
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m > 0 ? `${m}p ${s}s` : `${s}s`;
-}
-
 // ─────────────────────────────────────────────
-// SINGLE FLIP CARD (front = media, back = label)
+// SINGLE FLIP CARD (front = label, back = sign media)
 // ─────────────────────────────────────────────
 interface SingleCardProps {
   media: CurriculumMedia;
@@ -56,37 +51,13 @@ const SingleCard: React.FC<SingleCardProps> = ({ media, label, isFlipped, zoomLe
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* ─── MẶT TRƯỚC: Media (video / ảnh) ─── */}
+        {/* ─── MẶT TRƯỚC: Từ/chữ/số ─── */}
         <div
-          className="absolute inset-0 rounded-2xl overflow-hidden bg-gray-900 shadow-xl border-4 border-primary-200 flex items-center justify-center"
+          className="absolute inset-0 rounded-2xl overflow-hidden bg-gradient-to-br from-primary-500 to-indigo-700 shadow-xl border-4 border-primary-200 flex flex-col items-center justify-center gap-4 p-6"
           style={{ backfaceVisibility: "hidden" }}
         >
-          {/* Zoom wrapper */}
-          <div
-            className="w-full h-full transition-transform duration-200 origin-center"
-            style={{ transform: `scale(${zoomLevel})` }}
-          >
-            {media.media_type === "image" ? (
-              <img
-                src={media.source_url}
-                alt={label}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <VideoPlayer
-                videoUrl={media.source_url}
-                autoPlay={isFlipped}
-                loop
-                showControls={isFlipped}
-                className="w-full h-full"
-              />
-            )}
-          </div>
-
-          {/* Nhãn góc */}
-          <div className="absolute top-2 left-2 bg-primary-600/80 backdrop-blur-sm text-white text-xs font-bold px-2 py-0.5 rounded-full">
-            {media.media_type === "video" ? "📹 Video" : "🖼️ Ảnh"}
-          </div>
+          <div className="text-6xl">👋</div>
+          <div className="text-white text-4xl font-black text-center break-words">{label}</div>
 
           {/* Chỉ dẫn lật — visual cue cho trẻ */}
           {!isFlipped && (
@@ -96,17 +67,39 @@ const SingleCard: React.FC<SingleCardProps> = ({ media, label, isFlipped, zoomLe
           )}
         </div>
 
-        {/* ─── MẶT SAU: Nhãn / Ý nghĩa ─── */}
+        {/* ─── MẶT SAU: Video/ảnh ký hiệu mẫu ─── */}
         <div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-xl border-4 border-emerald-300 flex flex-col items-center justify-center gap-4"
+          className="absolute inset-0 rounded-2xl overflow-hidden bg-gray-900 shadow-xl border-4 border-emerald-300 flex items-center justify-center"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
         >
-          <div className="text-6xl">✅</div>
-          <div className="text-white text-2xl font-black text-center px-4">{label}</div>
-          <p className="text-emerald-100 text-sm">Nhấn để xem lại video</p>
+          <div
+            className="w-full h-full transition-transform duration-200 origin-center"
+            style={{ transform: `scale(${zoomLevel})` }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {media.media_type === "image" ? (
+              <img src={media.source_url} alt={label} className="w-full h-full object-contain" />
+            ) : (
+              <VideoPlayer
+                videoUrl={media.source_url}
+                title={label}
+                autoPlay={isFlipped}
+                loop
+                showControls
+                className="w-full h-full"
+              />
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={(event) => { event.stopPropagation(); onFlip(); }}
+            className="absolute bottom-2 right-2 z-20 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-bold text-white"
+          >
+            Úp thẻ
+          </button>
         </div>
       </div>
     </div>
@@ -229,8 +222,9 @@ export const FlipCardViewer: React.FC<FlipCardViewerProps> = ({ activityCode, on
       });
       setSubmitted(true);
       onComplete?.();
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Không thể lưu kết quả.";
+    } catch (err: unknown) {
+      const typedError = err as { response?: { data?: { message?: string } }; message?: string };
+      const msg = typedError.response?.data?.message || typedError.message || "Không thể lưu kết quả.";
       setSubmitError(msg);
     } finally {
       setSubmitting(false);
@@ -367,7 +361,7 @@ export const FlipCardViewer: React.FC<FlipCardViewerProps> = ({ activityCode, on
       {/* ── FLIP CARD */}
       <SingleCard
         media={currentCard}
-        label={currentCard.media_code}
+        label={getMediaLabel(activity, currentCard, currentIndex)}
         isFlipped={isFlipped}
         zoomLevel={zoomLevel}
         onFlip={handleFlip}

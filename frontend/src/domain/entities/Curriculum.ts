@@ -1,5 +1,14 @@
 import { Base } from "./base";
 
+function unwrapResponse<T>(response: unknown): T {
+  const outer = response as { data?: unknown };
+  const body = outer?.data;
+  if (body && typeof body === "object" && "data" in body) {
+    return (body as { data: T }).data;
+  }
+  return body as T;
+}
+
 // ----- Types -----
 export interface CurriculumMedia {
   media_id: number;
@@ -16,7 +25,7 @@ export interface CurriculumActivity {
   game_type: string;
   title: string;
   instruction: string | null;
-  game_config: Record<string, unknown> | null;
+  game_config: Record<string, unknown> | string | null;
   pass_score: number;
   display_order?: number;
   lesson_code: string;
@@ -47,6 +56,7 @@ export interface SubmitProgressPayload {
   durationSeconds?: number;
   isCompleted: boolean;
   gameResultDetails?: Record<string, unknown>;
+  submissionVideoUrl?: string;
 }
 
 // ----- Model -----
@@ -58,24 +68,20 @@ class CurriculumModelClass extends Base {
   /** GET /curriculum/lessons — danh sách bài học theo level/topic */
   getLessons = async (params?: { level?: string; topic?: string }): Promise<CurriculumLesson[]> => {
     const res = await this.apiGet("/lessons", params);
-    const body = (res as any)?.data;
-    if (Array.isArray(body)) return body;
-    if (Array.isArray(body?.data)) return body.data;
-    return [];
+    const body = unwrapResponse<unknown>(res);
+    return Array.isArray(body) ? body as CurriculumLesson[] : [];
   };
 
   /** GET /curriculum/lessons/:lessonCode — chi tiết bài học kèm danh sách activity */
   getLessonByCode = async (lessonCode: string): Promise<CurriculumLesson> => {
     const res = await this.apiGet(`/lessons/${lessonCode}`);
-    const body = (res as any)?.data;
-    return body?.data ?? body;
+    return unwrapResponse<CurriculumLesson>(res);
   };
 
   /** GET /curriculum/activities/:activityCode — chi tiết activity kèm media */
   getActivityByCode = async (activityCode: string): Promise<CurriculumActivity> => {
     const res = await this.apiGet(`/activities/${activityCode}`);
-    const body = (res as any)?.data;
-    return body?.data ?? body;
+    return unwrapResponse<CurriculumActivity>(res);
   };
 
   /** POST /curriculum/activities/:activityId/submit */
@@ -84,15 +90,13 @@ class CurriculumModelClass extends Base {
     payload: SubmitProgressPayload,
   ) => {
     const res = await this.apiPost(`/activities/${activityId}/submit`, payload);
-    const body = (res as any)?.data;
-    return body?.data ?? body;
+    return unwrapResponse<{ progressId: number; score: number; stars: number; isCompleted: number }>(res);
   };
 
   /** GET /curriculum/users/:userId/progress */
   getUserProgress = async (userId: number, lessonId?: number) => {
     const res = await this.apiGet(`/users/${userId}/progress`, lessonId ? { lesson_id: lessonId } : undefined);
-    const body = (res as any)?.data;
-    return body?.data ?? body;
+    return unwrapResponse<unknown>(res);
   };
 }
 

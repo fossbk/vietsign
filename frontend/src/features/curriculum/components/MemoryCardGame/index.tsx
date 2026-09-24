@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, AlertCircle, RotateCcw, Trophy, CheckCircle, Brain } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { getMediaLabel, shuffle } from "../gameUtils";
 
 interface MemoryCardGameProps {
   activityCode: string;
@@ -33,6 +34,7 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
 
   const [isFinished, setIsFinished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
   const initGame = useCallback(() => {
@@ -42,6 +44,7 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
     setMatchedPairIds([]);
     setMoves(0);
     setIsFinished(false);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
@@ -63,12 +66,12 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
             uniqueId: idx * 2 + 1,
             pairId: m.media_id,
             type: "text",
-            text: m.media_code || `Từ ${idx + 1}`,
+            text: getMediaLabel(data, m, idx),
           });
         });
 
         // Shuffle cards
-        setCards(generatedCards.sort(() => Math.random() - 0.5));
+        setCards(shuffle(generatedCards));
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được trò chơi lật thẻ.";
@@ -140,6 +143,7 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
         onComplete?.();
       } catch (err) {
         console.error("Failed to submit memory card progress", err);
+        setSubmitError("Đã tìm đủ cặp nhưng chưa lưu được tiến độ. Hãy kiểm tra kết nối.");
       } finally {
         setSubmitting(false);
       }
@@ -165,6 +169,7 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
         <p className="text-gray-500">{error || "Hoạt động này chưa có danh sách ký hiệu để lật thẻ."}</p>
         <button
           onClick={initGame}
+          disabled={submitting}
           className="mt-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors text-lg"
         >
           Thử lại
@@ -198,9 +203,11 @@ export const MemoryCardGame: React.FC<MemoryCardGameProps> = ({
           <div className="text-5xl font-black text-primary-600">100</div>
         </div>
 
+        {submitError && <div className="rounded-2xl border-2 border-red-200 bg-red-50 px-6 py-4 font-bold text-red-700">{submitError}</div>}
+
         <button
           onClick={initGame}
-          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg"
+          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg disabled:opacity-50"
         >
           <RotateCcw size={24} /> Chơi lại lần nữa
         </button>

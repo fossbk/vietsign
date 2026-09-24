@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Loader2, AlertCircle, RotateCcw, CheckCircle, Sparkles } from "lucide-react";
+import { Loader2, AlertCircle, RotateCcw, CheckCircle } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
 import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import { getMediaLabel, shuffle } from "../gameUtils";
 
 interface LineMatchingGameProps {
   activityCode: string;
@@ -48,6 +49,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
   const [score, setScore] = useState(0);
   const [stars, setStars] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Refs for calculating line coordinates
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,7 +58,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
   const startTimeRef = useRef<number>(Date.now());
 
   // Force re-render for SVG lines on resize
-  const [, setResizeTick] = useState(0);
+  const [resizeTick, setResizeTick] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setResizeTick((t) => t + 1);
@@ -71,27 +73,25 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
     setIsSubmitted(false);
     setMatches({});
     setSelectedLeftId(null);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
       .then((data) => {
         setActivity(data);
         const mediaList = data.media || [];
-        const configPairs = (data.game_config?.pairs as Array<{ id: number; text: string }>) || [];
-
         // Build pairs
         const pairs: MatchPairItem[] = mediaList.map((m, idx) => {
-          const cfg = configPairs.find((c) => c.id === m.media_id) || configPairs[idx];
           return {
             id: m.media_id,
             media: m,
-            targetText: cfg?.text || m.media_code || `Từ ${idx + 1}`,
+            targetText: getMediaLabel(data, m, idx),
           };
         });
 
         setLeftItems(pairs);
         // Shuffle right items
-        setRightItems([...pairs].sort(() => Math.random() - 0.5));
+        setRightItems(shuffle(pairs));
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được trò chơi nối từ.";
@@ -162,6 +162,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
     setStars(calculatedStars);
     setIsSubmitted(true);
     setSubmitting(true);
+    setSubmitError(null);
 
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
 
@@ -182,6 +183,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
       }
     } catch (err) {
       console.error("Failed to submit line matching progress", err);
+      setSubmitError("Đã chấm kết quả nhưng chưa lưu được tiến độ. Hãy kiểm tra kết nối và thử lại.");
     } finally {
       setSubmitting(false);
     }
@@ -189,6 +191,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
 
   // Compute SVG line paths
   const lines = useMemo(() => {
+    void resizeTick;
     if (!containerRef.current) return [];
     const containerRect = containerRef.current.getBoundingClientRect();
 
@@ -225,7 +228,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
         isCorrect,
       };
     }).filter(Boolean);
-  }, [matches, isSubmitted, leftItems, rightItems]);
+  }, [matches, isSubmitted, resizeTick]);
 
   if (loading) {
     return (
@@ -354,7 +357,10 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
                       : "border-gray-200 hover:border-primary-300"
                   }`}
                 >
-                  <div className="w-full h-24 rounded-xl overflow-hidden flex items-center justify-center pointer-events-none">
+                  <div
+                    className="w-full h-24 rounded-xl overflow-hidden flex items-center justify-center"
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     {item.media.media_type === "image" ? (
                       <img
                         src={item.media.source_url}
@@ -366,7 +372,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
                         videoUrl={item.media.source_url}
                         autoPlay={false}
                         loop
-                        showControls={false}
+                        showControls
                         className="w-full h-full"
                       />
                     )}
@@ -454,6 +460,12 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
       </div>
 
       {/* Evaluation Result */}
+      {submitError && (
+        <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center font-bold text-red-700">
+          {submitError}
+        </div>
+      )}
+
       {isSubmitted && (
         <div
           className={`p-6 rounded-3xl border-2 text-center animate-in zoom-in duration-300 ${
@@ -476,7 +488,7 @@ export const LineMatchingGame: React.FC<LineMatchingGameProps> = ({
           </div>
           {score < 80 && (
             <p className="text-sm text-gray-500">
-              Hãy nhấn nút "Làm lại" để thử nối lại cho thật chuẩn nhé!
+              Hãy nhấn nút &quot;Làm lại&quot; để thử nối lại cho thật chuẩn nhé!
             </p>
           )}
         </div>

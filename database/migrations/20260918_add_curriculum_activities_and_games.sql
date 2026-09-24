@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS curriculum_media (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (media_id),
-  UNIQUE KEY uk_curriculum_media_code (media_code),
+  UNIQUE KEY uk_curriculum_activity_media_code (activity_id, media_code),
   KEY idx_curriculum_media_activity (activity_id),
   CONSTRAINT fk_curriculum_media_activity FOREIGN KEY (activity_id) 
     REFERENCES curriculum_activity (activity_id) ON DELETE CASCADE

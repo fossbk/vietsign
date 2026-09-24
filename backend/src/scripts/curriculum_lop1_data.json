@@ -26,19 +26,19 @@
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
+            "media_code": "L1.BT.01.T01.V01",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=tsREwMZdHmg",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.01.V02",
+            "media_code": "L1.BT.01.T01.V02",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=W6GFoY2STdc",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.01.V03",
+            "media_code": "L1.BT.01.T01.V03",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=4eomxDxnBhw",
             "display_order": 3
@@ -55,32 +55,71 @@
         "pass_score": 80.0,
         "game_config": {
           "source": "Sách bài tập bổ trợ Tiếng Việt tập 2 - trang....",
-          "targetWords": null
+          "targetWords": [
+            "Chữ A",
+            "Chữ B",
+            "Dấu huyền",
+            "Bà",
+            "Ba",
+            "Ba ba"
+          ],
+          "pairs": [
+            {
+              "text": "Chữ A"
+            },
+            {
+              "text": "Chữ B"
+            },
+            {
+              "text": "Dấu huyền"
+            },
+            {
+              "text": "Bà"
+            },
+            {
+              "text": "Ba"
+            },
+            {
+              "text": "Ba ba"
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "media_code": "L1.BT.01.T02.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/A.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.01.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "media_code": "L1.BT.01.T02.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/B.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.01.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "media_code": "L1.BT.01.T02.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.01.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "media_code": "L1.BT.01.T02.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.01.T02.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.01.T02.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       },
@@ -100,32 +139,180 @@
             "Dấu huyền",
             "Bà",
             "Ba"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "text",
+              "promptContent": "Chữ A",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "Chữ A",
+                  "isCorrect": true,
+                  "mediaUrl": "https://www.youtube.com/watch?v=tsREwMZdHmg",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 2,
+                  "text": "Chữ B",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=W6GFoY2STdc",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 3,
+                  "text": "Dấu huyền",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=4eomxDxnBhw",
+                  "mediaType": "video"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "text",
+              "promptContent": "Chữ B",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "Chữ B",
+                  "isCorrect": true,
+                  "mediaUrl": "https://www.youtube.com/watch?v=W6GFoY2STdc",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 12,
+                  "text": "Dấu huyền",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=4eomxDxnBhw",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 13,
+                  "text": "Bà",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=ZKcsAk7u0Fw",
+                  "mediaType": "video"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "text",
+              "promptContent": "Dấu huyền",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "Dấu huyền",
+                  "isCorrect": true,
+                  "mediaUrl": "https://www.youtube.com/watch?v=4eomxDxnBhw",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 22,
+                  "text": "Bà",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=ZKcsAk7u0Fw",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 23,
+                  "text": "Ba",
+                  "isCorrect": false,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "text",
+              "promptContent": "Bà",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "Bà",
+                  "isCorrect": true,
+                  "mediaUrl": "https://www.youtube.com/watch?v=ZKcsAk7u0Fw",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 32,
+                  "text": "Ba",
+                  "isCorrect": false,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 33,
+                  "text": "Chữ A",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=tsREwMZdHmg",
+                  "mediaType": "video"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "text",
+              "promptContent": "Ba",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "Ba",
+                  "isCorrect": true,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 42,
+                  "text": "Chữ A",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=tsREwMZdHmg",
+                  "mediaType": "video"
+                },
+                {
+                  "id": 43,
+                  "text": "Chữ B",
+                  "isCorrect": false,
+                  "mediaUrl": "https://www.youtube.com/watch?v=W6GFoY2STdc",
+                  "mediaType": "video"
+                }
+              ]
+            }
           ]
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
+            "media_code": "L1.BT.01.T03.V01",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=tsREwMZdHmg",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.01.V02",
+            "media_code": "L1.BT.01.T03.V02",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=W6GFoY2STdc",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.01.V03",
+            "media_code": "L1.BT.01.T03.V03",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=4eomxDxnBhw",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.01.V04",
+            "media_code": "L1.BT.01.T03.V04",
             "media_type": "video",
             "source_url": "https://www.youtube.com/watch?v=ZKcsAk7u0Fw",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.01.T03.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -140,15 +327,97 @@
         "game_config": {
           "source": "- Ba ba: https://qipedc.moet.gov.vn/dictionary (đánh từ khóa ba ba vào tìm kiếm)",
           "targetWords": [
+            "Dấu huyền",
+            "Ba",
             "Ba ba"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "Dấu huyền",
+                  "isCorrect": true
+                },
+                {
+                  "id": 2,
+                  "text": "Ba",
+                  "isCorrect": false
+                },
+                {
+                  "id": 3,
+                  "text": "Ba ba",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "Ba",
+                  "isCorrect": true
+                },
+                {
+                  "id": 12,
+                  "text": "Ba ba",
+                  "isCorrect": false
+                },
+                {
+                  "id": 13,
+                  "text": "Dấu huyền",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "Ba ba",
+                  "isCorrect": true
+                },
+                {
+                  "id": 22,
+                  "text": "Dấu huyền",
+                  "isCorrect": false
+                },
+                {
+                  "id": 23,
+                  "text": "Ba",
+                  "isCorrect": false
+                }
+              ]
+            }
           ]
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
-            "media_type": "video",
-            "source_url": "https://qipedc.moet.gov.vn/dictionary",
+            "media_code": "L1.BT.01.T04.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
+          },
+          {
+            "media_code": "L1.BT.01.T04.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 2
+          },
+          {
+            "media_code": "L1.BT.01.T04.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 3
           }
         ]
       },
@@ -162,32 +431,185 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ A",
+            "Chữ B",
+            "Dấu huyền",
+            "Bà",
+            "Ba",
+            "Ba ba"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "image",
+              "promptContent": "/A-Z/A.webp",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "Chữ A",
+                  "isCorrect": true
+                },
+                {
+                  "id": 2,
+                  "text": "Chữ B",
+                  "isCorrect": false
+                },
+                {
+                  "id": 3,
+                  "text": "Dấu huyền",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "image",
+              "promptContent": "/A-Z/B.webp",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "Chữ B",
+                  "isCorrect": true
+                },
+                {
+                  "id": 12,
+                  "text": "Dấu huyền",
+                  "isCorrect": false
+                },
+                {
+                  "id": 13,
+                  "text": "Bà",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "Dấu huyền",
+                  "isCorrect": true
+                },
+                {
+                  "id": 22,
+                  "text": "Bà",
+                  "isCorrect": false
+                },
+                {
+                  "id": 23,
+                  "text": "Ba",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "Bà",
+                  "isCorrect": true
+                },
+                {
+                  "id": 32,
+                  "text": "Ba",
+                  "isCorrect": false
+                },
+                {
+                  "id": 33,
+                  "text": "Ba ba",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "Ba",
+                  "isCorrect": true
+                },
+                {
+                  "id": 42,
+                  "text": "Ba ba",
+                  "isCorrect": false
+                },
+                {
+                  "id": 43,
+                  "text": "Chữ A",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 51,
+                  "text": "Ba ba",
+                  "isCorrect": true
+                },
+                {
+                  "id": 52,
+                  "text": "Chữ A",
+                  "isCorrect": false
+                },
+                {
+                  "id": 53,
+                  "text": "Chữ B",
+                  "isCorrect": false
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "media_code": "L1.BT.01.T05.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/A.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.01.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "media_code": "L1.BT.01.T05.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/B.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.01.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "media_code": "L1.BT.01.T05.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.01.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "media_code": "L1.BT.01.T05.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.01.T05.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.01.T05.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       },
@@ -201,32 +623,51 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ A",
+            "Chữ B",
+            "Dấu huyền",
+            "Bà",
+            "Ba",
+            "Ba ba"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.01.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v01.mp4",
+            "media_code": "L1.BT.01.T06.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/A.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.01.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v02.mp4",
+            "media_code": "L1.BT.01.T06.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/B.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.01.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v03.mp4",
+            "media_code": "L1.BT.01.T06.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.01.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.01_v04.mp4",
+            "media_code": "L1.BT.01.T06.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.01.T06.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.01.T06.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       }
@@ -251,32 +692,79 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ C",
+            "Chữ E",
+            "Chữ Ê",
+            "Dấu sắc",
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T01.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/C.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T01.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/E.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T01.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T01.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T01.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T01.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.02.T01.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.02.T01.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.02.T01.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.02.T01.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
           }
         ]
       },
@@ -290,32 +778,111 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ C",
+            "Chữ E",
+            "Chữ Ê",
+            "Dấu sắc",
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ],
+          "pairs": [
+            {
+              "text": "Chữ C"
+            },
+            {
+              "text": "Chữ E"
+            },
+            {
+              "text": "Chữ Ê"
+            },
+            {
+              "text": "Dấu sắc"
+            },
+            {
+              "text": "Ca"
+            },
+            {
+              "text": "Cà"
+            },
+            {
+              "text": "Cá"
+            },
+            {
+              "text": "Bè"
+            },
+            {
+              "text": "Bé"
+            },
+            {
+              "text": "Bế"
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T02.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/C.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T02.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/E.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T02.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T02.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T02.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T02.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.02.T02.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.02.T02.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.02.T02.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.02.T02.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
           }
         ]
       },
@@ -329,32 +896,79 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ C",
+            "Chữ E",
+            "Chữ Ê",
+            "Dấu sắc",
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T03.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/C.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T03.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/E.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T03.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T03.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T03.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T03.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.02.T03.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.02.T03.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.02.T03.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.02.T03.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
           }
         ]
       },
@@ -368,32 +982,185 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "Ca",
+                  "isCorrect": true
+                },
+                {
+                  "id": 2,
+                  "text": "Cà",
+                  "isCorrect": false
+                },
+                {
+                  "id": 3,
+                  "text": "Cá",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "Cà",
+                  "isCorrect": true
+                },
+                {
+                  "id": 12,
+                  "text": "Cá",
+                  "isCorrect": false
+                },
+                {
+                  "id": 13,
+                  "text": "Bè",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "Cá",
+                  "isCorrect": true
+                },
+                {
+                  "id": 22,
+                  "text": "Bè",
+                  "isCorrect": false
+                },
+                {
+                  "id": 23,
+                  "text": "Bé",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "Bè",
+                  "isCorrect": true
+                },
+                {
+                  "id": 32,
+                  "text": "Bé",
+                  "isCorrect": false
+                },
+                {
+                  "id": 33,
+                  "text": "Bế",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "Bé",
+                  "isCorrect": true
+                },
+                {
+                  "id": 42,
+                  "text": "Bế",
+                  "isCorrect": false
+                },
+                {
+                  "id": 43,
+                  "text": "Ca",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 51,
+                  "text": "Bế",
+                  "isCorrect": true
+                },
+                {
+                  "id": 52,
+                  "text": "Ca",
+                  "isCorrect": false
+                },
+                {
+                  "id": 53,
+                  "text": "Cà",
+                  "isCorrect": false
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T04.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T04.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T04.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T04.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T04.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T04.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       },
@@ -407,32 +1174,124 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Ba",
+            "Bà",
+            "Ca",
+            "Cà",
+            "Cá",
+            "Be",
+            "Bè",
+            "Bé"
+          ],
+          "buckets": [
+            {
+              "id": 1,
+              "label": "KHÔNG DẤU",
+              "color": "blue"
+            },
+            {
+              "id": 2,
+              "label": "DẤU HUYỀN",
+              "color": "emerald"
+            },
+            {
+              "id": 3,
+              "label": "DẤU SẮC",
+              "color": "amber"
+            }
+          ],
+          "items": [
+            {
+              "label": "Ba",
+              "targetBucketId": 1,
+              "mediaIndex": 0
+            },
+            {
+              "label": "Bà",
+              "targetBucketId": 2,
+              "mediaIndex": 1
+            },
+            {
+              "label": "Ca",
+              "targetBucketId": 1,
+              "mediaIndex": 2
+            },
+            {
+              "label": "Cà",
+              "targetBucketId": 2,
+              "mediaIndex": 3
+            },
+            {
+              "label": "Cá",
+              "targetBucketId": 3,
+              "mediaIndex": 4
+            },
+            {
+              "label": "Be",
+              "targetBucketId": 1,
+              "mediaIndex": 5
+            },
+            {
+              "label": "Bè",
+              "targetBucketId": 2,
+              "mediaIndex": 6
+            },
+            {
+              "label": "Bé",
+              "targetBucketId": 3,
+              "mediaIndex": 7
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T05.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T05.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T05.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T05.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T05.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T05.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.02.T05.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.02.T05.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
           }
         ]
       },
@@ -446,32 +1305,51 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T06.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T06.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T06.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T06.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T06.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T06.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       },
@@ -485,32 +1363,79 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ C",
+            "Chữ E",
+            "Chữ Ê",
+            "Dấu sắc",
+            "Ca",
+            "Cà",
+            "Cá",
+            "Bè",
+            "Bé",
+            "Bế"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.02.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v01.mp4",
+            "media_code": "L1.BT.02.T07.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/C.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.02.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v02.mp4",
+            "media_code": "L1.BT.02.T07.V02",
+            "media_type": "image",
+            "source_url": "/A-Z/E.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.02.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v03.mp4",
+            "media_code": "L1.BT.02.T07.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.02.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.02_v04.mp4",
+            "media_code": "L1.BT.02.T07.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.02.T07.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.02.T07.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.02.T07.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.02.T07.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.02.T07.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.02.T07.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
           }
         ]
       }
@@ -535,32 +1460,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T01.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T01.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T01.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T01.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T01.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       },
@@ -574,32 +1511,186 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "text",
+              "promptContent": "1",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "1",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/1.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 2,
+                  "text": "2",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/2.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 3,
+                  "text": "3",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/3.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "text",
+              "promptContent": "2",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "2",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/2.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 12,
+                  "text": "3",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/3.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 13,
+                  "text": "4",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/4.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "text",
+              "promptContent": "3",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "3",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/3.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 22,
+                  "text": "4",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/4.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 23,
+                  "text": "5",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/5.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "text",
+              "promptContent": "4",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "4",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/4.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 32,
+                  "text": "5",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/5.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 33,
+                  "text": "1",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/1.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "text",
+              "promptContent": "5",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "5",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/5.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 42,
+                  "text": "1",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/1.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 43,
+                  "text": "2",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/2.webp",
+                  "mediaType": "image"
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T02.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T02.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T02.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T02.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T02.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       },
@@ -613,32 +1704,61 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "pairs": [
+            {
+              "text": "1"
+            },
+            {
+              "text": "2"
+            },
+            {
+              "text": "3"
+            },
+            {
+              "text": "4"
+            },
+            {
+              "text": "5"
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T03.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T03.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T03.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T03.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T03.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       },
@@ -652,32 +1772,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T04.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T04.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T04.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T04.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T04.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       },
@@ -691,32 +1823,51 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "sequence": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T05.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T05.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T05.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T05.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T05.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       },
@@ -730,32 +1881,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.03.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v01.mp4",
+            "media_code": "L1.BT.03.T06.V01",
+            "media_type": "image",
+            "source_url": "/1-9/1.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.03.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v02.mp4",
+            "media_code": "L1.BT.03.T06.V02",
+            "media_type": "image",
+            "source_url": "/1-9/2.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.03.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v03.mp4",
+            "media_code": "L1.BT.03.T06.V03",
+            "media_type": "image",
+            "source_url": "/1-9/3.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.03.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.03_v04.mp4",
+            "media_code": "L1.BT.03.T06.V04",
+            "media_type": "image",
+            "source_url": "/1-9/4.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.03.T06.V05",
+            "media_type": "image",
+            "source_url": "/1-9/5.webp",
+            "display_order": 5
           }
         ]
       }
@@ -780,32 +1943,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T01.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T01.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T01.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T01.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T01.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -819,32 +1994,156 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "image",
+              "promptContent": "/1-9/6.webp",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "6",
+                  "isCorrect": true
+                },
+                {
+                  "id": 2,
+                  "text": "7",
+                  "isCorrect": false
+                },
+                {
+                  "id": 3,
+                  "text": "8",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "image",
+              "promptContent": "/1-9/7.webp",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "7",
+                  "isCorrect": true
+                },
+                {
+                  "id": 12,
+                  "text": "8",
+                  "isCorrect": false
+                },
+                {
+                  "id": 13,
+                  "text": "9",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "image",
+              "promptContent": "/1-9/8.webp",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "8",
+                  "isCorrect": true
+                },
+                {
+                  "id": 22,
+                  "text": "9",
+                  "isCorrect": false
+                },
+                {
+                  "id": 23,
+                  "text": "10",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "image",
+              "promptContent": "/1-9/9.webp",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "9",
+                  "isCorrect": true
+                },
+                {
+                  "id": 32,
+                  "text": "10",
+                  "isCorrect": false
+                },
+                {
+                  "id": 33,
+                  "text": "6",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "10",
+                  "isCorrect": true
+                },
+                {
+                  "id": 42,
+                  "text": "6",
+                  "isCorrect": false
+                },
+                {
+                  "id": 43,
+                  "text": "7",
+                  "isCorrect": false
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T02.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T02.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T02.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T02.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T02.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -858,32 +2157,186 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "text",
+              "promptContent": "6",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "6",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/6.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 2,
+                  "text": "7",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/7.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 3,
+                  "text": "8",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/8.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "text",
+              "promptContent": "7",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "7",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/7.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 12,
+                  "text": "8",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/8.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 13,
+                  "text": "9",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/9.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "text",
+              "promptContent": "8",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "8",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/8.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 22,
+                  "text": "9",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/9.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 23,
+                  "text": "10",
+                  "isCorrect": false,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "text",
+              "promptContent": "9",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "9",
+                  "isCorrect": true,
+                  "mediaUrl": "/1-9/9.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 32,
+                  "text": "10",
+                  "isCorrect": false,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 33,
+                  "text": "6",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/6.webp",
+                  "mediaType": "image"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "text",
+              "promptContent": "10",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "10",
+                  "isCorrect": true,
+                  "mediaUrl": "/images/study/defaultvideo.png",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 42,
+                  "text": "6",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/6.webp",
+                  "mediaType": "image"
+                },
+                {
+                  "id": 43,
+                  "text": "7",
+                  "isCorrect": false,
+                  "mediaUrl": "/1-9/7.webp",
+                  "mediaType": "image"
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T03.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T03.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T03.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T03.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T03.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -897,32 +2350,56 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sequence": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "fixedSlots": [
+            0,
+            1,
+            3
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T04.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T04.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T04.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T04.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T04.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -936,32 +2413,51 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sequence": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T05.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T05.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T05.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T05.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T05.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -975,32 +2471,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T06.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T06.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T06.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T06.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T06.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       },
@@ -1014,32 +2522,44 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.04.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v01.mp4",
+            "media_code": "L1.BT.04.T07.V01",
+            "media_type": "image",
+            "source_url": "/1-9/6.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.04.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v02.mp4",
+            "media_code": "L1.BT.04.T07.V02",
+            "media_type": "image",
+            "source_url": "/1-9/7.webp",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.04.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v03.mp4",
+            "media_code": "L1.BT.04.T07.V03",
+            "media_type": "image",
+            "source_url": "/1-9/8.webp",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.04.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.04_v04.mp4",
+            "media_code": "L1.BT.04.T07.V04",
+            "media_type": "image",
+            "source_url": "/1-9/9.webp",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.04.T07.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
           }
         ]
       }
@@ -1064,32 +2584,107 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ O",
+            "Chữ Ô",
+            "Dấu hỏi",
+            "Bò",
+            "Cỏ",
+            "Bó",
+            "Cò",
+            "Bố",
+            "Cô",
+            "Cổ",
+            "Bộ",
+            "Bể cá",
+            "Cô bé",
+            "Cổ cò"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T01.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/O.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T01.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T01.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T01.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.05.T01.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.05.T01.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.05.T01.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.05.T01.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.05.T01.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.05.T01.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
+          },
+          {
+            "media_code": "L1.BT.05.T01.V11",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 11
+          },
+          {
+            "media_code": "L1.BT.05.T01.V12",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 12
+          },
+          {
+            "media_code": "L1.BT.05.T01.V13",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 13
+          },
+          {
+            "media_code": "L1.BT.05.T01.V14",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 14
           }
         ]
       },
@@ -1103,32 +2698,121 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ O",
+            "Chữ Ô",
+            "Dấu hỏi",
+            "Bò",
+            "Cỏ",
+            "Bó",
+            "Cò",
+            "Bố",
+            "Cô",
+            "Cổ",
+            "Bộ"
+          ],
+          "pairs": [
+            {
+              "text": "Chữ O"
+            },
+            {
+              "text": "Chữ Ô"
+            },
+            {
+              "text": "Dấu hỏi"
+            },
+            {
+              "text": "Bò"
+            },
+            {
+              "text": "Cỏ"
+            },
+            {
+              "text": "Bó"
+            },
+            {
+              "text": "Cò"
+            },
+            {
+              "text": "Bố"
+            },
+            {
+              "text": "Cô"
+            },
+            {
+              "text": "Cổ"
+            },
+            {
+              "text": "Bộ"
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T02.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/O.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T02.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T02.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T02.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.05.T02.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.05.T02.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.05.T02.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.05.T02.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.05.T02.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.05.T02.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
+          },
+          {
+            "media_code": "L1.BT.05.T02.V11",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 11
           }
         ]
       },
@@ -1142,31 +2826,50 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Bò",
+            "Cỏ",
+            "Bó",
+            "Cò"
+          ],
+          "pairs": [
+            {
+              "text": "Bò"
+            },
+            {
+              "text": "Cỏ"
+            },
+            {
+              "text": "Bó"
+            },
+            {
+              "text": "Cò"
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T03.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T03.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T03.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T03.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
           }
         ]
@@ -1181,32 +2884,185 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Bò",
+            "Bó",
+            "Bộ",
+            "Cò",
+            "Cỏ",
+            "Cổ"
+          ],
+          "questions": [
+            {
+              "id": 1,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 1,
+                  "text": "Bò",
+                  "isCorrect": true
+                },
+                {
+                  "id": 2,
+                  "text": "Bó",
+                  "isCorrect": false
+                },
+                {
+                  "id": 3,
+                  "text": "Bộ",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 11,
+                  "text": "Bó",
+                  "isCorrect": true
+                },
+                {
+                  "id": 12,
+                  "text": "Bộ",
+                  "isCorrect": false
+                },
+                {
+                  "id": 13,
+                  "text": "Cò",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 21,
+                  "text": "Bộ",
+                  "isCorrect": true
+                },
+                {
+                  "id": 22,
+                  "text": "Cò",
+                  "isCorrect": false
+                },
+                {
+                  "id": 23,
+                  "text": "Cỏ",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 4,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 31,
+                  "text": "Cò",
+                  "isCorrect": true
+                },
+                {
+                  "id": 32,
+                  "text": "Cỏ",
+                  "isCorrect": false
+                },
+                {
+                  "id": 33,
+                  "text": "Cổ",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 41,
+                  "text": "Cỏ",
+                  "isCorrect": true
+                },
+                {
+                  "id": 42,
+                  "text": "Cổ",
+                  "isCorrect": false
+                },
+                {
+                  "id": 43,
+                  "text": "Bò",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "promptType": "image",
+              "promptContent": "/images/study/defaultvideo.png",
+              "options": [
+                {
+                  "id": 51,
+                  "text": "Cổ",
+                  "isCorrect": true
+                },
+                {
+                  "id": 52,
+                  "text": "Bò",
+                  "isCorrect": false
+                },
+                {
+                  "id": 53,
+                  "text": "Bó",
+                  "isCorrect": false
+                }
+              ]
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T04.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T04.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T04.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T04.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.05.T04.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.05.T04.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
           }
         ]
       },
@@ -1220,32 +3076,30 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Bể cá",
+            "Cô bé",
+            "Cổ cò"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T05.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T05.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T05.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
-          },
-          {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
-            "display_order": 4
           }
         ]
       },
@@ -1259,32 +3113,129 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Bo",
+            "Bò",
+            "Bó",
+            "Cỏ",
+            "Cò",
+            "Cô",
+            "Cổ",
+            "Ba"
+          ],
+          "buckets": [
+            {
+              "id": 1,
+              "label": "KHÔNG DẤU",
+              "color": "blue"
+            },
+            {
+              "id": 2,
+              "label": "DẤU HUYỀN",
+              "color": "emerald"
+            },
+            {
+              "id": 3,
+              "label": "DẤU SẮC",
+              "color": "amber"
+            },
+            {
+              "id": 4,
+              "label": "DẤU HỎI",
+              "color": "orange"
+            }
+          ],
+          "items": [
+            {
+              "label": "Bo",
+              "targetBucketId": 1,
+              "mediaIndex": 0
+            },
+            {
+              "label": "Bò",
+              "targetBucketId": 2,
+              "mediaIndex": 1
+            },
+            {
+              "label": "Bó",
+              "targetBucketId": 3,
+              "mediaIndex": 2
+            },
+            {
+              "label": "Cỏ",
+              "targetBucketId": 4,
+              "mediaIndex": 3
+            },
+            {
+              "label": "Cò",
+              "targetBucketId": 2,
+              "mediaIndex": 4
+            },
+            {
+              "label": "Cô",
+              "targetBucketId": 1,
+              "mediaIndex": 5
+            },
+            {
+              "label": "Cổ",
+              "targetBucketId": 4,
+              "mediaIndex": 6
+            },
+            {
+              "label": "Ba",
+              "targetBucketId": 1,
+              "mediaIndex": 7
+            }
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T06.V01",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T06.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T06.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T06.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.05.T06.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.05.T06.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.05.T06.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.05.T06.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
           }
         ]
       },
@@ -1298,32 +3249,107 @@
         "pass_score": 80.0,
         "game_config": {
           "source": null,
-          "targetWords": null
+          "targetWords": [
+            "Chữ O",
+            "Chữ Ô",
+            "Dấu hỏi",
+            "Bò",
+            "Cỏ",
+            "Bó",
+            "Cò",
+            "Bố",
+            "Cô",
+            "Cổ",
+            "Bộ",
+            "Bể cá",
+            "Cô bé",
+            "Cổ cò"
+          ]
         },
         "media": [
           {
-            "media_code": "L1.BT.05.V01",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v01.mp4",
+            "media_code": "L1.BT.05.T07.V01",
+            "media_type": "image",
+            "source_url": "/A-Z/O.webp",
             "display_order": 1
           },
           {
-            "media_code": "L1.BT.05.V02",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v02.mp4",
+            "media_code": "L1.BT.05.T07.V02",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 2
           },
           {
-            "media_code": "L1.BT.05.V03",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v03.mp4",
+            "media_code": "L1.BT.05.T07.V03",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 3
           },
           {
-            "media_code": "L1.BT.05.V04",
-            "media_type": "video",
-            "source_url": "https://vietsign.ibme.edu.vn/videos/L1.BT.05_v04.mp4",
+            "media_code": "L1.BT.05.T07.V04",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
             "display_order": 4
+          },
+          {
+            "media_code": "L1.BT.05.T07.V05",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 5
+          },
+          {
+            "media_code": "L1.BT.05.T07.V06",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 6
+          },
+          {
+            "media_code": "L1.BT.05.T07.V07",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 7
+          },
+          {
+            "media_code": "L1.BT.05.T07.V08",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 8
+          },
+          {
+            "media_code": "L1.BT.05.T07.V09",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 9
+          },
+          {
+            "media_code": "L1.BT.05.T07.V10",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 10
+          },
+          {
+            "media_code": "L1.BT.05.T07.V11",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 11
+          },
+          {
+            "media_code": "L1.BT.05.T07.V12",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 12
+          },
+          {
+            "media_code": "L1.BT.05.T07.V13",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 13
+          },
+          {
+            "media_code": "L1.BT.05.T07.V14",
+            "media_type": "image",
+            "source_url": "/images/study/defaultvideo.png",
+            "display_order": 14
           }
         ]
       }

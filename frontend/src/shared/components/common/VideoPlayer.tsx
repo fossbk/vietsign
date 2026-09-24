@@ -41,6 +41,7 @@ export function VideoPlayer({
   const [progress, setProgress] = React.useState(0);
   const [playbackSpeed, setPlaybackSpeed] = React.useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = React.useState(false);
+  const [mediaError, setMediaError] = React.useState(false);
 
   // Format time display (mm:ss)
   const formatTime = (time: number) => {
@@ -53,6 +54,7 @@ export function VideoPlayer({
   React.useEffect(() => {
     const video = videoRef.current;
     if (video && videoUrl) {
+      setMediaError(false);
       video.load();
       video.volume = volume;
       video.muted = isMuted;
@@ -67,7 +69,7 @@ export function VideoPlayer({
         }
       }
     }
-  }, [videoUrl]);
+  }, [autoPlay, isMuted, playbackSpeed, videoUrl, volume]);
 
   // Update progress bar as video plays
   React.useEffect(() => {
@@ -175,8 +177,50 @@ export function VideoPlayer({
   const containerStyle = height ? { height } : { aspectRatio };
 
   const isImage = React.useMemo(() => {
-    return videoUrl?.match(/\.(webp|png|jpg|jpeg|gif)$/i);
+    return videoUrl?.match(/\.(webp|png|jpg|jpeg|gif|svg)(?:\?.*)?$/i);
   }, [videoUrl]);
+
+  const youtubeId = React.useMemo(() => {
+    if (!videoUrl) return null;
+    const match = videoUrl.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/,
+    );
+    return match?.[1] || null;
+  }, [videoUrl]);
+
+  const isDirectVideo = React.useMemo(
+    () => /^(blob:|data:video\/)/i.test(videoUrl || "") || /\.(mp4|webm|ogg|mov|m4v)(?:\?.*)?$/i.test(videoUrl || ""),
+    [videoUrl],
+  );
+
+  if (youtubeId) {
+    const query = new URLSearchParams({
+      autoplay: autoPlay ? "1" : "0",
+      controls: showControls ? "1" : "0",
+      mute: "1",
+      playsinline: "1",
+      rel: "0",
+    });
+    if (loop) {
+      query.set("loop", "1");
+      query.set("playlist", youtubeId);
+    }
+
+    return (
+      <div
+        className={`bg-gray-900 relative overflow-hidden rounded-2xl ${className}`}
+        style={containerStyle}
+      >
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?${query.toString()}`}
+          title={title || "Video ký hiệu"}
+          className="w-full h-full border-0"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
 
   if (isImage) {
     return (
@@ -198,12 +242,31 @@ export function VideoPlayer({
     );
   }
 
+  if (videoUrl && !isDirectVideo) {
+    return (
+      <div
+        className={`bg-gray-900 text-white relative overflow-hidden rounded-2xl flex flex-col items-center justify-center gap-3 p-5 text-center ${className}`}
+        style={containerStyle}
+      >
+        <p className="font-bold">Nguồn này là trang tra cứu, không phải tệp video trực tiếp.</p>
+        <a
+          href={videoUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 font-bold"
+        >
+          Mở nguồn ký hiệu
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`bg-gray-900 relative group overflow-hidden rounded-2xl ${className}`}
       style={containerStyle}
     >
-      {videoUrl ? (
+      {videoUrl && !mediaError ? (
         <>
           <video
             ref={videoRef}
@@ -213,8 +276,12 @@ export function VideoPlayer({
             loop={loop}
             playsInline
             onClick={togglePlay}
+            onError={() => setMediaError(true)}
           >
-            <source src={videoUrl} type="video/mp4" />
+            <source
+              src={videoUrl}
+              type={videoUrl.match(/\.webm(?:\?.*)?$/i) || videoUrl.startsWith("blob:") ? "video/webm" : "video/mp4"}
+            />
             Trình duyệt của bạn không hỗ trợ video.
           </video>
 
@@ -376,7 +443,7 @@ export function VideoPlayer({
       ) : (
         <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium p-4 text-center">
           <div className="text-center">
-            <p>Không có video hoặc hình ảnh minh họa</p>
+            <p>{mediaError ? "Không tải được video minh họa" : "Không có video hoặc hình ảnh minh họa"}</p>
           </div>
         </div>
       )}

@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, AlertCircle, RotateCcw, CheckCircle, ArrowRight, Trophy } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
-import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import CurriculumModel, { CurriculumActivity } from "@/domain/entities/Curriculum";
+import { getGameConfig, getMediaLabel, shuffle } from "../gameUtils";
 
 interface ChoiceQuizGameProps {
   activityCode: string;
@@ -18,6 +19,7 @@ interface QuizQuestion {
     id: number;
     text: string;
     mediaUrl?: string;
+    mediaType?: "video" | "image";
     isCorrect: boolean;
   }[];
 }
@@ -39,6 +41,7 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
 
@@ -50,13 +53,15 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
     setSelectedOptionId(null);
     setIsAnswerChecked(false);
     setCorrectCount(0);
+    setSubmitError(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
       .then((data) => {
         setActivity(data);
         const mediaList = data.media || [];
-        const cfgQuestions = (data.game_config?.questions as QuizQuestion[]) || [];
+        const config = getGameConfig(data);
+        const cfgQuestions = (config.questions as QuizQuestion[]) || [];
 
         if (cfgQuestions.length > 0) {
           setQuestions(cfgQuestions);
@@ -64,14 +69,14 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
           // Generate questions from media list if no explicit game_config
           // Each media is a question, correct option is its own code/title, other options are distractors
           const generated: QuizQuestion[] = mediaList.map((m, idx) => {
-            const correctText = m.media_code || `Ký hiệu ${idx + 1}`;
+            const correctText = getMediaLabel(data, m, idx);
             // Pick distractors from other media
             const distractors = mediaList
               .filter((_, i) => i !== idx)
               .slice(0, 3)
               .map((d, dIdx) => ({
                 id: d.media_id || (idx + 1) * 100 + dIdx,
-                text: d.media_code || `Từ khác ${dIdx + 1}`,
+                text: getMediaLabel(data, d, mediaList.indexOf(d)) || `Từ khác ${dIdx + 1}`,
                 isCorrect: false,
               }));
 
@@ -87,13 +92,13 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
             const options = [
               { id: m.media_id || idx + 1, text: correctText, isCorrect: true },
               ...distractors,
-            ].sort(() => Math.random() - 0.5);
+            ];
 
             return {
               id: m.media_id || idx + 1,
               promptType: m.media_type,
               promptContent: m.source_url,
-              options,
+              options: shuffle(options),
             };
           });
           setQuestions(generated);
@@ -162,6 +167,7 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
           }
         } catch (err) {
           console.error("Failed to submit quiz progress", err);
+          setSubmitError("Không lưu được kết quả bài trắc nghiệm. Hãy kiểm tra kết nối và nộp lại.");
         } finally {
           setSubmitting(false);
         }
@@ -188,6 +194,7 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
         <p className="text-gray-500">{error || "Hoạt động này chưa có nội dung trắc nghiệm."}</p>
         <button
           onClick={loadData}
+          disabled={submitting}
           className="mt-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors text-lg"
         >
           Thử lại
@@ -228,9 +235,15 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
           <div className="text-5xl font-black text-primary-600">{finalScore}</div>
         </div>
 
+        {submitError && (
+          <div className="rounded-2xl border-2 border-red-200 bg-red-50 px-6 py-4 font-bold text-red-700">
+            {submitError}
+          </div>
+        )}
+
         <button
           onClick={loadData}
-          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg"
+          className="flex items-center gap-2 px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-xl hover:bg-primary-700 transition-colors shadow-lg disabled:opacity-50"
         >
           <RotateCcw size={24} /> Làm lại bài trắc nghiệm
         </button>
@@ -274,7 +287,11 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
 
       {/* Question Stimulus: Video / Image / Text */}
       <div className="relative w-full aspect-video bg-gray-900 rounded-3xl overflow-hidden shadow-md border-4 border-white flex items-center justify-center">
-        {currentQ.promptType === "image" ? (
+        {currentQ.promptType === "text" ? (
+          <div className="rounded-2xl bg-white px-8 py-6 text-center text-6xl font-black text-gray-900">
+            {currentQ.promptContent}
+          </div>
+        ) : currentQ.promptType === "image" ? (
           <img
             src={currentQ.promptContent}
             alt="Câu hỏi"
@@ -320,9 +337,25 @@ export const ChoiceQuizGame: React.FC<ChoiceQuizGameProps> = ({
               onClick={() => handleSelectOption(opt.id)}
               className={`relative p-5 min-h-[90px] rounded-2xl border-4 transition-all duration-200 cursor-pointer flex items-center justify-between shadow-sm select-none ${cardStyle}`}
             >
-              <span className="text-xl font-bold w-full text-center px-2">
-                {opt.text}
-              </span>
+              <div className="flex w-full flex-col items-center gap-2">
+                {opt.mediaUrl && (
+                  <div className="h-32 w-full overflow-hidden rounded-xl bg-gray-900">
+                    {opt.mediaType === "image" ? (
+                      <img src={opt.mediaUrl} alt={opt.text} className="h-full w-full object-contain" />
+                    ) : (
+                      <VideoPlayer
+                        videoUrl={opt.mediaUrl}
+                        title={opt.text}
+                        autoPlay={false}
+                        loop
+                        showControls
+                        className="h-full w-full"
+                      />
+                    )}
+                  </div>
+                )}
+                <span className="text-xl font-bold w-full text-center px-2">{opt.text}</span>
+              </div>
               {icon && <span className="text-3xl ml-2 flex-shrink-0">{icon}</span>}
             </div>
           );

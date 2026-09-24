@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Loader2, AlertCircle, BookOpen, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import CurriculumModel, { CurriculumActivity, CurriculumLesson } from "@/domain/entities/Curriculum";
 import {
   FlipCardViewer,
@@ -30,6 +30,7 @@ export function ActivityPlayer() {
 
   useEffect(() => {
     if (!activityCode) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
 
@@ -37,9 +38,9 @@ export function ActivityPlayer() {
       CurriculumModel.getActivityByCode(activityCode),
       lessonCode ? CurriculumModel.getLessonByCode(lessonCode) : Promise.resolve(null),
     ])
-      .then(([actData, lessonData]: any) => {
-        setActivity(actData?.data ?? actData);
-        if (lessonData) setLesson(lessonData?.data ?? lessonData);
+      .then(([actData, lessonData]) => {
+        setActivity(actData);
+        if (lessonData) setLesson(lessonData);
       })
       .catch((err) => {
         const msg = err?.response?.data?.message || err?.message || "Không tải được hoạt động.";

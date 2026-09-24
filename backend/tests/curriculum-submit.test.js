@@ -177,6 +177,7 @@ test("POST /curriculum/activities/:activityId/submit - 3 submission test cases",
       stars: 2,
       durationSeconds: 45,
       isCompleted: false,
+      submissionVideoUrl: "/uploads/others/practice.webm",
       gameResultDetails: { moves: 10, correctPairs: 4 },
     };
 
@@ -196,6 +197,7 @@ test("POST /curriculum/activities/:activityId/submit - 3 submission test cases",
     assert.strictEqual(history1.activity_id, activityId);
     assert.strictEqual(history1.score, 70);
     assert.strictEqual(history1.stars, 2);
+    assert.strictEqual(history1.submission_video_url, "/uploads/others/practice.webm");
 
     // Xác nhận curriculum_user_activity_summary có ĐÚNG 1 dòng với total_attempts = 1
     assert.strictEqual(tables.curriculum_user_activity_summary.length, 1);
