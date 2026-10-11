@@ -2,6 +2,7 @@
 const { convertToMp4, needsConversion } = require("../../../utils/videoConverter");
 
 let historyTableEnsured = false;
+let historyTablePromise = null;
 const ALLOWED_MODES = new Set(["match", "spell", "free"]);
 
 const normalizeMode = (mode) => {
@@ -14,7 +15,12 @@ const ensureHistoryTable = async () => {
     return;
   }
 
-  await db.execute(`
+  if (historyTablePromise) {
+    return historyTablePromise;
+  }
+
+  historyTablePromise = (async () => {
+    await db.execute(`
     CREATE TABLE IF NOT EXISTS ai_practice_attempt (
       attempt_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       user_id BIGINT NOT NULL,
@@ -37,40 +43,46 @@ const ensureHistoryTable = async () => {
       KEY idx_ai_practice_attempt_topic (topic_id),
       KEY idx_ai_practice_attempt_vocab (vocabulary_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-  `);
+    `);
 
-  const [columns] = await db.execute(`
+    const [columns] = await db.execute(`
     SELECT COLUMN_NAME
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'ai_practice_attempt'
       AND COLUMN_NAME = 'model_code'
-  `);
+    `);
 
-  if (columns.length === 0) {
-    await db.execute(`
+    if (columns.length === 0) {
+      await db.execute(`
       ALTER TABLE ai_practice_attempt
       ADD COLUMN model_code VARCHAR(20) NOT NULL DEFAULT 'model1' AFTER user_id
-    `);
-  }
+      `);
+    }
 
-  const [indexes] = await db.execute(`
+    const [indexes] = await db.execute(`
     SELECT INDEX_NAME
     FROM INFORMATION_SCHEMA.STATISTICS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'ai_practice_attempt'
       AND INDEX_NAME = 'idx_ai_practice_attempt_user_model_created'
     LIMIT 1
-  `);
+    `);
 
-  if (indexes.length === 0) {
-    await db.execute(`
+    if (indexes.length === 0) {
+      await db.execute(`
       ALTER TABLE ai_practice_attempt
       ADD KEY idx_ai_practice_attempt_user_model_created (user_id, model_code, created_at)
-    `);
-  }
+      `);
+    }
 
-  historyTableEnsured = true;
+    historyTableEnsured = true;
+  })().catch((error) => {
+    historyTablePromise = null;
+    throw error;
+  });
+
+  return historyTablePromise;
 };
 
 const normalizeText = (value) => {
@@ -82,7 +94,10 @@ const normalizeText = (value) => {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim();
+    .replace(/\b(chu|dau|ky hieu)\b/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
 };
 
 const toNullableBoolean = (value) => {

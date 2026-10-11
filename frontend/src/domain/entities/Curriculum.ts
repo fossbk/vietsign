@@ -57,6 +57,19 @@ export interface SubmitProgressPayload {
   isCompleted: boolean;
   gameResultDetails?: Record<string, unknown>;
   submissionVideoUrl?: string;
+  targetText?: string;
+}
+
+export interface CurriculumAiStatus {
+  progress_id: number;
+  user_id: number;
+  activity_id: number;
+  ai_status: "not_requested" | "queued" | "processing" | "completed" | "failed";
+  ai_attempt_id?: number | null;
+  ai_score?: number | null;
+  ai_confidence?: number | null;
+  ai_error_message?: string | null;
+  is_completed: boolean | number;
 }
 
 // ----- Model -----
@@ -90,13 +103,26 @@ class CurriculumModelClass extends Base {
     payload: SubmitProgressPayload,
   ) => {
     const res = await this.apiPost(`/activities/${activityId}/submit`, payload);
-    return unwrapResponse<{ progressId: number; score: number; stars: number; isCompleted: number }>(res);
+    return unwrapResponse<{
+      progressId: number;
+      score: number;
+      stars: number;
+      isCompleted: number;
+      aiStatus?: CurriculumAiStatus["ai_status"];
+      aiJobId?: number | null;
+    }>(res);
   };
 
   /** GET /curriculum/users/:userId/progress */
-  getUserProgress = async (userId: number, lessonId?: number) => {
-    const res = await this.apiGet(`/users/${userId}/progress`, lessonId ? { lesson_id: lessonId } : undefined);
+  getUserProgress = async (userId: number, lessonCode?: string) => {
+    const res = await this.apiGet(`/users/${userId}/progress`, lessonCode ? { lessonCode } : undefined);
     return unwrapResponse<unknown>(res);
+  };
+
+  /** GET /curriculum/progress/:progressId/ai-status */
+  getProgressAiStatus = async (progressId: number): Promise<CurriculumAiStatus> => {
+    const res = await this.apiGet(`/progress/${progressId}/ai-status`);
+    return unwrapResponse<CurriculumAiStatus>(res);
   };
 }
 

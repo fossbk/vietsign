@@ -8,6 +8,7 @@ const organizationManagerRoutes = require("./routes/organizationManager.routes")
 const teachingManagementRoutes = require("./features/teaching-management");
 const learnRoutes = require("./features/learn");
 const curriculumRoutes = require("./features/curriculum");
+const { startCurriculumAiWorker } = require("./features/curriculum/services/curriculumAiQueue.service");
 const aiPracticeRoutes = require("./features/ai-practice/routes/aiPractice.routes");
 const { authRequired } = require("./middleware/auth.middleware");
 const { specs, swaggerUi } = require("./swagger/index");
@@ -126,4 +127,6 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.error("DATABASE INITIALIZATION ERROR:", err);
   }
+
+  startCurriculumAiWorker();
 });

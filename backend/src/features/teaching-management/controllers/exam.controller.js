@@ -1,5 +1,6 @@
 const examService = require("../services/exam.services");
 const aiPracticeService = require("../../ai-practice/services/aiPractice.service");
+const fs = require("fs");
 const path = require("path");
 const { minioClient, bucketName } = require("../../../utils/minio");
 
@@ -42,6 +43,19 @@ const normalizePracticeAiError = (modelCode, error) => ({
   error_message: error?.message || "AI grading failed",
 });
 
+const normalizePracticeAiPending = (modelCode) => ({
+  model_code: modelCode,
+  status: "PENDING",
+  attempt_id: null,
+  target_text: null,
+  predicted_label: null,
+  action_name: null,
+  label_name: null,
+  confidence: null,
+  is_match: null,
+  error_message: null,
+});
+
 const withTimeout = (promise, timeoutMs, timeoutMessage) => {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
@@ -55,24 +69,6 @@ const withTimeout = (promise, timeoutMs, timeoutMessage) => {
   return Promise.race([promise, timeoutPromise]).finally(() => {
     clearTimeout(timeoutId);
   });
-};
-
-const runWithConcurrency = async (items, limit, worker) => {
-  const safeLimit = Math.max(1, Number(limit) || 1);
-  let nextIndex = 0;
-
-  const workers = Array.from(
-    { length: Math.min(safeLimit, items.length) },
-    async () => {
-      while (nextIndex < items.length) {
-        const currentIndex = nextIndex;
-        nextIndex += 1;
-        await worker(items[currentIndex], currentIndex);
-      }
-    },
-  );
-
-  await Promise.all(workers);
 };
 
 const gradePracticeVideoWithAi = async ({
@@ -93,9 +89,11 @@ const gradePracticeVideoWithAi = async ({
   const aiTopicId = questionMeta.topicId || null;
   const timeoutMs = Number(process.env.PRACTICE_AI_GRADING_TIMEOUT_MS || 45000);
 
-  const model1Job = withTimeout(
-    aiPracticeService
-      .predictAndSave({
+  const aiResults = [];
+
+  try {
+    const model1Result = await withTimeout(
+      aiPracticeService.predictAndSave({
         userId: Number(userId),
         file,
         targetText: aiTargetText,
@@ -103,45 +101,40 @@ const gradePracticeVideoWithAi = async ({
         vocabularyId: Number(vocabularyId),
         topicId: aiTopicId,
         modelCode: "model1",
-      })
-      .then((model1Result) =>
-        normalizePracticeAiResult("model1", model1Result),
-      )
-      .catch((aiError) => {
-        console.error("[practice-ai-grading] Model1 grading failed:", aiError);
-        return normalizePracticeAiError("model1", aiError);
       }),
-    timeoutMs,
-    "Model1 grading timed out",
-  ).catch((aiError) => normalizePracticeAiError("model1", aiError));
+      timeoutMs,
+      "Model1 grading timed out",
+    );
+    aiResults.push(normalizePracticeAiResult("model1", model1Result));
+  } catch (aiError) {
+    console.error("[practice-ai-grading] Model1 grading failed:", aiError);
+    aiResults.push(normalizePracticeAiError("model1", aiError));
+  }
 
-  const model3Job = withTimeout(
-    aiPracticeService
-      .predictModel3({ file })
-      .then(async (model3Prediction) => {
-        const model3Saved = await aiPracticeService.saveModel3Attempt({
-          userId: Number(userId),
-          result: model3Prediction,
-          targetText: aiTargetText,
-          mode: "match",
-          vocabularyId: Number(vocabularyId),
-          topicId: aiTopicId,
-        });
-
-        return normalizePracticeAiResult("model3", {
-          ...model3Prediction,
-          ...model3Saved,
-        });
-      })
-      .catch((aiError) => {
-        console.error("[practice-ai-grading] Model3 grading failed:", aiError);
-        return normalizePracticeAiError("model3", aiError);
+  try {
+    const model3Prediction = await withTimeout(
+      aiPracticeService.predictModel3({ file }),
+      timeoutMs,
+      "Model3 grading timed out",
+    );
+    const model3Saved = await aiPracticeService.saveModel3Attempt({
+      userId: Number(userId),
+      result: model3Prediction,
+      targetText: aiTargetText,
+      mode: "match",
+      vocabularyId: Number(vocabularyId),
+      topicId: aiTopicId,
+    });
+    aiResults.push(
+      normalizePracticeAiResult("model3", {
+        ...model3Prediction,
+        ...model3Saved,
       }),
-    timeoutMs,
-    "Model3 grading timed out",
-  ).catch((aiError) => normalizePracticeAiError("model3", aiError));
-
-  const aiResults = await Promise.all([model1Job, model3Job]);
+    );
+  } catch (aiError) {
+    console.error("[practice-ai-grading] Model3 grading failed:", aiError);
+    aiResults.push(normalizePracticeAiError("model3", aiError));
+  }
 
   try {
     await examService.savePracticeAiResult(
@@ -156,6 +149,49 @@ const gradePracticeVideoWithAi = async ({
   }
 
   return aiResults;
+};
+
+const removeTemporaryFile = async (filePath) => {
+  if (!filePath) return;
+  try {
+    await fs.promises.unlink(filePath);
+  } catch {
+    // The file may already have been removed by cleanup.
+  }
+};
+
+const processPracticeAiJob = async (job) => {
+  try {
+    const buffer = await fs.promises.readFile(job.file.path);
+    await gradePracticeVideoWithAi({
+      ...job,
+      file: { ...job.file, buffer },
+    });
+  } catch (error) {
+    console.error("[practice-ai-grading] Queued job failed:", error);
+    try {
+      await examService.savePracticeAiResult(
+        job.examId,
+        job.userId,
+        job.attemptId,
+        job.vocabularyId,
+        [
+          normalizePracticeAiError("model1", error),
+          normalizePracticeAiError("model3", error),
+        ],
+      );
+    } catch (saveError) {
+      console.error("[practice-ai-grading] Could not save queued job failure:", saveError);
+    }
+  } finally {
+    await removeTemporaryFile(job.file.path);
+  }
+};
+
+let practiceAiQueue = Promise.resolve();
+
+const enqueuePracticeAiJob = (job) => {
+  practiceAiQueue = practiceAiQueue.then(() => processPracticeAiJob(job));
 };
 
 // Create new exam
@@ -673,6 +709,7 @@ const getStudentExamAttempts = async (req, res) => {
 };
 
 const submitPracticeExam = async (req, res) => {
+  let aiGradingJobs = [];
   try {
     // Bug fix: always take userId from the JWT token (not req.body) for security + correctness
     const userId = req.user?.user_id ? String(req.user.user_id) : null;
@@ -743,13 +780,14 @@ const submitPracticeExam = async (req, res) => {
         await minioClient.putObject(
           bucketName,
           filename,
-          file.buffer,
+          fs.createReadStream(file.path),
           file.size,
           { "Content-Type": file.mimetype },
         );
         const minioPath = `${process.env.MINIO_PUBLIC_URL || "http://localhost:9000"}/${bucketName}/${filename}`;
         skipped.push({ index: i, filename: file.originalname, minioPath });
         results.push(minioPath);
+        await removeTemporaryFile(file.path);
         continue;
       }
 
@@ -760,7 +798,7 @@ const submitPracticeExam = async (req, res) => {
       await minioClient.putObject(
         bucketName,
         filename,
-        file.buffer,
+        fs.createReadStream(file.path),
         file.size,
         { "Content-Type": file.mimetype },
       );
@@ -775,23 +813,28 @@ const submitPracticeExam = async (req, res) => {
         minioPath,
       );
 
+      await examService.savePracticeAiResult(
+        examId,
+        userId,
+        attempt.attemptId,
+        vocabularyId,
+        [
+          normalizePracticeAiPending("model1"),
+          normalizePracticeAiPending("model3"),
+        ],
+      );
+
       aiGradingJobs.push({
         examId,
         userId,
         attemptId: attempt.attemptId,
         vocabularyId,
-        file: {
-          ...file,
-          buffer: Buffer.from(file.buffer),
-        },
+        file,
       });
       results.push(minioPath);
     }
 
-    const aiConcurrency = Number(process.env.PRACTICE_AI_GRADING_CONCURRENCY || 2);
-    await runWithConcurrency(aiGradingJobs, aiConcurrency, async (job) => {
-      await gradePracticeVideoWithAi(job);
-    });
+    aiGradingJobs.forEach(enqueuePracticeAiJob);
 
     if (skipped.length > 0) {
       console.warn(
@@ -811,6 +854,12 @@ const submitPracticeExam = async (req, res) => {
     });
   } catch (error) {
     console.error("Submit practice error:", error);
+    const queuedPaths = new Set(aiGradingJobs.map((job) => job.file.path));
+    await Promise.all(
+      (Array.isArray(req.files) ? req.files : [])
+        .filter((file) => !queuedPaths.has(file.path))
+        .map((file) => removeTemporaryFile(file.path)),
+    );
     res.status(500).json({ success: false, message: error.message });
   }
 };

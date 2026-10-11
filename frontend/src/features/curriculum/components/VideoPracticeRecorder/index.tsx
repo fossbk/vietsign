@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Loader2, AlertCircle, Camera, StopCircle, RotateCcw, CheckCircle, UploadCloud, ArrowLeft, ArrowRight } from "lucide-react";
 import { VideoPlayer } from "@/shared/components/common/VideoPlayer";
-import CurriculumModel, { CurriculumActivity, CurriculumMedia } from "@/domain/entities/Curriculum";
+import CurriculumModel, { CurriculumActivity, CurriculumAiStatus, CurriculumMedia } from "@/domain/entities/Curriculum";
 import { uploadFile } from "@/services/uploadService";
 import { getMediaLabel } from "../gameUtils";
 
@@ -11,6 +11,10 @@ interface VideoPracticeRecorderProps {
   activityCode: string;
   onComplete?: () => void;
 }
+
+const MAX_RECORDING_SECONDS = 30;
+const MAX_AI_UPLOAD_BYTES = 9 * 1024 * 1024;
+const VIDEO_BITRATE = 250_000;
 
 export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   activityCode,
@@ -34,6 +38,8 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [progressId, setProgressId] = useState<number | null>(null);
+  const [aiStatus, setAiStatus] = useState<CurriculumAiStatus | null>(null);
 
   const videoLiveRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -52,6 +58,8 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
     setRecordingSeconds(0);
     setSampleIndex(0);
     setSubmitError(null);
+    setProgressId(null);
+    setAiStatus(null);
     startTimeRef.current = Date.now();
 
     CurriculumModel.getActivityByCode(activityCode)
@@ -87,6 +95,34 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
     if (media) setSampleMedia(media);
   }, [activity, sampleIndex]);
 
+  useEffect(() => {
+    if (!progressId) return;
+
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      try {
+        const status = await CurriculumModel.getProgressAiStatus(progressId);
+        if (!active) return;
+        setAiStatus(status);
+        if (status.ai_status === "queued" || status.ai_status === "processing") {
+          timer = setTimeout(poll, 3000);
+        }
+      } catch (err) {
+        if (!active) return;
+        console.error("Failed to fetch AI grading status", err);
+        timer = setTimeout(poll, 5000);
+      }
+    };
+
+    poll();
+    return () => {
+      active = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [progressId]);
+
   // Start Camera Recording
   const startRecording = async () => {
     try {
@@ -104,8 +140,8 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
       const preferredMime = ["video/webm;codecs=vp9", "video/webm", "video/mp4"]
         .find((mime) => MediaRecorder.isTypeSupported(mime));
       const recorder = preferredMime
-        ? new MediaRecorder(stream, { mimeType: preferredMime })
-        : new MediaRecorder(stream);
+        ? new MediaRecorder(stream, { mimeType: preferredMime, videoBitsPerSecond: VIDEO_BITRATE })
+        : new MediaRecorder(stream, { videoBitsPerSecond: VIDEO_BITRATE });
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -129,7 +165,13 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
 
       // Start timer
       timerIntervalRef.current = setInterval(() => {
-        setRecordingSeconds((s) => s + 1);
+        setRecordingSeconds((seconds) => {
+          const nextSeconds = Math.min(seconds + 1, MAX_RECORDING_SECONDS);
+          if (nextSeconds >= MAX_RECORDING_SECONDS) {
+            setTimeout(() => stopRecording(), 0);
+          }
+          return nextSeconds;
+        });
       }, 1000);
     } catch (err) {
       console.error("Camera access error", err);
@@ -140,7 +182,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   // Stop Recording
   const stopRecording = () => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -163,6 +205,12 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
     setSubmitting(true);
     setSubmitError(null);
 
+    if (recordedBlob.size > MAX_AI_UPLOAD_BYTES) {
+      setSubmitError("Video vượt quá 9 MB. Hãy quay lại với khung hình gọn hơn hoặc thời lượng ngắn hơn.");
+      setSubmitting(false);
+      return;
+    }
+
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
 
     try {
@@ -170,21 +218,30 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
       const file = new File([recordedBlob], `${activity.activity_code}-${Date.now()}.${extension}`, {
         type: recordedBlob.type || `video/${extension}`,
       });
-      const submissionVideoUrl = await uploadFile(file, "others");
+      const submissionVideoUrl = await uploadFile(file, "curriculum-practice");
       if (!submissionVideoUrl) throw new Error("Upload không trả về đường dẫn video");
 
-      await CurriculumModel.submitProgress(activity.activity_id, {
+      const submission = await CurriculumModel.submitProgress(activity.activity_id, {
         score: 0,
         stars: 0,
         durationSeconds,
-        isCompleted: true,
+        isCompleted: false,
         submissionVideoUrl,
+        targetText: sampleMedia ? getMediaLabel(activity, sampleMedia, sampleIndex) : undefined,
         gameResultDetails: {
           recordingDurationSeconds: recordingSeconds,
           blobSize: recordedBlob.size,
           sampleMediaId: sampleMedia?.media_id,
           submittedAt: new Date().toISOString(),
         },
+      });
+      setProgressId(submission.progressId);
+      setAiStatus({
+        progress_id: submission.progressId,
+        user_id: 0,
+        activity_id: activity.activity_id,
+        ai_status: submission.aiStatus || "queued",
+        is_completed: false,
       });
       setIsSubmitted(true);
       onComplete?.();
@@ -227,6 +284,12 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
   // COMPLETED SCREEN
   // ─────────────────────────────────────────────
   if (isSubmitted) {
+    const statusLabel = aiStatus?.ai_status === "completed"
+      ? "Đã có kết quả chấm AI"
+      : aiStatus?.ai_status === "failed"
+        ? "AI chưa thể chấm video"
+        : "Video đang chờ AI chấm";
+
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center animate-in zoom-in duration-500 px-6">
         <div className="w-28 h-28 bg-emerald-100 rounded-full flex items-center justify-center animate-bounce">
@@ -234,9 +297,18 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
         </div>
         <div>
           <h2 className="text-4xl font-black text-gray-900 mb-2">Đã nộp bài thành công!</h2>
-          <p className="text-xl text-gray-600 max-w-md mx-auto">
-            Video thực hành cử chỉ tay của bạn đã được gửi tới giáo viên để chấm và nhận xét.
-          </p>
+          <p className="text-xl text-gray-600 max-w-md mx-auto">{statusLabel}</p>
+          {aiStatus?.ai_status === "completed" && (
+            <p className="mt-3 text-lg font-bold text-primary-700">
+              Điểm AI: {Math.round(Number(aiStatus.ai_score || 0))}/100
+              {aiStatus.ai_confidence != null && ` · Độ tin cậy: ${Math.round(Number(aiStatus.ai_confidence) * 100)}%`}
+            </p>
+          )}
+          {aiStatus?.ai_status === "failed" && (
+            <p className="mt-3 text-sm font-medium text-red-600">
+              {aiStatus.ai_error_message || "Vui lòng thử lại sau."}
+            </p>
+          )}
         </div>
 
         <button
@@ -314,7 +386,7 @@ export const VideoPracticeRecorder: React.FC<VideoPracticeRecorderProps> = ({
             {isRecording && (
               <span className="flex items-center gap-1.5 text-xs font-bold text-red-500 animate-pulse">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                Đang quay: {recordingSeconds}s
+                Đang quay: {recordingSeconds}s/{MAX_RECORDING_SECONDS}s
               </span>
             )}
           </div>

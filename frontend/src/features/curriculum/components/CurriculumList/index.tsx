@@ -26,8 +26,8 @@ const TOPICS = [
   { code: "ALL", label: "Tất cả chủ đề" },
   { code: "BT", label: "Chữ cái & Số (Bản thân)" },
   { code: "GD", label: "Gia đình" },
-  { code: "NT", label: "Nhà trường" },
-  { code: "TN", label: "Thiên nhiên & Đất nước" },
+  { code: "TH", label: "Nhà trường" },
+  { code: "TN-ĐN", label: "Thiên nhiên & Đất nước" },
 ];
 
 const GAME_TYPE_LABELS: Record<string, { label: string; icon: string; color: string }> = {

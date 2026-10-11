@@ -11,6 +11,15 @@ const activities = lessons.flatMap((lesson) => lesson.activities || []);
 test("curriculum seed has complete game configuration and usable media paths", () => {
   assert.equal(lessons.length, 5);
   assert.equal(activities.length, 33);
+  assert.ok(
+    lessons.every((lesson) =>
+      lesson.content_status !== "ready" ||
+      !lesson.activities.some((activity) =>
+        activity.media.some((media) => media.source_url.includes("defaultvideo")),
+      ),
+    ),
+    "lessons with placeholder media must not be marked ready",
+  );
 
   const mediaCodes = new Set();
   for (const activity of activities) {

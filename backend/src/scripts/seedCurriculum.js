@@ -34,6 +34,11 @@ async function seed() {
     let insertedMedia = 0;
 
     for (const lesson of lessons) {
+      const hasPlaceholderMedia = (lesson.activities || []).some((activity) =>
+        (activity.media || []).some((media) => String(media.source_url || "").includes("defaultvideo")),
+      );
+      const contentStatus = hasPlaceholderMedia ? "drafting" : (lesson.content_status || "not_started");
+
       // 1. Insert or Update Lesson
       const [lessonRes] = await connection.execute(
         `INSERT INTO curriculum_lesson 
@@ -50,7 +55,7 @@ async function seed() {
           lesson.topic_code,
           lesson.title,
           lesson.description || "",
-          lesson.content_status || "ready",
+          contentStatus,
           lesson.display_order,
         ],
       );

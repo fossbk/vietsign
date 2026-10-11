@@ -5,7 +5,7 @@
     "topic_code": "BT",
     "title": "Bài 1: A a, B b, \\ (thanh huyền)",
     "description": "",
-    "content_status": "ready",
+    "content_status": "drafting",
     "display_order": 1,
     "activities": [
       {
@@ -679,7 +679,7 @@
     "topic_code": "BT",
     "title": "Bài 2: C c, E e, Ê ê, / (thanh sắc)",
     "description": "Từ trong bài: ca, cà, cá, bè, bé, bế",
-    "content_status": "ready",
+    "content_status": "drafting",
     "display_order": 2,
     "activities": [
       {
@@ -1447,7 +1447,7 @@
     "topic_code": "BT",
     "title": "Bài 3: Số 1, 2, 3, 4, 5",
     "description": "",
-    "content_status": "ready",
+    "content_status": "drafting",
     "display_order": 3,
     "activities": [
       {
@@ -1930,7 +1930,7 @@
     "topic_code": "BT",
     "title": "Bài 4: Số 6, 7, 8, 9, 10",
     "description": "",
-    "content_status": "ready",
+    "content_status": "drafting",
     "display_order": 4,
     "activities": [
       {
@@ -2571,7 +2571,7 @@
     "topic_code": "BT",
     "title": "Bài 5: o, ô, ? (thanh hỏi)",
     "description": "Từ trong bài: bò, cỏ, bó, cò, bố, cô, cổ, bộ, bể cá, cô bé, cổ cò",
-    "content_status": "ready",
+    "content_status": "drafting",
     "display_order": 5,
     "activities": [
       {

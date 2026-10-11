@@ -15,6 +15,7 @@ router.post("/activities/:activityId/submit", authRequired, ctrl.submitProgress)
 // 3. STUDENT PROGRESS
 router.get("/users/:userId/progress", authRequired, ctrl.getUserProgress);
 router.get("/users/:userId/activities/:activityId/history", authRequired, ctrl.getActivityHistory);
+router.get("/progress/:progressId/ai-status", authRequired, ctrl.getProgressAiStatus);
 
 // 4. TEACHER FEEDBACK
 router.patch("/progress/:progressId/feedback", authRequired, ctrl.updateFeedback);

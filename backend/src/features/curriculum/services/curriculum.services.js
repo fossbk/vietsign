@@ -1,4 +1,5 @@
 const db = require("../../../db");
+const { ensureQueueSchema, parseStoredVideoUrl } = require("./curriculumAiQueue.service");
 
 function jsonVal(v) {
   return v == null ? null : JSON.stringify(v);
@@ -65,6 +66,7 @@ async function getActivityByCode(activityCode) {
 // ---------------------------------------------------------------------------
 
 async function submitGameProgress(userId, activityId, payload) {
+  payload = payload || {};
   // Validate activity exists
   const [acts] = await db.execute(
     "SELECT activity_id, game_type FROM curriculum_activity WHERE activity_id = ?",
@@ -87,12 +89,37 @@ async function submitGameProgress(userId, activityId, payload) {
   }
 
   const gameType = acts[0].game_type;
-  const score = Math.min(100, Math.max(0, Number(payload.score) || 0));
-  const stars = Math.min(3, Math.max(0, Number(payload.stars) || 0));
+  const isVideoPractice = gameType === "VideoPracticeRecorder";
+  const submissionVideoUrl = payload.submissionVideoUrl
+    ? String(payload.submissionVideoUrl).trim()
+    : null;
+  if (isVideoPractice && !submissionVideoUrl) {
+    const err = new Error("Video thực hành là bắt buộc");
+    err.status = 400;
+    throw err;
+  }
+
+  if (isVideoPractice) {
+    parseStoredVideoUrl(submissionVideoUrl);
+  }
+
+  if (isVideoPractice) {
+    await ensureQueueSchema();
+  }
+
+  const score = isVideoPractice
+    ? 0
+    : Math.min(100, Math.max(0, Number(payload.score) || 0));
+  const stars = isVideoPractice
+    ? 0
+    : Math.min(3, Math.max(0, Number(payload.stars) || 0));
   const duration = payload.durationSeconds == null
     ? null
     : Math.max(0, Number(payload.durationSeconds) || 0);
-  const isCompleted = payload.isCompleted ? 1 : 0;
+  const isCompleted = isVideoPractice ? 0 : (payload.isCompleted ? 1 : 0);
+  const targetText = payload.targetText
+    ? String(payload.targetText).trim().slice(0, 255)
+    : null;
 
   const conn = await db.getConnection();
   try {
@@ -110,11 +137,28 @@ async function submitGameProgress(userId, activityId, payload) {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, NOW())`,
       [
         activityId, userId, gameType, score, stars, duration,
-        isCompleted, payload.submissionVideoUrl || null,
+        isCompleted, submissionVideoUrl,
         jsonVal(payload.gameResultDetails),
       ],
     );
     const progressId = insertResult.insertId;
+
+    let aiJobId = null;
+    if (isVideoPractice) {
+      await conn.execute(
+        `UPDATE curriculum_game_progress
+            SET ai_status = 'queued'
+          WHERE progress_id = ?`,
+        [progressId],
+      );
+      const [jobResult] = await conn.execute(
+        `INSERT INTO curriculum_ai_job
+          (progress_id, activity_id, user_id, video_url, target_text, status, attempts)
+         VALUES (?, ?, ?, ?, ?, 'queued', 0)`,
+        [progressId, activityId, userId, submissionVideoUrl, targetText],
+      );
+      aiJobId = jobResult.insertId;
+    }
 
     // Step b: UPSERT summary
     await conn.execute(
@@ -133,7 +177,15 @@ async function submitGameProgress(userId, activityId, payload) {
     );
 
     await conn.commit();
-    return { progressId, score, stars, isCompleted, gameType };
+    return {
+      progressId,
+      score,
+      stars,
+      isCompleted,
+      gameType,
+      aiStatus: isVideoPractice ? "queued" : "not_requested",
+      aiJobId,
+    };
   } catch (err) {
     await conn.rollback();
     throw err;
@@ -166,13 +218,25 @@ async function getActivityHistory(userId, activityId) {
   const [rows] = await db.execute(
     `SELECT progress_id, game_type, score, stars, duration_seconds,
             is_completed, submission_video_url, teacher_feedback,
-            game_result_details, played_at
+            game_result_details, ai_status, ai_attempt_id, ai_score,
+            ai_confidence, ai_error_message, played_at
      FROM curriculum_game_progress
      WHERE user_id = ? AND activity_id = ?
      ORDER BY played_at DESC`,
     [userId, activityId],
   );
   return rows;
+}
+
+async function getProgressAiStatus(progressId) {
+  const [rows] = await db.execute(
+    `SELECT progress_id, user_id, activity_id, ai_status, ai_attempt_id,
+            ai_score, ai_confidence, ai_error_message, is_completed
+       FROM curriculum_game_progress
+      WHERE progress_id = ?`,
+    [progressId],
+  );
+  return rows[0] || null;
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +273,7 @@ module.exports = {
   submitGameProgress,
   getUserProgressByLesson,
   getActivityHistory,
+  getProgressAiStatus,
   updateFeedback,
   getUserRole,
 };

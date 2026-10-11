@@ -1,12 +1,80 @@
 // Exam Routes - Aggregator
 const express = require("express");
 const multer = require("multer");
+const crypto = require("crypto");
 const examController = require("../controllers/exam.controller");
 const { authRequired } = require("../../../middleware/auth.middleware");
 const checkOrgRole = require("../../../middleware/orgRole.middleware");
+const os = require("os");
+const path = require("path");
+const fs = require("fs");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const maxPracticeVideoSize = Number(
+  process.env.PRACTICE_MAX_VIDEO_FILE_SIZE_BYTES || 10 * 1024 * 1024,
+);
+const maxPracticeVideoCount = Math.max(
+  1,
+  Number(process.env.PRACTICE_MAX_VIDEO_COUNT || 50),
+);
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, callback) => callback(null, os.tmpdir()),
+  filename: (_req, file, callback) => {
+    const extension = path.extname(file.originalname || ".webm");
+    const suffix = crypto.randomBytes(8).toString("hex");
+    callback(null, `vietsign-practice-${Date.now()}-${suffix}${extension}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: maxPracticeVideoSize,
+    files: maxPracticeVideoCount,
+  },
+});
+
+const cleanupUploadedFiles = async (files) => {
+  await Promise.all(
+    (Array.isArray(files) ? files : []).map(async (file) => {
+      if (!file?.path) return;
+      try {
+        await fs.promises.unlink(file.path);
+      } catch {
+        // The queued AI worker may already have removed the file.
+      }
+    }),
+  );
+};
+
+const uploadPracticeVideos = (req, res, next) => {
+  upload.array("videos", maxPracticeVideoCount)(req, res, (error) => {
+    if (!error) {
+      next();
+      return;
+    }
+
+    cleanupUploadedFiles(req.files).finally(() => {
+      if (error instanceof multer.MulterError) {
+        const status = ["LIMIT_FILE_SIZE", "LIMIT_FILE_COUNT"].includes(error.code)
+          ? 413
+          : 400;
+        return res.status(status).json({
+          success: false,
+          message:
+            status === 413
+              ? "Video upload exceeds the configured size or file limit"
+              : "Invalid practice video upload",
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid practice video upload",
+      });
+    });
+  });
+};
 
 const router = express.Router();
 
@@ -35,7 +103,7 @@ router.get("/type/:exam_type", authRequired, examController.getExamsByType);
 router.post(
   "/practice/submit",
   authRequired,
-  upload.array("videos", 50),
+  uploadPracticeVideos,
   examController.submitPracticeExam,
 );
 router.get(

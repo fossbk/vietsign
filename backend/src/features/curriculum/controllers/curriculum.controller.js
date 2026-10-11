@@ -118,6 +118,32 @@ const getActivityHistory = async (req, res) => {
   }
 };
 
+const getProgressAiStatus = async (req, res) => {
+  try {
+    const progressId = Number(req.params.progressId);
+    if (!progressId) {
+      return res.status(400).json({ success: false, message: "progressId không hợp lệ" });
+    }
+
+    const progress = await svc.getProgressAiStatus(progressId);
+    if (!progress) {
+      return res.status(404).json({ success: false, message: "Lần nộp bài không tồn tại" });
+    }
+
+    if (Number(progress.user_id) !== Number(req.user.user_id)) {
+      const userRole = await getCallerRole(req.user);
+      if (userRole !== "teacher" && userRole !== "admin" && userRole !== "super_admin") {
+        return res.status(403).json({ success: false, message: "Không có quyền xem dữ liệu này" });
+      }
+    }
+
+    return res.json({ success: true, data: progress, message: "Trạng thái chấm AI" });
+  } catch (error) {
+    console.error("getProgressAiStatus error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // 7. PATCH /progress/:progressId/feedback
 const updateFeedback = async (req, res) => {
   try {
@@ -151,5 +177,6 @@ module.exports = {
   submitProgress,
   getUserProgress,
   getActivityHistory,
+  getProgressAiStatus,
   updateFeedback,
 };
