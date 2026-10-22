@@ -15,6 +15,7 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
+    restart: unless-stopped
 
   backend:
     build:
@@ -81,6 +82,7 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: vulinh3122001
     command: server /data --console-address ":9001"
+    restart: unless-stopped
     volumes:
       - minio_data:/data
 

@@ -77,6 +77,7 @@ const Login: React.FC = () => {
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 m-5">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
           Đăng nhập VietSignSchool
+
         </h2>
 
         {/* Thông báo lỗi đăng nhập */}

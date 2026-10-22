@@ -29,6 +29,7 @@ router.post("/", upload.single("file"), async (req, res) => {
       "avatar",
       "Data_FSL",
       "topic",
+      "chat",
       "others",
     ];
     if (!validFolders.includes(folder)) {

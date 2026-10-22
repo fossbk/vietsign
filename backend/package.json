@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "node src/utils/ensureServices.js",
     "start": "node src/index.js",
+    "predev": "node src/utils/ensureServices.js",
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

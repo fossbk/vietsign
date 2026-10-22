@@ -44,12 +44,12 @@ export const Register: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 animate-in fade-in slide-in-from-bottom-2">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+      <div className="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/50 w-full max-w-md border border-gray-100 dark:border-gray-700/80 animate-in fade-in slide-in-from-bottom-2 my-auto transition-colors">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
           Đăng ký tài khoản
         </h2>
-        <p className="text-center text-gray-500 mb-8">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-8">
           Bắt đầu hành trình học ASL của bạn
         </p>
 
@@ -103,17 +103,17 @@ export const Register: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full bg-primary-600 hover:bg-primary-700 h-10 font-semibold"
+              className="w-full bg-primary-600 hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-500 h-11 font-semibold text-base shadow-sm text-white"
             >
               Đăng ký
             </Button>
           </Form.Item>
         </Form>
-        <p className="mt-6 text-center text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           Đã có tài khoản?{" "}
           <Link
             href="/login"
-            className="text-primary-600 font-semibold hover:underline"
+            className="text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 hover:underline transition-colors"
           >
             Đăng nhập
           </Link>

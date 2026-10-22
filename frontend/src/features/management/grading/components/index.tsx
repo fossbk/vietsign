@@ -21,13 +21,14 @@ import { fetchAllClasses } from "@/services/classService";
 import { fetchUsersByRole } from "@/services/userService";
 import { Pagination, usePagination } from "@/shared/components/common/Pagination";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 3;
+
 
 export function GradingManagement() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   // Lookups
   const [studentsMap, setStudentsMap] = useState<Record<number, string>>({});
   const [examsMap, setExamsMap] = useState<Record<number, string>>({});
@@ -56,7 +57,7 @@ export function GradingManagement() {
 
         const studentMap: Record<number, string> = {};
         // Ensure students is array
-        (students || []).forEach((s: any) => (studentMap[s.id] = s.name));
+        (students || []).forEach((s: s) => (studentMap[s.id] = s.name));
         setStudentsMap(studentMap);
       } catch (error) {
         console.error("Failed to load grading data", error);
@@ -84,17 +85,15 @@ export function GradingManagement() {
   const filteredSubmissions = submissions.filter(
     (sub) => filterStatus === "all" || sub.status === filterStatus
   );
+  const {
+      currentPage,
+      totalPages,
+      paginatedItems,
+      setCurrentPage,
+  } = usePagination(filteredSubmissions, ITEMS_PER_PAGE);
   const pendingCount = submissions.filter((s) => s.status === "pending").length;
   const gradedCount = submissions.filter((s) => s.status === "graded").length;
-
-  const {
-    currentPage,
-    totalPages,
-    paginatedItems,
-    paddedItems,
-    setCurrentPage,
-  } = usePagination(filteredSubmissions, ITEMS_PER_PAGE);
-
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -153,7 +152,7 @@ export function GradingManagement() {
       </div>
 
       <div className="space-y-4">
-        {paddedItems.map((sub, index) => {
+        {paginatedItems.map((sub, index) => {
           if (!sub)
             return (
               <div
@@ -231,19 +230,19 @@ export function GradingManagement() {
         })}
       </div>
 
-      {filteredSubmissions.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            itemsPerPage={ITEMS_PER_PAGE}
-            totalItems={submissions.length}
-            filteredItems={filteredSubmissions.length}
-            itemName="bài nộp"
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
+          {!isLoading && filteredSubmissions.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              itemsPerPage={ITEMS_PER_PAGE}
+              totalItems={filteredSubmissions.length}
+              filteredItems={filteredSubmissions.length}
+              itemName="bài nộp"
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }

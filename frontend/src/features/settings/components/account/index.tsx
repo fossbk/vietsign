@@ -368,25 +368,25 @@ export const AccountSettings: React.FC = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-100">
-            <div className="bg-blue-50 p-4 rounded-xl text-center">
+            <div className="dark:bg-blue-50 p-4 rounded-xl text-center">
               <Clock size={24} className="text-blue-600 mx-auto mb-2" />
-              <p className="text-xl font-bold text-gray-900">12</p>
-              <p className="text-xs text-gray-500">Tháng tham gia</p>
+              <p className="text-xl font-bold dark:text-gray-900">12</p>
+              <p className="text-xs dark:text-gray-500">Tháng tham gia</p>
             </div>
-            <div className="bg-green-50 p-4 rounded-xl text-center">
+            <div className="dark:bg-green-50 p-4 rounded-xl text-center">
               <Key size={24} className="text-green-600 mx-auto mb-2" />
-              <p className="text-xl font-bold text-gray-900">Mạnh</p>
-              <p className="text-xs text-gray-500">Độ an toàn</p>
+              <p className="text-xl font-bold dark:text-gray-900">Mạnh</p>
+              <p className="text-xs dark:text-gray-500">Độ an toàn</p>
             </div>
-            <div className="bg-purple-50 p-4 rounded-xl text-center">
+            <div className="dark:bg-purple-50 p-4 rounded-xl text-center">
               <Shield size={24} className="text-purple-600 mx-auto mb-2" />
-              <p className="text-xl font-bold text-gray-900">Bật</p>
-              <p className="text-xs text-gray-500">Xác thực 2 lớp</p>
+              <p className="text-xl font-bold dark:text-gray-900">Bật</p>
+              <p className="text-xs dark:text-gray-500">Xác thực 2 lớp</p>
             </div>
-            <div className="bg-indigo-50 p-4 rounded-xl text-center">
+            <div className="dark:bg-indigo-50 p-4 rounded-xl text-center">
               <Smartphone size={24} className="text-indigo-600 mx-auto mb-2" />
-              <p className="text-xl font-bold text-gray-900">2</p>
-              <p className="text-xs text-gray-500">Thiết bị liên kết</p>
+              <p className="text-xl font-bold dark:text-gray-900">2</p>
+              <p className="text-xs dark:text-gray-500">Thiết bị liên kết</p>
             </div>
           </div>
         </div>

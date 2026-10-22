@@ -49,7 +49,7 @@ export const Learn: React.FC = () => {
       </div>
 
       {/* Info Banner */}
-      <div className="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-100 rounded-2xl p-6">
+      <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900 dark:to-blue-900 border border-primary-100 dark:border-primary-800 rounded-2xl p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <BookOpen className="w-6 h-6 text-primary-600" />

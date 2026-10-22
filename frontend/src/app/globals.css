@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
+
 @theme {
   --font-sans:
     var(--font-inter), ui-sans-serif, system-ui, sans-serif,
@@ -40,35 +42,36 @@
 /* Light Theme (default) - using light palette */
 :root {
   color-scheme: light;
-  --bg-primary: #f9fafb; /* dark-50 */
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f3f4f6; /* dark-100 */
-  --bg-card: #ffffff;
+  --bg-primary: #f9fafb; /* dark-50 - main page canvas */
+  --bg-secondary: #ffffff; /* header, surface */
+  --bg-tertiary: #f3f4f6; /* dark-100 - subtle background, inputs, hover */
+  --bg-card: #ffffff; /* card surface */
   --text-primary: #111827; /* dark-900 */
-  --text-secondary: #4b5563; /* dark-600 */
+  --text-secondary: #374151; /* dark-700 */
   --text-tertiary: #6b7280; /* dark-500 */
   --text-muted: #9ca3af; /* dark-400 */
   --border-color: #e5e7eb; /* dark-200 */
   --border-light: #f3f4f6; /* dark-100 */
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.08);
   --scrollbar-track: #f3f4f6;
   --scrollbar-thumb: #d1d5db; /* dark-300 */
   --scrollbar-thumb-hover: #9ca3af;
 }
 
-/* Dark Theme - using dark palette with stone accents */
-[data-theme="dark"] {
+/* Dark Theme - proper surface elevation, contrast and readability */
+[data-theme="dark"],
+.dark {
   color-scheme: dark;
-  --bg-primary: #030712; /* dark-950 */
-  --bg-secondary: #111827; /* dark-900 */
-  --bg-tertiary: #1f2937; /* dark-800 */
-  --bg-card: #1f2937; /* dark-800 */
-  --text-primary: #f9fafb; /* dark-50 */
-  --text-secondary: #e5e7eb; /* dark-200 */
-  --text-tertiary: #d1d5db; /* dark-300 */
-  --text-muted: #9ca3af; /* dark-400 */
-  --border-color: #374151; /* dark-700 */
-  --border-light: #1f2937; /* dark-800 */
+  --bg-primary: #0b0f19; /* Canvas background (deepest layer) */
+  --bg-secondary: #111827; /* Header & secondary surface (dark-900) */
+  --bg-card: #1f2937; /* Elevated card surface (dark-800, lighter than canvas) */
+  --bg-tertiary: #374151; /* Nested inputs, pills, hover states (dark-700) */
+  --text-primary: #f9fafb; /* Primary text / headings (dark-50) */
+  --text-secondary: #e5e7eb; /* Secondary text / labels (dark-200) */
+  --text-tertiary: #d1d5db; /* Tertiary text (dark-300) */
+  --text-muted: #9ca3af; /* Placeholders, muted icons (dark-400) */
+  --border-color: #374151; /* Borders (dark-700) */
+  --border-light: #1f2937; /* Subtle dividers (dark-800) */
   --shadow-color: rgba(0, 0, 0, 0.5);
   --scrollbar-track: #111827;
   --scrollbar-thumb: #374151;
@@ -92,66 +95,185 @@ body {
 }
 
 /* Dark mode overrides for common elements */
-[data-theme="dark"] .bg-white {
-  background-color: var(--bg-secondary) !important;
+[data-theme="dark"] .bg-white,
+.dark .bg-white {
+  background-color: var(--bg-card) !important;
 }
 
-[data-theme="dark"] .bg-gray-50 {
+[data-theme="dark"] .bg-white\/95,
+.dark .bg-white\/95 {
+  background-color: color-mix(in srgb, var(--bg-secondary) 95%, transparent) !important;
+}
+
+[data-theme="dark"] .bg-white\/90,
+.dark .bg-white\/90 {
+  background-color: color-mix(in srgb, var(--bg-secondary) 90%, transparent) !important;
+}
+
+[data-theme="dark"] .bg-white\/80,
+.dark .bg-white\/80 {
+  background-color: color-mix(in srgb, var(--bg-secondary) 80%, transparent) !important;
+}
+
+[data-theme="dark"] .bg-gray-50,
+.dark .bg-gray-50 {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-100,
+.dark .bg-gray-100 {
   background-color: var(--bg-tertiary) !important;
 }
 
-[data-theme="dark"] .bg-gray-100 {
-  background-color: var(--bg-tertiary) !important;
-}
-
-[data-theme="dark"] .text-gray-900 {
+[data-theme="dark"] .text-gray-900,
+.dark .text-gray-900 {
   color: var(--text-primary) !important;
 }
 
-[data-theme="dark"] .text-gray-800 {
+[data-theme="dark"] .text-gray-800,
+.dark .text-gray-800 {
   color: var(--text-primary) !important;
 }
 
-[data-theme="dark"] .text-gray-700 {
+[data-theme="dark"] .text-gray-700,
+.dark .text-gray-700 {
   color: var(--text-secondary) !important;
 }
 
-[data-theme="dark"] .text-gray-600 {
+[data-theme="dark"] .text-gray-600,
+.dark .text-gray-600 {
   color: var(--text-secondary) !important;
 }
 
-[data-theme="dark"] .text-gray-500 {
+[data-theme="dark"] .text-gray-500,
+.dark .text-gray-500 {
   color: var(--text-tertiary) !important;
 }
 
-[data-theme="dark"] .text-gray-400 {
+[data-theme="dark"] .text-gray-400,
+.dark .text-gray-400 {
   color: var(--text-muted) !important;
 }
 
-[data-theme="dark"] .border-gray-100 {
-  border-color: var(--border-light) !important;
-}
-
-[data-theme="dark"] .border-gray-200 {
+[data-theme="dark"] .border-gray-100,
+.dark .border-gray-100 {
   border-color: var(--border-color) !important;
 }
 
-[data-theme="dark"] .border-gray-300 {
+[data-theme="dark"] .border-gray-200,
+.dark .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .border-gray-300,
+.dark .border-gray-300 {
   border-color: var(--border-color) !important;
 }
 
 [data-theme="dark"] .shadow-lg,
 [data-theme="dark"] .shadow-xl,
-[data-theme="dark"] .shadow-2xl {
-  box-shadow: 0 10px 40px var(--shadow-color) !important;
+[data-theme="dark"] .shadow-2xl,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 10px 30px -5px var(--shadow-color) !important;
 }
 
-[data-theme="dark"] .hover\:bg-gray-50:hover {
+[data-theme="dark"] .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-50:hover {
   background-color: var(--bg-tertiary) !important;
 }
 
-[data-theme="dark"] .hover\:bg-gray-100:hover {
+[data-theme="dark"] .hover\:bg-gray-100:hover,
+.dark .hover\:bg-gray-100:hover {
   background-color: var(--bg-tertiary) !important;
+}
+
+/* Alert banner adaptations for dark mode */
+[data-theme="dark"] .bg-red-50,
+.dark .bg-red-50 {
+  background-color: rgba(127, 29, 29, 0.25) !important;
+}
+
+[data-theme="dark"] .border-red-200,
+.dark .border-red-200 {
+  border-color: rgba(220, 38, 38, 0.4) !important;
+}
+
+[data-theme="dark"] .text-red-800,
+.dark .text-red-800 {
+  color: #fecaca !important;
+}
+
+[data-theme="dark"] .text-red-600,
+.dark .text-red-600 {
+  color: #fca5a5 !important;
+}
+
+/* Ant Design dark mode adaptations */
+[data-theme="dark"] .ant-form-item-label > label,
+.dark .ant-form-item-label > label {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-form-item-required::before,
+.dark .ant-form-item-required::before {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .ant-input-affix-wrapper,
+.dark .ant-input-affix-wrapper {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input-affix-wrapper:hover,
+.dark .ant-input-affix-wrapper:hover {
+  border-color: var(--color-primary-500) !important;
+}
+
+[data-theme="dark"] .ant-input-affix-wrapper:focus,
+[data-theme="dark"] .ant-input-affix-wrapper-focused,
+.dark .ant-input-affix-wrapper:focus,
+.dark .ant-input-affix-wrapper-focused {
+  border-color: var(--color-primary-500) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+[data-theme="dark"] .ant-input,
+.dark .ant-input {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input::placeholder,
+[data-theme="dark"] .ant-input-affix-wrapper input::placeholder,
+.dark .ant-input::placeholder,
+.dark .ant-input-affix-wrapper input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .ant-input-password-icon,
+.dark .ant-input-password-icon {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .ant-input-password-icon:hover,
+.dark .ant-input-password-icon:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Primary buttons */
+[data-theme="dark"] .ant-btn-primary,
+.dark .ant-btn-primary {
+  background-color: var(--color-primary-600) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ant-btn-primary:hover,
+.dark .ant-btn-primary:hover {
+  background-color: var(--color-primary-500) !important;
 }
 
 /* Custom Scrollbar */

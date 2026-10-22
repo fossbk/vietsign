@@ -24,6 +24,10 @@ import {
   Check,
   BarChart3,
 } from "lucide-react";
+import {
+  Pagination,
+  usePagination,
+} from "@/shared/components/common/Pagination";
 import * as XLSX from "xlsx";
 import { useParams, useRouter } from "next/navigation";
 import { ClassItem, statusConfig } from "@/data";
@@ -61,6 +65,7 @@ import {
 } from "@/services/topicService";
 import { ConfirmModal } from "@/shared/components/common/ConfirmModal";
 import { Modal } from "@/shared/components/common/Modal";
+
 
 export function ClassManagementDetail() {
   const params = useParams();
@@ -403,7 +408,13 @@ export function ClassManagementDetail() {
       setIsCreatingLesson(false);
     }
   };
-
+  const ITEMS_PER_PAGE = 8;
+  const {
+    currentPage,
+    totalPages,
+    paginatedItems: paginatedLessons,
+    setCurrentPage,
+  } = usePagination(lessons, ITEMS_PER_PAGE);
   // Handle add member
   const handleAddMember = async (studentId: number) => {
     if (!classItem) return;
@@ -1003,7 +1014,7 @@ export function ClassManagementDetail() {
             </div>
           ) : (
             <div className="space-y-3">
-              {lessons.map((lesson) => {
+              {paginatedLessons.map((lesson) => {
                 const topic = topics.find((item) => item.id === lesson.topic_id);
                 return (
                   <div
@@ -1048,6 +1059,18 @@ export function ClassManagementDetail() {
             </div>
           )}
         </div>
+
+        {!isLessonsLoading && lessons.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={lessons.length}
+            filteredItems={lessons.length}
+            itemName="bài học"
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
 
       {/* Class Members Section */}
@@ -1094,7 +1117,7 @@ export function ClassManagementDetail() {
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
                 Giáo viên phụ trách
               </h3>
-              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl border border-primary-100">
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group">
                 <div className="w-12 h-12 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-lg">
                   {teacherName.charAt(0).toUpperCase()}
                 </div>

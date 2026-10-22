@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Spin } from "antd";
 
-export default function TakeExamList() {
+export default function TakeExamList() {  
   const router = useRouter();
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [loading, setLoading] = useState(false);

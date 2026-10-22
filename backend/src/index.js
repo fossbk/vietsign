@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 const uploadRoutes = require("./routes/upload.routes");
+const chatRoutes = require("./features/chat");
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/user", userRoutes);
@@ -33,6 +34,7 @@ app.use("/teaching-management", teachingManagementRoutes);
 app.use("/learn", learnRoutes);
 app.use("/ai-practice", aiPracticeRoutes);
 app.use("/upload", uploadRoutes);
+app.use("/chat", chatRoutes);
 const path = require("path");
 const fs = require("fs");
 
@@ -96,32 +98,100 @@ app.get("/me", authRequired, (req, res) => {
   });
 });
 
+// Health check endpoint
+app.get("/health", async (req, res) => {
+  const db = require("./db");
+  const dbCheck = await db.checkDbConnection();
+
+  let minioStatus = "connected";
+  try {
+    const exists = await minioClient.bucketExists(bucketName);
+    if (!exists) {
+      minioStatus = "bucket_not_found";
+    }
+  } catch (err) {
+    minioStatus = "disconnected";
+  }
+
+  const isHealthy = dbCheck.ok;
+  const statusCode = isHealthy ? 200 : 503;
+
+  return res.status(statusCode).json({
+    status: isHealthy ? "healthy" : "unhealthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    services: {
+      database: dbCheck.ok ? "connected" : "disconnected",
+      minio: minioStatus,
+    },
+    ...(dbCheck.error ? { dbError: dbCheck.error.message } : {}),
+  });
+});
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled API error:", err);
+  if (err.code === "ECONNREFUSED" || err.code === "PROTOCOL_CONNECTION_LOST" || err.code === "ETIMEDOUT") {
+    return res.status(503).json({
+      message: "Dịch vụ cơ sở dữ liệu tạm thời không khả dụng. Vui lòng kiểm tra MySQL container.",
+      error: err.message,
+      code: err.code,
+    });
+  }
+  return res.status(err.status || 500).json({
+    message: err.message || "Internal server error",
+    error: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
 
+  // Auto-heal / verify local Docker services (DB and MinIO)
+  const { ensureServices } = require("./utils/ensureServices");
+  await ensureServices();
+
   // Initialize MinIO
   await initMinio();
-  try {
-    const db = require("./db");
-    console.log(
-      `Connecting to DB: ${process.env.DB_HOST}:${process.env.DB_PORT}, Database: ${process.env.DB_NAME}`,
-    );
 
-    const [tables] = await db.query("SHOW TABLES");
-    const tableList = tables.map((t) => Object.values(t)[0]);
-    console.log("Available tables in database:", tableList);
+  // Initialize Database with retry
+  const db = require("./db");
+  const dbHost = process.env.DB_HOST || "localhost";
+  const dbPort = process.env.DB_PORT || 3308;
+  const dbName = process.env.DB_NAME || "vietsignschool";
 
-    if (tableList.includes("user")) {
-      const [rows] = await db.query("DESCRIBE `user`");
-      console.log("Confirmed: 'user' table exists and is accessible.");
-    } else {
-      console.error(
-        `CRITICAL ERROR: Table 'user' does not exist in the database '${process.env.DB_NAME}'!`,
-      );
+  console.log(`Connecting to DB: ${dbHost}:${dbPort}, Database: ${dbName}`);
+
+  let dbConnected = false;
+  let attempts = 0;
+  const maxAttempts = 5;
+
+  while (!dbConnected && attempts < maxAttempts) {
+    attempts++;
+    try {
+      const [tables] = await db.query("SHOW TABLES");
+      const tableList = tables.map((t) => Object.values(t)[0]);
+      console.log(`[Database] Connected successfully (attempt ${attempts}). Available tables:`, tableList.length);
+
+      if (tableList.includes("user")) {
+        console.log("[Database] Confirmed: 'user' table exists and is accessible.");
+      } else {
+        console.error(`[Database] CRITICAL: Table 'user' does not exist in database '${dbName}'!`);
+      }
+      dbConnected = true;
+    } catch (err) {
+      console.error(`[Database] Connection attempt ${attempts}/${maxAttempts} failed: ${err.message}`);
+      if (attempts < maxAttempts) {
+        console.log("[Database] Retrying in 2 seconds...");
+        await new Promise((r) => setTimeout(r, 2000));
+      }
     }
-  } catch (err) {
-    console.error("DATABASE INITIALIZATION ERROR:", err);
+  }
+
+  if (!dbConnected) {
+    console.error(`\n⚠️  CRITICAL DATABASE ERROR: Unable to establish database connection after ${maxAttempts} attempts.`);
+    console.error(`👉 Ensure MySQL is running on ${dbHost}:${dbPort} ('docker start vietsign_db' or 'npm run dev').\n`);
   }
 });

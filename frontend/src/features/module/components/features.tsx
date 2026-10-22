@@ -36,8 +36,8 @@ export const Features: React.FC = () => {
   return (
     <section className="py-24 bg-white relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-50 rounded-full blur-3xl opacity-50"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-50"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-50 rounded-full blur-3xl opacity-50 dark:hidden"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-50 dark:hidden"></div>
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Section Header */}
@@ -102,7 +102,7 @@ export const Features: React.FC = () => {
         <div className="inline-flex flex-col sm:flex-row items-center gap-4 bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 rounded-2xl shadow-xl">
           <div className="text-white text-left">
             <h3 className="font-bold text-xl mb-1">Bắt đầu học miễn phí</h3>
-            <p className="text-green-100 text-sm">Không cần thẻ tín dụng • Hủy bất cứ lúc nào</p>
+            <p className="text-green-100 text-base ">Học mọi lúc, mọi nơi</p>
           </div>
           <button className="px-8 py-3 bg-white text-primary-700 font-semibold rounded-full hover:bg-green-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
             Đăng ký ngay

@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Tag, Select, Space } from "antd";
 import { useRouter } from "next/navigation";
 import { fetchAllPracticalSubmissions } from "@/services/examService";
 import {
@@ -13,6 +13,12 @@ import {
   FileText,
   Filter,
 } from "lucide-react";
+import {
+  Pagination,
+  usePagination,
+} from "@/shared/components/common/Pagination";
+
+const ITEMS_PER_PAGE = 6;
 
 export default function ScoreList() {
   const router = useRouter();
@@ -70,6 +76,13 @@ export default function ScoreList() {
         d.examType === "MULTIPLE_CHOICE");
     return matchesName && matchesStatus && matchesType;
   });
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedItems,
+    setCurrentPage,
+  } = usePagination(filteredData, ITEMS_PER_PAGE);
 
   const handleViewDetail = (record: any) => {
     if (record.examType === "MULTIPLE_CHOICE") {
@@ -189,13 +202,13 @@ export default function ScoreList() {
                   </td>
                 </tr>
               ) : filteredData.length > 0 ? (
-                filteredData.map((record, index) => (
+                paginatedItems.map((record, index) => (
                   <tr
                     key={`${record.examId}-${record.userId}-${record.attemptId}`}
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {index + 1}
+                      {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                     </td>
                     <td className="px-6 py-4">
                       <button
@@ -264,6 +277,17 @@ export default function ScoreList() {
             </tbody>
           </table>
         </div>
+        {!loading && filteredData.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={dataList.length}
+            filteredItems={filteredData.length}
+            itemName="bài kiểm tra"
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );
