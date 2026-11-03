@@ -1,67 +1,271 @@
-import {
-  supabase,
-  Message,
-  Room,
-  RoomParticipant,
-  MessageStatus,
-} from "@/core/lib/supabaseClient";
+import http from "@/core/services/api/http";
+import { API_BASE_URL, API_BASE_URL_NODE } from "@/core/config/api";
+import { uploadFile, normalizeFileUrl } from "./uploadService";
 
-/**
- * Service quản lý Chat Real-time với Supabase
- * Sử dụng schema: rooms, room_participants, messages, message_statuses
- */
+export type RoomParticipant = {
+  user_id: string;
+  name?: string;
+  email?: string;
+  avatar?: string | null;
+  role?: string;
+  isOnline?: boolean;
+};
+
+export type Room = {
+  id: string;
+  name: string | null;
+  avatar?: string | null;
+  is_group: boolean;
+  created_at: string;
+  pinned_message_id: string | null;
+  lastMessage?: string;
+  lastMessageDate?: string | null;
+  lastMessageSenderId?: string | null;
+  unreadCount?: number;
+  participants?: RoomParticipant[];
+  room_participants?: { user_id: string }[];
+};
+
+export type Message = {
+  id: string;
+  room_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  reply_to: string | null;
+  is_edited: boolean;
+  is_deleted: boolean;
+  type: string; // "text" | "image" | "file" | "video"
+  media_location?: string | null;
+  sender_name?: string;
+  sender_avatar?: string | null;
+  status?: "sending" | "sent" | "delivered" | "read" | "failed";
+  tempId?: string;
+};
+
+export type MessageStatus = {
+  message_id: string;
+  user_id: string;
+  status: string;
+  updated_at: string;
+};
+
+// ==================== SSE CONNECTION MANAGER ====================
+type EventCallback = (data: unknown) => void;
+
+class RealtimeChatClient {
+  private eventSource: EventSource | null = null;
+  private currentToken: string | null = null;
+  private listeners: Map<string, Set<EventCallback>> = new Map();
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private getBaseUrl(): string {
+    return API_BASE_URL_NODE || API_BASE_URL || "http://localhost:8080";
+  }
+
+  public connect() {
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("access_token");
+    if (!token || token === "undefined" || token === "null") {
+      this.disconnect();
+      return;
+    }
+
+    if (this.eventSource && this.currentToken === token) {
+      return; // Already connected with valid token
+    }
+
+    this.disconnect();
+    this.currentToken = token;
+
+    try {
+      const url = `${this.getBaseUrl()}/chat/stream?token=${encodeURIComponent(token)}`;
+      const es = new EventSource(url);
+      this.eventSource = es;
+
+      es.addEventListener("open", () => {
+        this.emit("status", { connected: true });
+      });
+
+      es.addEventListener("connected", (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          this.emit("connected", data);
+        } catch {
+          // Ignore parse error
+        }
+      });
+
+      es.addEventListener("message:new", (e: MessageEvent) => {
+        try {
+          const msg = JSON.parse(e.data) as Message;
+          this.emit("message:new", msg);
+          this.emit(`room:${msg.room_id}:message`, msg);
+        } catch (err) {
+          console.error("Error parsing message:new SSE event:", err);
+        }
+      });
+
+      es.addEventListener("message:update", (e: MessageEvent) => {
+        try {
+          const msg = JSON.parse(e.data) as Message;
+          this.emit("message:update", msg);
+          this.emit(`room:${msg.room_id}:update`, msg);
+        } catch (err) {
+          console.error("Error parsing message:update SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:read", (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          this.emit("room:read", data);
+          this.emit(`room:${data.roomId}:read`, data);
+        } catch (err) {
+          console.error("Error parsing room:read SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:pinned", (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          this.emit("room:pinned", data);
+          this.emit(`room:${data.roomId}:pinned`, data);
+        } catch (err) {
+          console.error("Error parsing room:pinned SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:typing", (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          this.emit("room:typing", data);
+          this.emit(`room:${data.roomId}:typing`, data);
+        } catch (err) {
+          console.error("Error parsing room:typing SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:new", (e: MessageEvent) => {
+        try {
+          const room = JSON.parse(e.data) as Room;
+          this.emit("room:new", room);
+        } catch (err) {
+          console.error("Error parsing room:new SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:updated", (e: MessageEvent) => {
+        try {
+          const room = JSON.parse(e.data) as Room;
+          this.emit("room:updated", room);
+          this.emit(`room:${room.id}:info`, room);
+        } catch (err) {
+          console.error("Error parsing room:updated SSE event:", err);
+        }
+      });
+
+      es.addEventListener("room:member_left", (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          this.emit("room:member_left", data);
+        } catch (err) {
+          console.error("Error parsing room:member_left SSE event:", err);
+        }
+      });
+
+      es.onerror = () => {
+        this.emit("status", { connected: false });
+        // Browser's EventSource will automatically retry connecting.
+      };
+    } catch (err) {
+      console.error("Failed to initialize SSE EventSource:", err);
+    }
+  }
+
+  public disconnect() {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+    this.currentToken = null;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
+  public on(event: string, callback: EventCallback) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+
+    // Ensure connection is active
+    if (!this.eventSource) {
+      this.connect();
+    }
+
+    return () => {
+      this.off(event, callback);
+    };
+  }
+
+  public off(event: string, callback: EventCallback) {
+    const list = this.listeners.get(event);
+    if (list) {
+      list.delete(callback);
+      if (list.size === 0) {
+        this.listeners.delete(event);
+      }
+    }
+  }
+
+  private emit(event: string, data: unknown) {
+    const list = this.listeners.get(event);
+    if (list) {
+      list.forEach((cb) => {
+        try {
+          cb(data);
+        } catch (err) {
+          console.error(`Error in SSE listener for '${event}':`, err);
+        }
+      });
+    }
+  }
+}
+
+const realtimeClient = new RealtimeChatClient();
+
+// ==================== CHAT SERVICE API ====================
 export const chatService = {
   // ==================== ROOMS ====================
 
   /**
    * Lấy danh sách phòng chat của user
    */
-  getRoomsForUser: async (userId: string) => {
-    const { data: participations, error: pError } = await supabase
-      .from("room_participants")
-      .select("room_id")
-      .eq("user_id", userId);
-
-    if (pError) throw pError;
-    if (!participations || participations.length === 0) return [];
-
-    const roomIds = participations.map((p: any) => p.room_id);
-
-    const { data: rooms, error: rError } = await supabase
-      .from("rooms")
-      .select("*, room_participants(user_id)")
-      .in("id", roomIds)
-      .order("created_at", { ascending: false });
-
-    if (rError) throw rError;
-    return rooms as Room[];
+  getRoomsForUser: async (): Promise<Room[]> => {
+    realtimeClient.connect();
+    const res = await http.get("/chat/rooms");
+    return res.data as Room[];
   },
 
   /**
    * Lấy thông tin chi tiết một phòng
    */
-  getRoomById: async (roomId: string) => {
-    const { data, error } = await supabase
-      .from("rooms")
-      .select("*")
-      .eq("id", roomId)
-      .single();
-
-    if (error) throw error;
-    return data as Room;
+  getRoomById: async (roomId: string): Promise<Room> => {
+    const res = await http.get(`/chat/rooms/${roomId}`);
+    return res.data as Room;
   },
 
   /**
    * Lấy danh sách thành viên trong phòng
    */
-  getRoomParticipants: async (roomId: string) => {
-    const { data, error } = await supabase
-      .from("room_participants")
-      .select("*")
-      .eq("room_id", roomId);
-
-    if (error) throw error;
-    return data as RoomParticipant[];
+  getRoomParticipants: async (roomId: string): Promise<RoomParticipant[]> => {
+    const res = await http.get(`/chat/rooms/${roomId}`);
+    const room = res.data as Room;
+    return room.participants || [];
   },
 
   /**
@@ -70,28 +274,19 @@ export const chatService = {
   createRoom: async (
     name: string | null,
     isGroup: boolean,
-    participantIds: string[],
-  ) => {
-    const { data: room, error: rError } = await supabase
-      .from("rooms")
-      .insert([{ name, is_group: isGroup }])
-      .select()
-      .single();
-
-    if (rError) throw rError;
-
-    const participants = participantIds.map((userId) => ({
-      room_id: room.id,
-      user_id: userId,
-    }));
-
-    const { error: pError } = await supabase
-      .from("room_participants")
-      .insert(participants);
-
-    if (pError) throw pError;
-
-    return room as Room;
+    participantIds: string[]
+  ): Promise<Room> => {
+    if (isGroup) {
+      const res = await http.post("/chat/rooms/group", {
+        name: name || "Nhóm mới",
+        memberIds: participantIds,
+      });
+      return res.data as Room;
+    } else {
+      const partnerId = participantIds[0];
+      const res = await http.post("/chat/rooms/direct", { partnerId });
+      return res.data as Room;
+    }
   },
 
   /**
@@ -99,109 +294,57 @@ export const chatService = {
    */
   createGroupRoom: async (
     name: string,
-    creatorId: string,
-    memberIds: string[],
-  ) => {
-    const allMembers = [
-      creatorId,
-      ...memberIds.filter((id) => id !== creatorId),
-    ];
-    return await chatService.createRoom(name, true, allMembers);
+    _creatorId: string,
+    memberIds: string[]
+  ): Promise<Room> => {
+    const res = await http.post("/chat/rooms/group", {
+      name: name.trim(),
+      memberIds,
+    });
+    return res.data as Room;
   },
 
   /**
    * Tìm hoặc tạo phòng chat 1-1 giữa 2 user
    */
-  getOrCreateDirectRoom: async (userId1: string, userId2: string) => {
-    const { data: rooms1 } = await supabase
-      .from("room_participants")
-      .select("room_id")
-      .eq("user_id", userId1);
-
-    const { data: rooms2 } = await supabase
-      .from("room_participants")
-      .select("room_id")
-      .eq("user_id", userId2);
-
-    if (rooms1 && rooms2) {
-      const roomIds1 = rooms1.map((r: any) => r.room_id);
-      const roomIds2 = rooms2.map((r: any) => r.room_id);
-      const commonRoomIds = roomIds1.filter((id: any) => roomIds2.includes(id));
-
-      for (const roomId of commonRoomIds) {
-        const { data: room } = await supabase
-          .from("rooms")
-          .select("*")
-          .eq("id", roomId)
-          .eq("is_group", false)
-          .single();
-
-        if (room) return room as Room;
-      }
-    }
-
-    return await chatService.createRoom(null, false, [userId1, userId2]);
-  },
-
-  /**
-   * Cập nhật tên phòng (chỉ cho nhóm)
-   */
-  updateRoomName: async (roomId: string, newName: string) => {
-    const { error } = await supabase
-      .from("rooms")
-      .update({ name: newName })
-      .eq("id", roomId);
-
-    if (error) throw error;
+  getOrCreateDirectRoom: async (
+    _userId1: string,
+    userId2: string
+  ): Promise<Room> => {
+    const res = await http.post("/chat/rooms/direct", {
+      partnerId: userId2,
+    });
+    return res.data as Room;
   },
 
   /**
    * Thêm thành viên vào nhóm
    */
   addParticipant: async (roomId: string, userId: string) => {
-    const { error } = await supabase
-      .from("room_participants")
-      .insert([{ room_id: roomId, user_id: userId }]);
-
-    if (error) throw error;
-  },
-
-  /**
-   * Xóa thành viên khỏi nhóm
-   */
-  removeParticipant: async (roomId: string, userId: string) => {
-    const { error } = await supabase
-      .from("room_participants")
-      .delete()
-      .eq("room_id", roomId)
-      .eq("user_id", userId);
-
-    if (error) throw error;
+    const res = await http.post(`/chat/rooms/${roomId}/members`, {
+      memberId: userId,
+    });
+    return res.data;
   },
 
   /**
    * Rời khỏi nhóm
    */
-  leaveRoom: async (roomId: string, userId: string) => {
-    await chatService.removeParticipant(roomId, userId);
+  leaveRoom: async (roomId: string) => {
+    const res = await http.post(`/chat/rooms/${roomId}/leave`);
+    return res.data;
   },
 
   // ==================== MESSAGES ====================
 
   /**
-   * Lấy tin nhắn của một phòng
+   * Lấy tin nhắn của một phòng (mặc định lấy 50 tin nhắn mới nhất)
    */
-  getMessages: async (roomId: string, limit: number = 50) => {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("room_id", roomId)
-      .eq("is_deleted", false)
-      .order("created_at", { ascending: true })
-      .limit(limit);
-
-    if (error) throw error;
-    return data as Message[];
+  getMessages: async (roomId: string, limit: number = 50): Promise<Message[]> => {
+    const res = await http.get(`/chat/rooms/${roomId}/messages`, {
+      params: { limit },
+    });
+    return res.data as Message[];
   },
 
   /**
@@ -209,50 +352,37 @@ export const chatService = {
    */
   getOlderMessages: async (
     roomId: string,
-    beforeDate: string,
-    limit: number = 20,
-  ) => {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("room_id", roomId)
-      .eq("is_deleted", false)
-      .lt("created_at", beforeDate)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    beforeDateOrId: string,
+    limit: number = 20
+  ): Promise<Message[]> => {
+    const isId = /^\d+$/.test(beforeDateOrId);
+    const params: Record<string, string | number> = { limit };
+    if (isId) {
+      params.beforeId = beforeDateOrId;
+    } else {
+      params.beforeDate = beforeDateOrId;
+    }
 
-    if (error) throw error;
-    return (data as Message[]).reverse();
+    const res = await http.get(`/chat/rooms/${roomId}/messages`, { params });
+    return res.data as Message[];
   },
 
   /**
-   * Gửi tin nhắn mới
+   * Gửi tin nhắn văn bản mới
    */
   sendMessage: async (
     roomId: string,
-    userId: string,
+    _userId: string,
     content: string,
     type: string = "text",
-    replyTo: string | null = null,
-  ) => {
-    const { data, error } = await supabase
-      .from("messages")
-      .insert([
-        {
-          room_id: roomId,
-          user_id: userId,
-          content,
-          type,
-          reply_to: replyTo,
-          is_edited: false,
-          is_deleted: false,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as Message;
+    replyTo: string | null = null
+  ): Promise<Message> => {
+    const res = await http.post(`/chat/rooms/${roomId}/messages`, {
+      content,
+      type,
+      replyTo,
+    });
+    return res.data as Message;
   },
 
   /**
@@ -262,26 +392,13 @@ export const chatService = {
     roomId: string,
     userId: string,
     file: File,
-    caption?: string,
-  ) => {
-    // Upload ảnh lên Supabase Storage
-    const fileName = `${Date.now()}_${file.name}`;
-    const filePath = `chat/${roomId}/${fileName}`;
+    caption?: string
+  ): Promise<Message> => {
+    // 1. Upload ảnh qua MinIO /upload route
+    const relativePath = await uploadFile(file, "chat");
+    const imageUrl = normalizeFileUrl(relativePath);
 
-    const { error: uploadError } = await supabase.storage
-      .from("chat-images")
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    // Lấy public URL
-    const { data: urlData } = supabase.storage
-      .from("chat-images")
-      .getPublicUrl(filePath);
-
-    const imageUrl = urlData.publicUrl;
-
-    // Gửi tin nhắn với URL ảnh
+    // 2. Định dạng nội dung ảnh theo cấu trúc hiển thị
     const content = JSON.stringify({
       imageUrl,
       caption: caption || "",
@@ -293,22 +410,16 @@ export const chatService = {
   /**
    * Gửi file đính kèm
    */
-  sendFileMessage: async (roomId: string, userId: string, file: File) => {
-    const fileName = `${Date.now()}_${file.name}`;
-    const filePath = `chat/${roomId}/files/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("chat-files")
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supabase.storage
-      .from("chat-files")
-      .getPublicUrl(filePath);
+  sendFileMessage: async (
+    roomId: string,
+    userId: string,
+    file: File
+  ): Promise<Message> => {
+    const relativePath = await uploadFile(file, "chat");
+    const fileUrl = normalizeFileUrl(relativePath);
 
     const content = JSON.stringify({
-      fileUrl: urlData.publicUrl,
+      fileUrl,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
@@ -318,172 +429,137 @@ export const chatService = {
   },
 
   /**
-   * Chỉnh sửa tin nhắn
+   * Xóa/thu hồi tin nhắn
    */
-  editMessage: async (messageId: string, newContent: string) => {
-    const { data, error } = await supabase
-      .from("messages")
-      .update({ content: newContent, is_edited: true })
-      .eq("id", messageId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as Message;
-  },
-
-  /**
-   * Xóa tin nhắn (soft delete)
-   */
-  deleteMessage: async (messageId: string) => {
-    const { error } = await supabase
-      .from("messages")
-      .update({ is_deleted: true })
-      .eq("id", messageId);
-
-    if (error) throw error;
+  deleteMessage: async (messageId: string): Promise<void> => {
+    await http.delete(`/chat/messages/${messageId}`);
   },
 
   /**
    * Ghim tin nhắn trong phòng
    */
-  pinMessage: async (roomId: string, messageId: string) => {
-    const { error } = await supabase
-      .from("rooms")
-      .update({ pinned_message_id: messageId })
-      .eq("id", roomId);
-
-    if (error) throw error;
+  pinMessage: async (roomId: string, messageId: string): Promise<void> => {
+    await http.put(`/chat/rooms/${roomId}/pin`, { messageId });
   },
 
   /**
    * Bỏ ghim tin nhắn
    */
-  unpinMessage: async (roomId: string) => {
-    const { error } = await supabase
-      .from("rooms")
-      .update({ pinned_message_id: null })
-      .eq("id", roomId);
-
-    if (error) throw error;
+  unpinMessage: async (roomId: string): Promise<void> => {
+    await http.delete(`/chat/rooms/${roomId}/pin`);
   },
 
-  // ==================== REALTIME ====================
+  /**
+   * Đánh dấu toàn bộ tin nhắn trong phòng là đã đọc
+   */
+  markAllAsRead: async (roomId: string): Promise<void> => {
+    await http.post(`/chat/rooms/${roomId}/read`);
+  },
 
   /**
-   * Đăng ký nhận tin nhắn mới realtime
+   * Gửi trạng thái typing
+   */
+  sendTyping: async (roomId: string, isTyping: boolean): Promise<void> => {
+    await http.post(`/chat/rooms/${roomId}/typing`, { isTyping });
+  },
+
+  // ==================== REALTIME SUBSCRIPTIONS ====================
+
+  /**
+   * Đăng ký nhận tin nhắn mới realtime cho một phòng
    */
   subscribeToMessages: (
     roomId: string,
-    callback: (message: Message) => void,
+    callback: (message: Message) => void
   ) => {
-    return supabase
-      .channel(`room:${roomId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload: any) => callback(payload.new as Message),
-      )
-      .subscribe();
+    const unsubscribe = realtimeClient.on(
+      `room:${roomId}:message`,
+      callback as EventCallback
+    );
+    return { unsubscribe };
   },
 
   /**
-   * Đăng ký nhận cập nhật tin nhắn (edit/delete)
+   * Đăng ký nhận tin nhắn mới trên mọi phòng (để cập nhật preview)
+   */
+  subscribeToAllMessages: (callback: (message: Message) => void) => {
+    const unsubscribe = realtimeClient.on(
+      "message:new",
+      callback as EventCallback
+    );
+    return { unsubscribe };
+  },
+
+  /**
+   * Đăng ký nhận cập nhật tin nhắn (thu hồi, chỉnh sửa)
    */
   subscribeToMessageUpdates: (
     roomId: string,
-    callback: (message: Message) => void,
+    callback: (message: Message) => void
   ) => {
-    return supabase
-      .channel(`room-updates:${roomId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload: any) => callback(payload.new as Message),
-      )
-      .subscribe();
-  },
-
-  /**
-   * Hủy đăng ký realtime
-   */
-  unsubscribe: async (channel: any) => {
-    await supabase.removeChannel(channel);
-  },
-
-  // ==================== MESSAGE STATUS ====================
-
-  /**
-   * Cập nhật trạng thái tin nhắn (đã đọc)
-   */
-  updateMessageStatus: async (
-    messageId: string,
-    userId: string,
-    status: string,
-  ) => {
-    const { error } = await supabase.from("message_statuses").upsert(
-      {
-        message_id: messageId,
-        user_id: userId,
-        status,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "message_id,user_id" },
+    const unsubscribe = realtimeClient.on(
+      `room:${roomId}:update`,
+      callback as EventCallback
     );
-
-    if (error) throw error;
+    return { unsubscribe };
   },
 
   /**
-   * Đánh dấu tất cả tin nhắn trong phòng là đã đọc
+   * Đăng ký nhận trạng thái typing
    */
-  markAllAsRead: async (roomId: string, userId: string) => {
-    const { data: messages } = await supabase
-      .from("messages")
-      .select("id")
-      .eq("room_id", roomId)
-      .neq("user_id", userId);
-
-    if (!messages || messages.length === 0) return;
-
-    const statuses = messages.map((msg: any) => ({
-      message_id: msg.id,
-      user_id: userId,
-      status: "read",
-      updated_at: new Date().toISOString(),
-    }));
-
-    await supabase
-      .from("message_statuses")
-      .upsert(statuses, { onConflict: "message_id,user_id" });
+  subscribeToTyping: (
+    roomId: string,
+    callback: (data: { roomId: string; userId: string; isTyping: boolean }) => void
+  ) => {
+    const unsubscribe = realtimeClient.on(
+      `room:${roomId}:typing`,
+      callback as EventCallback
+    );
+    return { unsubscribe };
   },
 
-  // ==================== SEARCH ====================
+  /**
+   * Đăng ký nhận sự kiện đọc tin nhắn
+   */
+  subscribeToReadReceipts: (
+    roomId: string,
+    callback: (data: { roomId: string; userId: string; lastReadMessageId: string }) => void
+  ) => {
+    const unsubscribe = realtimeClient.on(
+      `room:${roomId}:read`,
+      callback as EventCallback
+    );
+    return { unsubscribe };
+  },
 
   /**
-   * Tìm kiếm tin nhắn trong phòng
+   * Đăng ký nhận sự kiện ghim tin nhắn
    */
-  searchMessages: async (roomId: string, query: string) => {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("room_id", roomId)
-      .eq("is_deleted", false)
-      .ilike("content", `%${query}%`)
-      .order("created_at", { ascending: false })
-      .limit(50);
+  subscribeToPinnedMessage: (
+    roomId: string,
+    callback: (data: { roomId: string; pinnedMessageId: string | null }) => void
+  ) => {
+    const unsubscribe = realtimeClient.on(
+      `room:${roomId}:pinned`,
+      callback as EventCallback
+    );
+    return { unsubscribe };
+  },
 
-    if (error) throw error;
-    return data as Message[];
+  /**
+   * Đăng ký nhận sự kiện tạo phòng mới
+   */
+  subscribeToNewRooms: (callback: (room: Room) => void) => {
+    const unsubscribe = realtimeClient.on("room:new", callback as EventCallback);
+    return { unsubscribe };
+  },
+
+  /**
+   * Hủy đăng ký listener
+   */
+  unsubscribe: (channelOrSub: { unsubscribe?: () => void } | null | undefined) => {
+    if (channelOrSub && typeof channelOrSub.unsubscribe === "function") {
+      channelOrSub.unsubscribe();
+    }
   },
 };

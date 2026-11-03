@@ -152,16 +152,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenTool }) => {
       </div>
 
       {/* Right Side: Light Background */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-primary-50 flex flex-col justify-center px-8 lg:px-16 py-20 md:py-0 relative">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-50 to-primary-50 dark:from-gray-900 dark:to-gray-800 flex flex-col justify-center px-8 lg:px-16 py-20 md:py-0 relative">
         <div className="max-w-lg mx-auto w-full">
           <div className="text-center mb-10">
-            <span className="inline-block px-4 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
+            <span className="inline-block px-4 py-1 dark:bg-primary-100 dark:text-primary-700 rounded-full text-sm font-medium mb-4">
               Công cụ học tập
             </span>
-            <h2 className="text-3xl font-bold text-gray-800 mb-3">
+            <h2 className="text-3xl font-bold dark:text-gray-400 mb-3">
               Khám phá các tính năng
             </h2>
-            <p className="text-gray-600">
+            <p className="dark:text-gray-400">
               Chọn công cụ phù hợp để bắt đầu hành trình học tập
             </p>
           </div>

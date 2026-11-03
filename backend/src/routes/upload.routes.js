@@ -66,7 +66,7 @@ router.post("/", uploadSingleFile, async (req, res) => {
       "avatar",
       "Data_FSL",
       "topic",
-      "curriculum-practice",
+      "chat",
       "others",
     ];
     if (!validFolders.includes(folder)) {

@@ -35,19 +35,19 @@ async function revokeToken(token, payload) {
     ? new Date(payload.exp * 1000)
     : new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  await db.execute(
+  await db.query(
     `INSERT INTO auth_revoked_token (token_hash, user_id, expires_at)
      VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE revoked_at = CURRENT_TIMESTAMP`,
     [hashToken(token), payload?.user_id || null, expiresAt],
   );
 
-  await db.execute("DELETE FROM auth_revoked_token WHERE expires_at <= NOW()");
+  await db.query("DELETE FROM auth_revoked_token WHERE expires_at <= NOW()");
 }
 
 async function isTokenRevoked(token) {
   await ensureRevokedTokenSchema();
-  const [rows] = await db.execute(
+  const [rows] = await db.query(
     `SELECT 1
      FROM auth_revoked_token
      WHERE token_hash = ? AND expires_at > NOW()
@@ -59,8 +59,8 @@ async function isTokenRevoked(token) {
 
 async function isUserActive(userId) {
   if (!userId) return false;
-  const [rows] = await db.execute(
-    "SELECT 1 FROM `user` WHERE user_id = ? AND is_deleted = 0 LIMIT 1",
+  const [rows] = await db.query(
+    "SELECT 1 FROM `user` WHERE user_id = ? AND is_deleted = 0 AND (status IS NULL OR status = 'active') LIMIT 1",
     [userId],
   );
   return rows.length > 0;

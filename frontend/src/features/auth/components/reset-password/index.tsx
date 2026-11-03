@@ -90,16 +90,16 @@ export const ResetPassword: React.FC = () => {
   // Hiển thị kết quả thành công
   if (isSuccess) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 animate-in fade-in slide-in-from-bottom-2">
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+        <div className="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/50 w-full max-w-md border border-gray-100 dark:border-gray-700/80 animate-in fade-in slide-in-from-bottom-2 my-auto transition-colors">
           <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Thành công!
             </h2>
-            <p className="text-gray-500 mb-8">
+            <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
               Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập với mật
               khẩu mới.
             </p>
@@ -108,7 +108,7 @@ export const ResetPassword: React.FC = () => {
           <Link href="/login">
             <Button
               type="primary"
-              className="w-full bg-primary-600 hover:bg-primary-700 h-10 font-semibold"
+              className="w-full bg-primary-600 hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-500 h-11 font-semibold text-base shadow-sm text-white"
             >
               Đăng nhập ngay
             </Button>
@@ -121,16 +121,16 @@ export const ResetPassword: React.FC = () => {
   // Kiểm tra token không hợp lệ
   if (status === "error") {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 animate-in fade-in slide-in-from-bottom-2">
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+        <div className="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/50 w-full max-w-md border border-gray-100 dark:border-gray-700/80 animate-in fade-in slide-in-from-bottom-2 my-auto transition-colors">
           <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-red-600" />
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Link không hợp lệ
             </h2>
-            <p className="text-gray-500 mb-8">
+            <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
               Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.
             </p>
           </div>
@@ -138,17 +138,17 @@ export const ResetPassword: React.FC = () => {
           <Link href="/forgot-password">
             <Button
               type="primary"
-              className="w-full bg-primary-600 hover:bg-primary-700 h-10 font-semibold"
+              className="w-full bg-primary-600 hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-500 h-11 font-semibold text-base shadow-sm text-white"
             >
               Yêu cầu đặt lại mật khẩu
             </Button>
           </Link>
 
-          <p className="mt-6 text-center text-gray-600">
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
             Nhớ mật khẩu rồi?{" "}
             <Link
               href="/login"
-              className="text-primary-600 font-semibold hover:underline"
+              className="text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 hover:underline transition-colors"
             >
               Đăng nhập
             </Link>
@@ -159,22 +159,22 @@ export const ResetPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20 flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 animate-in fade-in slide-in-from-bottom-2">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+      <div className="bg-white dark:bg-gray-800 p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/50 w-full max-w-md border border-gray-100 dark:border-gray-700/80 animate-in fade-in slide-in-from-bottom-2 my-auto transition-colors">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
           Đặt lại mật khẩu
         </h2>
-        <p className="text-center text-gray-500 mb-8">
+        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-8">
           Nhập mật khẩu mới cho tài khoản của bạn
         </p>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-800">Có lỗi xảy ra</p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
+              <p className="text-sm font-semibold text-red-800 dark:text-red-200">Có lỗi xảy ra</p>
+              <p className="text-sm text-red-600 dark:text-red-300 mt-1">{error}</p>
             </div>
           </div>
         )}
@@ -197,7 +197,7 @@ export const ResetPassword: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<Lock className="text-gray-400" size={16} />}
+              prefix={<Lock className="text-gray-400 dark:text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -222,7 +222,7 @@ export const ResetPassword: React.FC = () => {
             <Input.Password
               placeholder="••••••••"
               className="py-2"
-              prefix={<Lock className="text-gray-400" size={16} />}
+              prefix={<Lock className="text-gray-400 dark:text-gray-400" size={16} />}
             />
           </Form.Item>
 
@@ -230,18 +230,18 @@ export const ResetPassword: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full bg-primary-600 hover:bg-primary-700 h-10 font-semibold"
+              className="w-full bg-primary-600 hover:bg-primary-500 dark:bg-primary-600 dark:hover:bg-primary-500 h-11 font-semibold text-base shadow-sm text-white"
             >
               Đặt lại mật khẩu
             </Button>
           </Form.Item>
         </Form>
 
-        <p className="mt-6 text-center text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           Nhớ mật khẩu rồi?{" "}
           <Link
             href="/login"
-            className="text-primary-600 font-semibold hover:underline"
+            className="text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-700 dark:hover:text-primary-300 hover:underline transition-colors"
           >
             Đăng nhập
           </Link>
