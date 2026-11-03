@@ -15,3 +15,4 @@ export * from './Organization';
 export * from './Message';
 export * from './Question';
 export * from './Step';
+export * from './Curriculum';

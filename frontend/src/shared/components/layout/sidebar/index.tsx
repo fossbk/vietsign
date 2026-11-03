@@ -360,6 +360,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ],
     },
     {
+      icon: <GraduationCap size={22} />,
+      label: "Chương trình ký hiệu",
+      path: "/curriculum",
+      allowedRoles: [
+        "ADMIN",
+        "SUPER_ADMIN",
+        "FACILITY_MANAGER",
+        "CENTER_ADMIN",
+        "SCHOOL_ADMIN",
+        "TEACHER",
+        "STUDENT",
+        "USER",
+        "TEST",
+      ],
+    },
+    {
       icon: <Calendar size={22} />,
       label: "Ký hiệu mỗi ngày",
       path: "/daily-signs",

@@ -7,6 +7,8 @@ const organizationRoutes = require("./routes/organization.routes");
 const organizationManagerRoutes = require("./routes/organizationManager.routes");
 const teachingManagementRoutes = require("./features/teaching-management");
 const learnRoutes = require("./features/learn");
+const curriculumRoutes = require("./features/curriculum");
+const { startCurriculumAiWorker } = require("./features/curriculum/services/curriculumAiQueue.service");
 const aiPracticeRoutes = require("./features/ai-practice/routes/aiPractice.routes");
 const { authRequired } = require("./middleware/auth.middleware");
 const { specs, swaggerUi } = require("./swagger/index");
@@ -32,6 +34,7 @@ app.use("/organizations", organizationRoutes);
 app.use("/organization-managers", organizationManagerRoutes);
 app.use("/teaching-management", teachingManagementRoutes);
 app.use("/learn", learnRoutes);
+app.use("/curriculum", curriculumRoutes);
 app.use("/ai-practice", aiPracticeRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/chat", chatRoutes);
@@ -194,4 +197,6 @@ app.listen(PORT, async () => {
     console.error(`\n⚠️  CRITICAL DATABASE ERROR: Unable to establish database connection after ${maxAttempts} attempts.`);
     console.error(`👉 Ensure MySQL is running on ${dbHost}:${dbPort} ('docker start vietsign_db' or 'npm run dev').\n`);
   }
+
+  startCurriculumAiWorker();
 });

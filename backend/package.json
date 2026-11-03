@@ -1,6 +1,6 @@
 {
   "name": "vietsignschool",
-  "version": "1.1.67",
+  "version": "1.1.70",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "predev": "node src/utils/ensureServices.js",
     "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/**/*.test.js",
+    "seed:curriculum": "node src/scripts/seedCurriculum.js"
   },
   "keywords": [],
   "author": "",
