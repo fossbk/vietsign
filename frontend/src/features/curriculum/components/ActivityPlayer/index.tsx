@@ -30,6 +30,7 @@ export function ActivityPlayer() {
 
   useEffect(() => {
     if (!activityCode) return;
+    let active = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
@@ -39,14 +40,17 @@ export function ActivityPlayer() {
       lessonCode ? CurriculumModel.getLessonByCode(lessonCode) : Promise.resolve(null),
     ])
       .then(([actData, lessonData]) => {
+        if (!active) return;
         setActivity(actData);
         if (lessonData) setLesson(lessonData);
       })
       .catch((err) => {
+        if (!active) return;
         const msg = err?.response?.data?.message || err?.message || "Không tải được hoạt động.";
         setError(msg);
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [activityCode, lessonCode]);
 
   // Find previous and next activities in the same lesson
@@ -90,21 +94,21 @@ export function ActivityPlayer() {
   const renderGame = () => {
     switch (activity.game_type) {
       case "FlipCardViewer":
-        return <FlipCardViewer activityCode={activityCode} onComplete={handleComplete} />;
+        return <FlipCardViewer key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "LineMatchingGame":
-        return <LineMatchingGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <LineMatchingGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "ChoiceQuizGame":
-        return <ChoiceQuizGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <ChoiceQuizGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "JigsawPuzzleGame":
-        return <JigsawPuzzleGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <JigsawPuzzleGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "BucketDropGame":
-        return <BucketDropGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <BucketDropGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "MemoryCardGame":
-        return <MemoryCardGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <MemoryCardGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "SequenceOrderGame":
-        return <SequenceOrderGame activityCode={activityCode} onComplete={handleComplete} />;
+        return <SequenceOrderGame key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       case "VideoPracticeRecorder":
-        return <VideoPracticeRecorder activityCode={activityCode} onComplete={handleComplete} />;
+        return <VideoPracticeRecorder key={activityCode} activityCode={activityCode} activity={activity} onComplete={handleComplete} />;
       default:
         return (
           <div className="p-8 text-center text-gray-500 bg-white rounded-3xl border">
@@ -118,16 +122,16 @@ export function ActivityPlayer() {
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
       {/* Breadcrumbs & Navigation bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-start gap-3 sm:items-center">
           <button
             onClick={() => router.push("/curriculum")}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200"
+            className="shrink-0 p-2 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200"
             aria-label="Quay lại danh sách"
           >
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
 
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
             <Link href="/curriculum" className="text-gray-500 hover:text-primary-600 font-medium">
               Chương trình
             </Link>

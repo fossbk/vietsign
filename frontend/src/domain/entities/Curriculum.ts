@@ -34,6 +34,9 @@ export interface CurriculumActivity {
   best_score?: number | null;
   best_stars?: number | null;
   is_completed?: boolean | number;
+  readiness?: 'ready' | 'drafting';
+  can_preview?: boolean;
+  preview_version_id?: number | null;
 }
 
 export interface CurriculumLesson {
@@ -48,6 +51,8 @@ export interface CurriculumLesson {
   total_activities?: number;
   completed_activities?: number;
   activities?: CurriculumActivity[];
+  readiness?: 'ready' | 'drafting';
+  published_activities?: number;
 }
 
 export interface SubmitProgressPayload {
@@ -77,6 +82,19 @@ class CurriculumModelClass extends Base {
   constructor() {
     super("curriculum");
   }
+  getCatalog = async (): Promise<Array<{code:string;totalLessons:number;availableLessons:number}>> =>
+    unwrapResponse(await this.apiGet('/catalog'));
+  startAttempt = async (activityId:number, requestId:string):Promise<CurriculumAttempt> =>
+    unwrapResponse(await this.apiPost(`/activities/${activityId}/attempts`,{requestId}));
+  getAttempt = async (id:string):Promise<CurriculumAttempt> => unwrapResponse(await this.apiGet(`/attempts/${id}`));
+  answerAttempt = async (id:string, payload:AttemptEvent):Promise<AttemptFeedback> =>
+    unwrapResponse(await this.apiPost(`/attempts/${id}/answers`,payload));
+  submitAttempt = async (id:string,idempotencyKey:string):Promise<AttemptResult> =>
+    unwrapResponse(await this.apiPost(`/attempts/${id}/submit`,{idempotencyKey}));
+  uploadAttemptVideo = async(id:string,taskId:string,file:File,uploadRequestId?:string):Promise<{uploadId:string}> => {
+    const form=new FormData();form.append('file',file);if(uploadRequestId)form.append('uploadRequestId',uploadRequestId);
+    return unwrapResponse(await this.apiUploadFile(`/attempts/${id}/tasks/${encodeURIComponent(taskId)}/uploads`,form));
+  };
 
   /** GET /curriculum/lessons — danh sách bài học theo level/topic */
   getLessons = async (params?: { level?: string; topic?: string }): Promise<CurriculumLesson[]> => {
@@ -128,3 +146,10 @@ class CurriculumModelClass extends Base {
 
 const CurriculumModel = new CurriculumModelClass();
 export default CurriculumModel;
+
+export interface TaskPresentation {type:'text'|'image'|'video';content:string;label?:string}
+export interface AttemptTask {id:string;kind:'view'|'choice'|'pair'|'sequence'|'recording';prompt:TaskPresentation;label?:string;options?:Array<{id:string;presentation:TaskPresentation}>;fixedOptions?:Record<number,string>}
+export interface AttemptEvent {eventId:string;taskId:string;choiceIds?:string[];action?:'view';uploadId?:string}
+export interface AttemptFeedback {correct:boolean|null;correctOptionIds?:string[];reviewStatus?:string}
+export interface AttemptResult {score:number;stars:number;isCompleted:number;isPreview:boolean;reviewStatus:string;progressId:number;answered:number;required:number}
+export interface CurriculumAttempt {attemptId:string;activityId:number;versionId:number;isPreview:boolean;status:'open'|'finalized';config:{runtime_version:number;game_type:string;tasks:AttemptTask[];policy:{max_retries:number|null}};answers:Array<AttemptFeedback & {eventId:string;taskId:string}>;result:AttemptResult|null}

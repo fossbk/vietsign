@@ -39,12 +39,22 @@ app.use("/upload", uploadRoutes);
 const path = require("path");
 const fs = require("fs");
 
-const streamUploadedObject = async (res, objectKey) => {
+const streamUploadedObject = async (req, res, objectKey) => {
+  try { await require('./features/curriculum/services/curriculumVideo.service').guardLegacy(req,res,objectKey); }
+  catch(e) { return res.status(e.status || 403).json({message:e.message}); }
+  if(res.headersSent) return;
   const localPath = path.join(__dirname, "../uploads", objectKey);
 
   // Try local first (existing files)
   if (fs.existsSync(localPath)) {
-    return res.sendFile(localPath);
+    const root = fs.realpathSync(path.join(__dirname, '../uploads'));
+    const resolved = fs.realpathSync(localPath);
+    const relative = path.relative(root, resolved);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) return res.sendStatus(403);
+    try { await require('./features/curriculum/services/curriculumVideo.service').guardLegacy(req,res,relative.split(path.sep).join('/')); }
+    catch(e) { return res.status(e.status || 403).json({message:e.message}); }
+    if(res.headersSent) return;
+    return res.sendFile(resolved);
   }
 
   // Then try MinIO
@@ -69,7 +79,7 @@ const streamUploadedObject = async (res, objectKey) => {
 // Supports nested keys like /uploads/question/123-file.png.
 app.get(/^\/uploads\/(.+)/, async (req, res) => {
   const objectKey = req.params[0];
-  return streamUploadedObject(res, objectKey);
+  return streamUploadedObject(req, res, objectKey);
 });
 
 // Backward compatibility for legacy URLs saved as /upload/<bucket>/<objectKey>.
@@ -81,14 +91,14 @@ app.get(/^\/upload\/([^/]+)\/(.+)/, async (req, res) => {
     return res.status(404).send("Bucket not found");
   }
 
-  return streamUploadedObject(res, objectKey);
+  return streamUploadedObject(req, res, objectKey);
 });
 
 // Backward compatibility for URLs like /<bucket>/<objectKey>
 // (when MINIO_PUBLIC_URL was configured as backend domain).
 app.get(new RegExp(`^/${bucketName}/(.+)`), async (req, res) => {
   const objectKey = req.params[0];
-  return streamUploadedObject(res, objectKey);
+  return streamUploadedObject(req, res, objectKey);
 });
 
 //router login
@@ -101,9 +111,7 @@ app.get("/me", authRequired, (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`);
-
+async function startServer() {
   // Initialize MinIO
   await initMinio();
   try {
@@ -128,5 +136,10 @@ app.listen(PORT, async () => {
     console.error("DATABASE INITIALIZATION ERROR:", err);
   }
 
-  startCurriculumAiWorker();
+  if (process.env.CURRICULUM_AI_WORKER_ENABLED === 'true') startCurriculumAiWorker();
+  app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+}
+startServer().catch(error => {
+  console.error('Server startup failed:', error);
+  process.exit(1);
 });

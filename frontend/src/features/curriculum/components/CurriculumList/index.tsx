@@ -42,26 +42,40 @@ const GAME_TYPE_LABELS: Record<string, { label: string; icon: string; color: str
 };
 
 export function CurriculumList() {
-  const [selectedLevel, setSelectedLevel] = useState("L1");
-  const [selectedTopic, setSelectedTopic] = useState("ALL");
+  const [selectedLevel,setSelectedLevel]=useState('L1');
+  const [selectedTopic,setSelectedTopic]=useState('ALL');
+  const [expandedLessonCode,setExpandedLessonCode]=useState<string|null>(null);
   const [lessons, setLessons] = useState<CurriculumLesson[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [reload, setReload] = useState(0);
+  const [detailErrors, setDetailErrors] = useState<Record<string,string>>({});
+  const [catalog, setCatalog] = useState<Array<{code:string;availableLessons:number}>>([]);
+  useEffect(()=>{CurriculumModel.getCatalog().then(setCatalog).catch(()=>{});},[]);
 
   // Map of expanded lesson codes to show activity lists
-  const [expandedLessonCode, setExpandedLessonCode] = useState<string | null>(null);
+  const [loadedFilter,setLoadedFilter]=useState('');
+  const filterKey=selectedLevel+':'+selectedTopic;
+  const mounted=React.useRef(true);
+  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   const [lessonDetails, setLessonDetails] = useState<Record<string, CurriculumLesson>>({});
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
 
   const fetchLessonDetail = useCallback((code: string) => {
+    setDetailErrors(prev=>({...prev,[code]:''}));
     setLoadingDetails((prev) => ({ ...prev, [code]: true }));
     CurriculumModel.getLessonByCode(code)
       .then((detail) => {
+        if(!mounted.current)return;
         setLessonDetails((prev) => ({ ...prev, [code]: detail }));
       })
       .catch((err) => {
+        if(!mounted.current)return;
+        setDetailErrors(prev=>({...prev,[code]:err?.response?.data?.message || 'Không tải được hoạt động. Hãy thử lại.'}));
         console.error("Failed to load lesson detail", err);
       })
       .finally(() => {
+        if(!mounted.current)return;
         setLoadingDetails((prev) => ({ ...prev, [code]: false }));
       });
   }, []);
@@ -73,30 +87,35 @@ export function CurriculumList() {
     }
     setExpandedLessonCode(code);
     if (!lessonDetails[code]) fetchLessonDetail(code);
-  }, [expandedLessonCode, fetchLessonDetail, lessonDetails]);
+  }, [expandedLessonCode, fetchLessonDetail, lessonDetails, setExpandedLessonCode]);
 
   // Fetch lessons
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
+    setError('');
+    let active=true;
     const params: { level?: string; topic?: string } = { level: selectedLevel };
     if (selectedTopic !== "ALL") params.topic = selectedTopic;
 
     CurriculumModel.getLessons(params)
       .then((list) => {
+        if(!active)return;
         setLessons(list);
-        // Auto-expand first lesson if available
-        if (list && list.length > 0) {
-          setExpandedLessonCode(list[0].lesson_code);
-          fetchLessonDetail(list[0].lesson_code);
-        }
+        setLoadedFilter(filterKey);
       })
       .catch((err) => {
+        if(!active)return;
+        setError(err?.response?.data?.message || 'Không tải được danh sách bài học.');
         console.error("Failed to load curriculum lessons", err);
         setLessons([]);
+        setLoadedFilter(filterKey);
       })
-      .finally(() => setLoading(false));
-  }, [fetchLessonDetail, selectedLevel, selectedTopic]);
+      .finally(() => {if(active)setLoading(false);});
+    return ()=>{active=false;};
+  }, [selectedLevel, selectedTopic, reload, filterKey]);
+
+  useEffect(()=>{let active=true;queueMicrotask(()=>{if(active&&!loading&&loadedFilter===filterKey&&expandedLessonCode&&!lessonDetails[expandedLessonCode]&&!loadingDetails[expandedLessonCode]&&!detailErrors[expandedLessonCode])fetchLessonDetail(expandedLessonCode);});return()=>{active=false;};},[loading,loadedFilter,filterKey,expandedLessonCode,lessonDetails,loadingDetails,detailErrors,fetchLessonDetail]);
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8">
@@ -134,7 +153,7 @@ export function CurriculumList() {
             >
               <Layers size={18} />
               {lvl.label}
-              {!lvl.active && (
+              {!catalog.find(c=>c.code===lvl.code)?.availableLessons && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 ml-1">
                   Sắp mở
                 </span>
@@ -165,11 +184,13 @@ export function CurriculumList() {
       </div>
 
       {/* Lessons List */}
-      {loading ? (
+      {loading||loadedFilter!==filterKey ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="animate-spin text-primary-600" size={48} />
           <p className="text-gray-500 font-medium">Đang tải danh sách bài học...</p>
         </div>
+      ) : error ? (
+        <div role="alert" className="rounded-2xl border border-red-200 bg-white p-8 text-center"><p>{error}</p><button className="mt-3 rounded-xl border p-3" onClick={()=>setReload(n=>n+1)}>Thử lại</button></div>
       ) : lessons.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-3xl border border-gray-100 shadow-sm space-y-3">
           <BookOpen size={48} className="mx-auto text-gray-300" />
@@ -187,10 +208,13 @@ export function CurriculumList() {
             return (
               <div
                 key={lesson.lesson_code}
+                data-lesson-code={lesson.lesson_code}
                 className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
               >
                 {/* Lesson Header Accordion Trigger */}
                 <div
+                  role="button" tabIndex={0} aria-expanded={isExpanded} aria-label={lesson.title}
+                  onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleToggleLesson(lesson.lesson_code);}}}
                   onClick={() => handleToggleLesson(lesson.lesson_code)}
                   className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer select-none hover:bg-gray-50/50 transition-colors"
                 >
@@ -200,7 +224,7 @@ export function CurriculumList() {
                         {lesson.lesson_code}
                       </span>
                       <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        {lesson.content_status === "ready" ? "Sẵn sàng học" : "Đang biên soạn"}
+                        {lesson.readiness === "ready" ? "Sẵn sàng học" : "Đang biên soạn"}
                       </span>
                     </div>
                     <h3 className="text-xl md:text-2xl font-black text-gray-900">
@@ -215,7 +239,7 @@ export function CurriculumList() {
                     <div className="text-right">
                       <span className="text-xs text-gray-400 font-bold uppercase">Hoạt động</span>
                       <div className="text-base font-black text-gray-800">
-                        {lesson.total_activities || activities.length || "Đa dạng"} trò chơi
+                        {lesson.published_activities ?? 0}/{lesson.total_activities ?? 0} sẵn sàng
                       </div>
                     </div>
 
@@ -233,6 +257,8 @@ export function CurriculumList() {
                         <Loader2 className="animate-spin" size={20} />
                         Đang tải các hoạt động...
                       </div>
+                    ) : detailErrors[lesson.lesson_code] ? (
+                      <div role="alert" className="py-4 text-center"><p>{detailErrors[lesson.lesson_code]}</p><button className="underline" onClick={()=>fetchLessonDetail(lesson.lesson_code)}>Thử lại</button></div>
                     ) : activities.length === 0 ? (
                       <p className="text-sm text-gray-400 py-4 text-center">
                         Bài học chưa có hoạt động nào.
@@ -249,7 +275,9 @@ export function CurriculumList() {
                           return (
                             <Link
                               key={act.activity_code}
-                              href={`/curriculum/${lesson.lesson_code}/${act.activity_code}`}
+                              href={(act.readiness==='ready'||act.can_preview?`/curriculum/${lesson.lesson_code}/${act.activity_code}`:'#')}
+                              aria-disabled={act.readiness!=='ready'&&!act.can_preview}
+                              onClick={event=>{if(act.readiness!=='ready'&&!act.can_preview)event.preventDefault();}}
                               className="group p-5 rounded-2xl bg-white border border-gray-200/70 hover:border-primary-500 hover:shadow-lg transition-all flex flex-col justify-between gap-4"
                             >
                               <div className="space-y-2">
@@ -272,10 +300,10 @@ export function CurriculumList() {
 
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <span className="text-xs font-semibold text-gray-500">
-                                  Điểm đạt: {Math.round(act.pass_score)}đ
+                                  {act.is_completed?'Đã đạt':act.readiness==='ready'?'Sẵn sàng':'Đang biên soạn'}
                                 </span>
                                 <span className="inline-flex items-center gap-1 text-sm font-bold text-primary-600 group-hover:translate-x-1 transition-transform">
-                                  Vào học <Play size={14} className="fill-current" />
+                                  {act.readiness==='ready'?'Vào học':act.can_preview?'Xem thử':'Chưa mở'} <Play size={14} className="fill-current" />
                                 </span>
                               </div>
                             </Link>

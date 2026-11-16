@@ -87,15 +87,7 @@ router.post("/", uploadSingleFile, async (req, res) => {
     }
 
     if (folder === "curriculum-practice") {
-      const practiceMaxSize = Number(
-        process.env.PRACTICE_MAX_VIDEO_FILE_SIZE_BYTES || 10 * 1024 * 1024,
-      );
-      if (!(req.file.mimetype || "").startsWith("video/")) {
-        return res.status(415).json({ message: "Curriculum practice upload must be a video" });
-      }
-      if (req.file.size > practiceMaxSize) {
-        return res.status(413).json({ message: "Curriculum practice video is too large" });
-      }
+      return res.status(410).json({ message: 'Hãy tải video qua phiên làm bài curriculum để gắn quyền sở hữu và mục tiêu quay' });
     }
 
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

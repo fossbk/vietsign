@@ -10,6 +10,7 @@ const minioClient = new Minio.Client({
 });
 
 const bucketName = process.env.MINIO_BUCKET_NAME || "vietsign";
+const practiceBucketName = process.env.MINIO_PRACTICE_BUCKET_NAME || `${bucketName}-practice-private`;
 
 // Ensure bucket exists
 const initMinio = async () => {
@@ -36,13 +37,26 @@ const initMinio = async () => {
     } else {
       console.log(`Bucket "${bucketName}" already exists.`);
     }
+    if (!(await minioClient.bucketExists(practiceBucketName))) await minioClient.makeBucket(practiceBucketName, 'us-east-1');
+    await minioClient.setBucketPolicy(practiceBucketName, '');
+    // Preserve public sample policy; deny anonymous reads of historical student clips.
+    const current = await minioClient.getBucketPolicy(bucketName).catch(e => {
+      if (e.code === 'NoSuchBucketPolicy') return '{"Version":"2012-10-17","Statement":[]}';
+      throw e;
+    });
+    const policy = JSON.parse(current);
+    policy.Statement = (policy.Statement || []).filter(s => s.Sid !== 'CurriculumPracticePrivate');
+    policy.Statement.push({Sid:'CurriculumPracticePrivate',Effect:'Deny',Principal:{AWS:['*']},Action:['s3:GetObject'],Resource:[`arn:aws:s3:::${bucketName}/curriculum-practice/*`]});
+    await minioClient.setBucketPolicy(bucketName, JSON.stringify(policy));
   } catch (error) {
     console.error("Error initializing MinIO:", error);
+    throw error;
   }
 };
 
 module.exports = {
   minioClient,
   bucketName,
+  practiceBucketName,
   initMinio,
 };

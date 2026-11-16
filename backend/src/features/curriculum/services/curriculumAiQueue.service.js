@@ -168,9 +168,7 @@ const calculateAiScore = (attempt) => {
   if (attempt?.is_match === true) return 100;
   if (attempt?.is_match === false) return 0;
 
-  const confidence = Number(attempt?.confidence);
-  if (!Number.isFinite(confidence)) return 0;
-  return Math.min(100, Math.max(0, Math.round(confidence * 100)));
+  return null;
 };
 
 const calculateStars = (score) => {
@@ -242,6 +240,11 @@ const markJobRetry = async (job, error) => {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+    const [locks] = await connection.execute('SELECT status, attempts FROM curriculum_ai_job WHERE job_id=? FOR UPDATE', [job.job_id]);
+    if (!locks.length || locks[0].status !== 'processing' || Number(locks[0].attempts) !== Number(job.attempts)) {
+      await connection.commit();
+      return;
+    }
     await connection.execute(
       `UPDATE curriculum_ai_job
           SET status = ?, locked_at = NULL,
@@ -267,12 +270,16 @@ const markJobRetry = async (job, error) => {
 
 const markJobCompleted = async (job, attempt) => {
   const score = calculateAiScore(attempt);
-  const stars = calculateStars(score);
-  const isCompleted = score >= Number(job.pass_score || 80) ? 1 : 0;
+  // D06 has no approved AI label mapping/threshold. AI is advisory only.
   const resultJson = JSON.stringify(attempt.raw_response || {});
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+    const [locks] = await connection.execute('SELECT status, attempts FROM curriculum_ai_job WHERE job_id=? FOR UPDATE', [job.job_id]);
+    if (!locks.length || locks[0].status !== 'processing' || Number(locks[0].attempts) !== Number(job.attempts)) {
+      await connection.commit();
+      return;
+    }
     await connection.execute(
       `UPDATE curriculum_ai_job
           SET status = 'completed', locked_at = NULL, ai_attempt_id = ?,
@@ -283,18 +290,9 @@ const markJobCompleted = async (job, attempt) => {
     await connection.execute(
       `UPDATE curriculum_game_progress
           SET ai_status = 'completed', ai_attempt_id = ?, ai_score = ?,
-              ai_confidence = ?, ai_error_message = NULL, is_completed = ?
+              ai_confidence = ?, ai_error_message = NULL
         WHERE progress_id = ?`,
-      [attempt.attempt_id, score, attempt.confidence, isCompleted, job.progress_id],
-    );
-    await connection.execute(
-      `UPDATE curriculum_user_activity_summary
-          SET best_score = GREATEST(best_score, ?),
-              best_stars = GREATEST(best_stars, ?),
-              is_completed = GREATEST(is_completed, ?),
-              last_played_at = NOW(), updated_at = NOW()
-        WHERE user_id = ? AND activity_id = ?`,
-      [score, stars, isCompleted, job.user_id, job.activity_id],
+      [attempt.attempt_id, score, attempt.confidence ?? null, job.progress_id],
     );
     await connection.commit();
   } catch (error) {

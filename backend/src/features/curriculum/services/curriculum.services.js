@@ -1,279 +1,98 @@
-const db = require("../../../db");
-const { ensureQueueSchema, parseStoredVideoUrl } = require("./curriculumAiQueue.service");
-
-function jsonVal(v) {
-  return v == null ? null : JSON.stringify(v);
+const db = require('../../../db');
+const c = require('./curriculumContent.service');
+const access = require('./curriculumAccess.service');
+const attempts = require('./curriculumAttempt.service');
+const verifiedSummary = `LEFT JOIN (SELECT activity_id,user_id,version_id,MAX(score) best_score,MAX(stars) best_stars,MAX(is_completed) is_completed,COUNT(*) total_attempts,MAX(played_at) last_played_at FROM curriculum_game_progress WHERE result_source='server' GROUP BY activity_id,user_id,version_id) s ON s.activity_id=a.activity_id AND s.version_id=v.version_id AND s.user_id=?`;
+async function activityStates(userId, lessonId) {
+    const [rows] = await db.execute(`SELECT a.activity_id,a.lesson_id,a.activity_code,a.activity_level,a.game_type,a.title,a.instruction,a.display_order,
+ l.content_status,v.version_id,v.config,v.content_hash,d.version_id draft_version_id,s.best_score,s.best_stars,s.is_completed,s.total_attempts,s.last_played_at
+ FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id
+ LEFT JOIN curriculum_activity_version v ON v.activity_id=a.activity_id AND v.publication_status='published' AND v.version_number=(SELECT MAX(v2.version_number) FROM curriculum_activity_version v2 WHERE v2.activity_id=a.activity_id AND v2.publication_status='published')
+ LEFT JOIN curriculum_activity_version d ON d.activity_id=a.activity_id AND d.publication_status='draft' AND d.version_number=(SELECT MAX(d2.version_number) FROM curriculum_activity_version d2 WHERE d2.activity_id=a.activity_id AND d2.publication_status='draft')
+ ${verifiedSummary} WHERE a.is_active=1 AND l.is_active=1  ${lessonId ? 'AND a.lesson_id=?' : ''} ORDER BY a.display_order`, lessonId ? [userId, lessonId] : [userId]);
+    const preview = await access.canPreview(userId);
+    return Promise.all(rows.map(async (row) => {
+        const { config, content_hash, content_status, ...a } = row;
+        let ready = false;
+        if (config && content_status === 'ready') {
+            try {
+                const parsed = c.parse(config);
+                if (c.hash(parsed) === content_hash && parsed.game_type === a.game_type) {
+                    await attempts.assertAssets(db, parsed);
+                    ready = true;
+                }
+            }
+            catch (e) {
+                if (e.status !== 422)
+                    throw e;
+            }
+        }
+        return { ...a, draft_version_id:preview?a.draft_version_id:null, readiness: ready ? 'ready' : 'drafting', can_preview: preview };
+    }));
 }
-
-// ---------------------------------------------------------------------------
-// 1. CURRICULUM READ
-// ---------------------------------------------------------------------------
-
-async function getLessons({ level, topic }) {
-  let sql = `SELECT lesson_id, lesson_code, level_code, topic_code, title,
-                    description, content_status, display_order, is_active
-             FROM curriculum_lesson WHERE is_active = 1`;
-  const params = [];
-  if (level) { sql += " AND level_code = ?"; params.push(level); }
-  if (topic) { sql += " AND topic_code = ?"; params.push(topic); }
-  sql += " ORDER BY display_order ASC";
-  const [rows] = await db.execute(sql, params);
-  return rows;
-}
-
-async function getLessonByCode(lessonCode) {
-  const [lessons] = await db.execute(
-    `SELECT * FROM curriculum_lesson WHERE lesson_code = ? AND is_active = 1`,
-    [lessonCode],
-  );
-  if (!lessons.length) return null;
-  const lesson = lessons[0];
-
-  const [activities] = await db.execute(
-    `SELECT activity_id, activity_code, activity_level, game_type,
-            title, instruction, display_order, game_config, pass_score
-     FROM curriculum_activity
-     WHERE lesson_id = ? AND is_active = 1
-     ORDER BY display_order ASC`,
-    [lesson.lesson_id],
-  );
-  return { ...lesson, activities };
-}
-
-async function getActivityByCode(activityCode) {
-  const [acts] = await db.execute(
-    `SELECT a.*, l.lesson_code, l.title AS lesson_title
-     FROM curriculum_activity a
-     JOIN curriculum_lesson l ON l.lesson_id = a.lesson_id
-     WHERE a.activity_code = ? AND a.is_active = 1`,
-    [activityCode],
-  );
-  if (!acts.length) return null;
-  const activity = acts[0];
-
-  const [media] = await db.execute(
-    `SELECT media_id, media_code, media_type, source_url, display_order
-     FROM curriculum_media
-     WHERE activity_id = ?
-     ORDER BY display_order ASC`,
-    [activity.activity_id],
-  );
-  return { ...activity, media };
-}
-
-// ---------------------------------------------------------------------------
-// 2. GAME PROGRESS - SUBMIT (TRANSACTION)
-// ---------------------------------------------------------------------------
-
-async function submitGameProgress(userId, activityId, payload) {
-  payload = payload || {};
-  // Validate activity exists
-  const [acts] = await db.execute(
-    "SELECT activity_id, game_type FROM curriculum_activity WHERE activity_id = ?",
-    [activityId],
-  );
-  if (!acts.length) {
-    const err = new Error("Hoạt động không tồn tại");
-    err.status = 404;
-    throw err;
-  }
-  // Validate user exists
-  const [users] = await db.execute(
-    "SELECT user_id FROM user WHERE user_id = ? AND is_deleted = 0",
-    [userId],
-  );
-  if (!users.length) {
-    const err = new Error("Người dùng không tồn tại");
-    err.status = 404;
-    throw err;
-  }
-
-  const gameType = acts[0].game_type;
-  const isVideoPractice = gameType === "VideoPracticeRecorder";
-  const submissionVideoUrl = payload.submissionVideoUrl
-    ? String(payload.submissionVideoUrl).trim()
-    : null;
-  if (isVideoPractice && !submissionVideoUrl) {
-    const err = new Error("Video thực hành là bắt buộc");
-    err.status = 400;
-    throw err;
-  }
-
-  if (isVideoPractice) {
-    parseStoredVideoUrl(submissionVideoUrl);
-  }
-
-  if (isVideoPractice) {
-    await ensureQueueSchema();
-  }
-
-  const score = isVideoPractice
-    ? 0
-    : Math.min(100, Math.max(0, Number(payload.score) || 0));
-  const stars = isVideoPractice
-    ? 0
-    : Math.min(3, Math.max(0, Number(payload.stars) || 0));
-  const duration = payload.durationSeconds == null
-    ? null
-    : Math.max(0, Number(payload.durationSeconds) || 0);
-  const isCompleted = isVideoPractice ? 0 : (payload.isCompleted ? 1 : 0);
-  const targetText = payload.targetText
-    ? String(payload.targetText).trim().slice(0, 255)
-    : null;
-
-  const conn = await db.getConnection();
-  try {
-    await conn.beginTransaction();
-
-    // Step a: INSERT history row
-    // Columns: activity_id, user_id, game_type, score, stars, duration_seconds,
-    //          is_completed, submission_video_url, teacher_feedback, game_result_details, played_at
-    // Params:  activityId,  userId,  gameType,  score, stars, duration,
-    //          isCompleted,  submissionVideoUrl,  (NULL literal),  gameResultDetails, (NOW() literal)
-    const [insertResult] = await conn.execute(
-      `INSERT INTO curriculum_game_progress
-        (activity_id, user_id, game_type, score, stars, duration_seconds,
-         is_completed, submission_video_url, teacher_feedback, game_result_details, played_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, NOW())`,
-      [
-        activityId, userId, gameType, score, stars, duration,
-        isCompleted, submissionVideoUrl,
-        jsonVal(payload.gameResultDetails),
-      ],
-    );
-    const progressId = insertResult.insertId;
-
-    let aiJobId = null;
-    if (isVideoPractice) {
-      await conn.execute(
-        `UPDATE curriculum_game_progress
-            SET ai_status = 'queued'
-          WHERE progress_id = ?`,
-        [progressId],
-      );
-      const [jobResult] = await conn.execute(
-        `INSERT INTO curriculum_ai_job
-          (progress_id, activity_id, user_id, video_url, target_text, status, attempts)
-         VALUES (?, ?, ?, ?, ?, 'queued', 0)`,
-        [progressId, activityId, userId, submissionVideoUrl, targetText],
-      );
-      aiJobId = jobResult.insertId;
+async function getLessons({ level, topic, userId }) {
+    const params = [userId];
+    let filter = '';
+    if (level) {
+        filter += ' AND l.level_code=?';
+        params.push(level);
+    }
+    if (topic) {
+        filter += ' AND l.topic_code=?';
+        params.push(topic);
     }
 
-    // Step b: UPSERT summary
-    await conn.execute(
-      `INSERT INTO curriculum_user_activity_summary
-        (user_id, activity_id, best_score, best_stars, total_attempts,
-         last_progress_id, is_completed, last_played_at)
-       VALUES (?, ?, ?, ?, 1, ?, ?, NOW())
-       ON DUPLICATE KEY UPDATE
-         best_score       = GREATEST(best_score, VALUES(best_score)),
-         best_stars       = GREATEST(best_stars, VALUES(best_stars)),
-         total_attempts   = total_attempts + 1,
-         last_progress_id = VALUES(last_progress_id),
-         is_completed     = GREATEST(is_completed, VALUES(is_completed)),
-         last_played_at   = NOW()`,
-      [userId, activityId, score, stars, progressId, isCompleted],
-    );
-
-    await conn.commit();
-    return {
-      progressId,
-      score,
-      stars,
-      isCompleted,
-      gameType,
-      aiStatus: isVideoPractice ? "queued" : "not_requested",
-      aiJobId,
-    };
-  } catch (err) {
-    await conn.rollback();
-    throw err;
-  } finally {
-    conn.release();
-  }
+    const [rows] = await db.execute(`SELECT l.*,COUNT(a.activity_id) total_activities,
+ SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL,1,0)) published_activities,
+ SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL AND s.is_completed=1,1,0)) completed_activities
+ FROM curriculum_lesson l LEFT JOIN curriculum_activity a ON a.lesson_id=l.lesson_id AND a.is_active=1
+ LEFT JOIN (SELECT activity_id,MAX(version_id) version_id FROM curriculum_activity_version WHERE publication_status='published' GROUP BY activity_id) v ON v.activity_id=a.activity_id
+ ${verifiedSummary} WHERE l.is_active=1 ${filter} GROUP BY l.lesson_id ORDER BY l.display_order`, params);
+    const states = await activityStates(userId);
+    return rows.map(l => {
+        const activities = states.filter(a => a.lesson_id === l.lesson_id);
+        const ready = activities.filter(a => a.readiness === 'ready');
+        return { ...l, total_activities: activities.length, published_activities: ready.length, completed_activities: ready.filter(a => a.is_completed).length, readiness: activities.length > 0 && ready.length === activities.length ? 'ready' : 'drafting' };
+    });
 }
-
-// ---------------------------------------------------------------------------
-// 3. PROGRESS READ
-// ---------------------------------------------------------------------------
-
-async function getUserProgressByLesson(userId, lessonCode) {
-  const [rows] = await db.execute(
-    `SELECT a.activity_id, a.activity_code, a.game_type, a.title,
-            s.best_score, s.best_stars, s.total_attempts,
-            s.is_completed, s.last_played_at
-     FROM curriculum_activity a
-     JOIN curriculum_lesson l ON l.lesson_id = a.lesson_id
-     LEFT JOIN curriculum_user_activity_summary s
-       ON s.activity_id = a.activity_id AND s.user_id = ?
-     WHERE l.lesson_code = ? AND a.is_active = 1
-     ORDER BY a.display_order ASC`,
-    [userId, lessonCode],
-  );
-  return rows;
+async function getCatalog(userId) {
+    const lessons = await getLessons({ userId });
+    return ['L1', 'L2', 'L3', 'L4', 'L5'].map(code => ({ code, totalLessons: lessons.filter(l => l.level_code === code).length, availableLessons: lessons.filter(l => l.level_code === code && l.readiness === 'ready').length }));
 }
-
+async function getLessonByCode(code, userId) {
+    const lesson = (await getLessons({ userId })).find(l => l.lesson_code === code);
+    if (!lesson)
+        return null;
+    const activities = await activityStates(userId, lesson.lesson_id);
+    return { ...lesson, activities };
+}
+async function getActivityByCode(code, userId) {
+    const [rows] = await db.execute(`SELECT a.*,l.lesson_code,l.title lesson_title,l.content_status,l.is_active lesson_active FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id WHERE a.activity_code=? AND a.is_active=1 AND l.is_active=1`, [code]);
+    if (!rows.length)
+        return null;
+    const a = rows[0];
+    const state = (await activityStates(userId, a.lesson_id)).find(state => state.activity_id === a.activity_id);
+    const ready = state?.readiness === 'ready';
+    if (!ready && !(await access.canPreview(userId)))
+        c.fail('Hoạt động đang biên soạn, chưa sẵn sàng học', 403);
+    const { game_config, ...metadata } = a;
+    return { ...metadata, game_config: null, media: [], readiness: ready ? 'ready' : 'drafting', preview_version_id:!ready?state?.draft_version_id:null };
+}
+async function submitGameProgress() { c.fail('Cần cập nhật ứng dụng và nộp qua phiên làm bài (attempt)', 410); }
+async function getUserProgressByLesson(userId, lessonCode) { const detail = await getLessonByCode(lessonCode, userId); return detail?.activities || []; }
 async function getActivityHistory(userId, activityId) {
-  const [rows] = await db.execute(
-    `SELECT progress_id, game_type, score, stars, duration_seconds,
-            is_completed, submission_video_url, teacher_feedback,
-            game_result_details, ai_status, ai_attempt_id, ai_score,
-            ai_confidence, ai_error_message, played_at
-     FROM curriculum_game_progress
-     WHERE user_id = ? AND activity_id = ?
-     ORDER BY played_at DESC`,
-    [userId, activityId],
-  );
-  return rows;
+    const [rows] = await db.execute('SELECT * FROM curriculum_game_progress WHERE user_id=? AND activity_id=? ORDER BY played_at DESC', [userId, activityId]);
+    return rows.map(({ submission_video_url, ...r }) => ({ ...r, effective_score: r.result_source === 'server' && r.review_status === 'assessed' ? r.score : null, effective_completed: r.result_source === 'server' ? r.is_completed : 0, video_endpoint: submission_video_url || r.game_type === 'VideoPracticeRecorder' ? `/curriculum/submissions/${r.progress_id}/video-ticket` : null }));
 }
-
-async function getProgressAiStatus(progressId) {
-  const [rows] = await db.execute(
-    `SELECT progress_id, user_id, activity_id, ai_status, ai_attempt_id,
-            ai_score, ai_confidence, ai_error_message, is_completed
-       FROM curriculum_game_progress
-      WHERE progress_id = ?`,
-    [progressId],
-  );
-  return rows[0] || null;
+async function getProgressAiStatus(id) { const [rows] = await db.execute('SELECT progress_id,user_id,activity_id,ai_status,ai_attempt_id,ai_score,ai_confidence,ai_error_message,is_completed,result_source,review_status FROM curriculum_game_progress WHERE progress_id=?', [id]); const r = rows[0]; return r ? { ...r, is_completed: r.result_source === 'server' ? r.is_completed : 0 } : null; }
+async function updateFeedback(id, feedback, callerId) {
+    if (typeof feedback !== 'string' || feedback.length > 10000)
+        c.fail('Nhận xét không hợp lệ', 400);
+    const row = await getProgressAiStatus(id);
+    if (!row)
+        c.fail('Lần nộp không tồn tại', 404);
+    await access.assertStudentAccess(callerId, row.user_id, { feedback: true });
+    await db.execute('UPDATE curriculum_game_progress SET teacher_feedback=? WHERE progress_id=?', [feedback, id]);
+    return { progressId: id, teacherFeedback: feedback };
 }
-
-// ---------------------------------------------------------------------------
-// 4. TEACHER FEEDBACK
-// ---------------------------------------------------------------------------
-
-async function updateFeedback(progressId, teacherFeedback) {
-  const [rows] = await db.execute(
-    "SELECT progress_id FROM curriculum_game_progress WHERE progress_id = ?",
-    [progressId],
-  );
-  if (!rows.length) {
-    const err = new Error("Lần nộp bài không tồn tại");
-    err.status = 404;
-    throw err;
-  }
-  await db.execute(
-    "UPDATE curriculum_game_progress SET teacher_feedback = ? WHERE progress_id = ?",
-    [teacherFeedback, progressId],
-  );
-  return { progressId, teacherFeedback };
-}
-
-async function getUserRole(userId) {
-  if (!userId) return null;
-  const [rows] = await db.execute("SELECT code FROM user WHERE user_id = ?", [userId]);
-  return rows.length ? rows[0].code : null;
-}
-
-module.exports = {
-  getLessons,
-  getLessonByCode,
-  getActivityByCode,
-  submitGameProgress,
-  getUserProgressByLesson,
-  getActivityHistory,
-  getProgressAiStatus,
-  updateFeedback,
-  getUserRole,
-};
+module.exports = { activityStates, getLessons, getCatalog, getLessonByCode, getActivityByCode, submitGameProgress, getUserProgressByLesson, getActivityHistory, getProgressAiStatus, updateFeedback, getUserRole: access.role, attempts };
