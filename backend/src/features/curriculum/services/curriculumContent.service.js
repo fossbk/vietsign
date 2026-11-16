@@ -34,10 +34,11 @@ function adaptLegacy(activity, media) {
             tasks = items.map(i => ({ id: i.id, kind: activity.game_type === 'FlipCardViewer' ? 'view' : activity.game_type === 'VideoPracticeRecorder' ? 'recording' : 'pair',
                 prompt: i.prompt, label: i.label, ...(!['FlipCardViewer', 'VideoPracticeRecorder'].includes(activity.game_type) ? { options: items.map(option), correct: [i.id] } : {}) }));
     }
-    return { runtime_version: 1, game_type: activity.game_type, tasks,
-        policy: { completion: 'all_correct', pass_score: null, star_thresholds: null, max_retries: null, ai_enabled: false }, legacy: true };
+    return require('./curriculumRounds.service').fromLegacy({ runtime_version: 1, game_type: activity.game_type, tasks,
+        policy: { completion: 'all_correct', pass_score: null, star_thresholds: null, max_retries: null, ai_enabled: false }, legacy: true });
 }
 function validate(config, published = false) {
+    if(config?.runtime_version===2)return require('./curriculumRounds.service').validate(config,published);
     if (config?.runtime_version !== 1 || !games.includes(config.game_type) || !Array.isArray(config.tasks) || !config.tasks.length)
         fail('Cấu hình chưa có nội dung chơi hợp lệ');
     const ids = new Set();
@@ -82,6 +83,7 @@ function validate(config, published = false) {
     return config;
 }
 function snapshot(config) {
+    if(config?.runtime_version===2)return require('./curriculumRounds.service').snapshot(config);
     // Opaque option IDs cannot reveal pair/sequence keys through legacy numeric IDs.
     const ids = new Map();
     const opaque = id => { if (!ids.has(id))
@@ -89,11 +91,13 @@ function snapshot(config) {
     return { ...config, tasks: config.tasks.map(t => ({ ...t, ...(t.options ? { options: shuffle(t.options.map(o => ({ ...o, id: opaque(o.id) }))), correct: t.correct.map(opaque) } : {}) })) };
 }
 function publicConfig(config, answers = []) {
+    if(config?.runtime_version===2)return require('./curriculumRounds.service').publicConfig(config,answers);
     return { runtime_version: config.runtime_version, game_type: config.game_type, policy: { max_retries: config.policy.max_retries },
         tasks: config.tasks.map(t => ({ id: t.id, kind: t.kind, prompt: t.prompt, ...(['view','recording'].includes(t.kind) ? {label:t.label} : {}), options: t.options?.map(o => ({ id: o.id, presentation: o.presentation })),
             fixedOptions: t.kind === 'sequence' ? Object.fromEntries((t.fixedSlots || []).map(i => [i, t.correct[i]])) : undefined })) };
 }
 function grade(config, task, input, previous = []) {
+    if(config?.runtime_version===2)return require('./curriculumRounds.service').grade(config,task,input,previous);
     const retries = previous.filter(a => a.task_id === task.id);
     if (retries.length && (config.game_type === 'ChoiceQuizGame' || task.kind === 'view' || task.kind === 'recording' || retries.some(a => a.is_correct === 1)))
         fail('Mục này đã được trả lời', 409);
@@ -118,6 +122,7 @@ function grade(config, task, input, previous = []) {
     return { correct, ...(task.kind === 'choice' ? { correctOptionIds: task.correct } : {}), ...(task.kind === 'recording' ? { reviewStatus: 'pending_review' } : {}) };
 }
 function summarize(config, answers) {
+    if(config?.runtime_version===2)return require('./curriculumRounds.service').summarize(config,answers);
     const done = config.tasks.filter(t => answers.some(a => a.task_id === t.id));
     const solved = config.tasks.filter(t => answers.some(a => a.task_id === t.id && a.is_correct === 1));
     const firstCorrect = config.tasks.filter(t => answers.find(a => a.task_id === t.id)?.is_correct === 1).length;

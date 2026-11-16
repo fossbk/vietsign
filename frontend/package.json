@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "prepare": "husky",
-    "test:curriculum:g1": "playwright test -c playwright.g1.config.ts"
+    "test:curriculum:g1": "playwright test -c playwright.g1.config.ts",
+    "test:curriculum:g2": "playwright test -c playwright.g2.config.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",

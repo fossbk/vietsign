@@ -46,28 +46,30 @@ for(const game of ['FlipCardViewer','LineMatchingGame','ChoiceQuizGame','JigsawP
     const f=await fixture(page,game);
     await page.goto('/curriculum/L1.BT.01/L1.BT.01.T01');
     await expect(page.getByRole('heading',{name:'G1 thử độc lập'})).toBeVisible();
-    if(game==='FlipCardViewer')await page.getByRole('button',{name:'Đã xem thẻ',exact:true}).click();
+    if(game==='FlipCardViewer')await page.getByRole('button',{name:'Lật thẻ task',exact:true}).click();
     else if(game==='VideoPracticeRecorder'){
       await page.getByLabel('Video cho task').setInputFiles({name:'test.webm',mimeType:'video/webm',buffer:Buffer.from([0x1a,0x45,0xdf,0xa3,1,2])});
       await page.getByRole('button',{name:'Nộp video cho mục này'}).click();
     }else if(game==='SequenceOrderGame'){
-      await page.getByRole('button',{name:'ca',exact:true}).click();await page.getByRole('button',{name:'cà',exact:true}).click();await page.getByRole('button',{name:'Kiểm tra thứ tự'}).click();
-    }else await page.getByRole('button',{name:'Chọn ca',exact:true}).click();
-    await expect(page.getByText('Đã làm 1/1 mục',{exact:true})).toBeVisible();
+      await page.getByRole('button',{name:'Chọn thẻ ca',exact:true}).click();await page.getByRole('button',{name:'Chọn thẻ cà',exact:true}).click();await page.getByRole('button',{name:'Kiểm tra thứ tự'}).click();
+    }else if(game==='BucketDropGame')await page.getByRole('button',{name:'Giỏ ca',exact:true}).click();
+    else if(game==='ChoiceQuizGame'){await page.getByRole('button',{name:'Chọn đáp án ca',exact:true}).click();await page.getByRole('button',{name:'Kiểm tra đáp án',exact:true}).click();}
+    else{await page.getByRole('button',{name:'Chọn vế trái task',exact:true}).click();await page.getByRole('button',{name:'Ghép với ca',exact:true}).click();}
+    await expect(page.getByLabel('Tiến độ hoạt động')).toContainText('Đã làm 1/1 mục');
     await page.getByRole('button',{name:'Lưu kết quả hoạt động'}).click();
-    await expect(page.getByRole('button',{name:'Bắt đầu lượt mới'})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Chơi lượt mới'})).toBeVisible();
     expect(f.counts()).toEqual({starts:1,submits:1});expect(f.events).toHaveLength(1);expect(f.events[0]).not.toHaveProperty('score');expect(f.errors).toEqual([]);
   });
 }
 test('lost answer response is retried with the same event and survives reload',async({page})=>{
   const f=await fixture(page,'ChoiceQuizGame',true);
   await page.goto('/curriculum/L1.BT.01/L1.BT.01.T01');
-  await page.getByRole('button',{name:'Chọn ca',exact:true}).click();
+  await page.getByRole('button',{name:'Chọn đáp án ca',exact:true}).click();await page.getByRole('button',{name:'Kiểm tra đáp án',exact:true}).click();
   await expect(page.getByRole('button',{name:'Thử lại thao tác'})).toBeVisible();
   await page.getByRole('button',{name:'Thử lại thao tác'}).click();
-  await expect(page.getByText('Đã làm 1/1 mục',{exact:true})).toBeVisible();
+  await expect(page.getByLabel('Tiến độ hoạt động')).toContainText('Đã làm 1/1 mục');
   expect(f.events).toHaveLength(2);expect(f.events[0]).toEqual(f.events[1]);expect(f.attempt.answers).toHaveLength(1);
-  await page.reload();await expect(page.getByText('Đã làm 1/1 mục',{exact:true})).toBeVisible();expect(f.counts().starts).toBe(1);expect(f.errors).toEqual([]);
+  await page.reload();await expect(page.getByLabel('Tiến độ hoạt động')).toContainText('Đã làm 1/1 mục');expect(f.counts().starts).toBe(1);expect(f.errors).toEqual([]);
 });
 test('catalog counts remain unchanged after opening lesson details',async({page})=>{
   const f=await fixture(page);await page.goto('/curriculum');

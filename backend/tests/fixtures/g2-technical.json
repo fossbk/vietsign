@@ -1,0 +1,2408 @@
+{
+  "items": [
+    {
+      "item_id": "A",
+      "label": "Symbol 1"
+    },
+    {
+      "item_id": "B",
+      "label": "Symbol 2"
+    },
+    {
+      "item_id": "huyen",
+      "label": "Symbol 3"
+    },
+    {
+      "item_id": "ba3",
+      "numeric_value": 3,
+      "label": "3"
+    },
+    {
+      "item_id": "ba",
+      "label": "Symbol 5"
+    },
+    {
+      "item_id": "baba",
+      "label": "Symbol 6"
+    },
+    {
+      "item_id": "ca",
+      "label": "Symbol 7"
+    },
+    {
+      "item_id": "eggplant",
+      "label": "Symbol 8"
+    },
+    {
+      "item_id": "fish",
+      "label": "Symbol 9"
+    },
+    {
+      "item_id": "raft",
+      "label": "Symbol 10"
+    },
+    {
+      "item_id": "baby",
+      "label": "Symbol 11"
+    },
+    {
+      "item_id": "carrybaby",
+      "label": "Symbol 12"
+    },
+    {
+      "item_id": "carry",
+      "label": "Symbol 13"
+    },
+    {
+      "item_id": "n1",
+      "numeric_value": 1,
+      "label": "1"
+    },
+    {
+      "item_id": "n2",
+      "numeric_value": 2,
+      "label": "2"
+    },
+    {
+      "item_id": "n3",
+      "numeric_value": 3,
+      "label": "3"
+    },
+    {
+      "item_id": "n4",
+      "numeric_value": 4,
+      "label": "4"
+    },
+    {
+      "item_id": "n5",
+      "numeric_value": 5,
+      "label": "5"
+    },
+    {
+      "item_id": "n6",
+      "numeric_value": 6,
+      "label": "6"
+    },
+    {
+      "item_id": "n7",
+      "numeric_value": 7,
+      "label": "7"
+    },
+    {
+      "item_id": "n8",
+      "numeric_value": 8,
+      "label": "8"
+    },
+    {
+      "item_id": "n9",
+      "numeric_value": 9,
+      "label": "9"
+    },
+    {
+      "item_id": "n10",
+      "numeric_value": 10,
+      "label": "10"
+    },
+    {
+      "item_id": "girl",
+      "label": "Symbol 24"
+    },
+    {
+      "item_id": "father",
+      "label": "Symbol 25"
+    },
+    {
+      "item_id": "cow",
+      "label": "Symbol 26"
+    },
+    {
+      "item_id": "stork",
+      "label": "Symbol 27"
+    },
+    {
+      "item_id": "grass",
+      "label": "Symbol 28"
+    },
+    {
+      "item_id": "aquarium",
+      "label": "Symbol 29"
+    },
+    {
+      "item_id": "neck",
+      "label": "Symbol 30"
+    },
+    {
+      "item_id": "cricket",
+      "label": "Symbol 31"
+    },
+    {
+      "item_id": "umbrella",
+      "label": "Symbol 32"
+    },
+    {
+      "item_id": "betta",
+      "label": "Symbol 33"
+    },
+    {
+      "item_id": "beans",
+      "label": "Symbol 34"
+    },
+    {
+      "item_id": "dike",
+      "label": "Symbol 35"
+    },
+    {
+      "item_id": "helpbaby",
+      "label": "Symbol 36"
+    },
+    {
+      "item_id": "d",
+      "label": "Symbol 37"
+    },
+    {
+      "item_id": "dd",
+      "label": "Symbol 38"
+    },
+    {
+      "item_id": "oo",
+      "label": "Symbol 39"
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "A-video",
+      "item_id": "A",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-1.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "B-video",
+      "item_id": "B",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-2.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "huyen-video",
+      "item_id": "huyen",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-3.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ba3-image",
+      "item_id": "ba3",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-4.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ba3-video",
+      "item_id": "ba3",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-5.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ba-image",
+      "item_id": "ba",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-6.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ba-video",
+      "item_id": "ba",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-7.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "baba-image",
+      "item_id": "baba",
+      "role": "illustration",
+      "media_type": "image",
+      "object_count": 1,
+      "url": "/g2-test-media/asset-8.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "baba-video",
+      "item_id": "baba",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-9.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ca-image",
+      "item_id": "ca",
+      "role": "illustration",
+      "media_type": "image",
+      "object_count": 1,
+      "url": "/g2-test-media/asset-10.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "ca-video",
+      "item_id": "ca",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-11.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "eggplant-image",
+      "item_id": "eggplant",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-12.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "eggplant-video",
+      "item_id": "eggplant",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-13.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "fish-image",
+      "item_id": "fish",
+      "role": "illustration",
+      "media_type": "image",
+      "object_count": 1,
+      "url": "/g2-test-media/asset-14.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "fish-video",
+      "item_id": "fish",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-15.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "raft-image",
+      "item_id": "raft",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-16.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "raft-video",
+      "item_id": "raft",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-17.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "baby-image",
+      "item_id": "baby",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-18.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "baby-video",
+      "item_id": "baby",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-19.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "carrybaby-image",
+      "item_id": "carrybaby",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-20.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "carrybaby-video",
+      "item_id": "carrybaby",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-21.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "carry-image",
+      "item_id": "carry",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-22.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "carry-video",
+      "item_id": "carry",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-23.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n1-image",
+      "item_id": "n1",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-24.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n1-video",
+      "item_id": "n1",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-25.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n2-image",
+      "item_id": "n2",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-26.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n2-video",
+      "item_id": "n2",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-27.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n3-image",
+      "item_id": "n3",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-28.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n3-video",
+      "item_id": "n3",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-29.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n4-image",
+      "item_id": "n4",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-30.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n4-video",
+      "item_id": "n4",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-31.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n5-image",
+      "item_id": "n5",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-32.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n5-video",
+      "item_id": "n5",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-33.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n6-image",
+      "item_id": "n6",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-34.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n6-video",
+      "item_id": "n6",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-35.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n7-image",
+      "item_id": "n7",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-36.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n7-video",
+      "item_id": "n7",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-37.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n8-image",
+      "item_id": "n8",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-38.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n8-video",
+      "item_id": "n8",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-39.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n9-image",
+      "item_id": "n9",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-40.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n9-video",
+      "item_id": "n9",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-41.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n10-image",
+      "item_id": "n10",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-42.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "n10-video",
+      "item_id": "n10",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-43.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "girl-image",
+      "item_id": "girl",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-44.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "girl-video",
+      "item_id": "girl",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-45.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "father-image",
+      "item_id": "father",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-46.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "father-video",
+      "item_id": "father",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-47.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "cow-image",
+      "item_id": "cow",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-48.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "cow-video",
+      "item_id": "cow",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-49.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "stork-image",
+      "item_id": "stork",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-50.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "stork-video",
+      "item_id": "stork",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-51.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "grass-image",
+      "item_id": "grass",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-52.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "grass-video",
+      "item_id": "grass",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-53.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "aquarium-image",
+      "item_id": "aquarium",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-54.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "aquarium-video",
+      "item_id": "aquarium",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-55.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "neck-image",
+      "item_id": "neck",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-56.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "neck-video",
+      "item_id": "neck",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-57.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "cricket-image",
+      "item_id": "cricket",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-58.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "cricket-video",
+      "item_id": "cricket",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-59.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "umbrella-image",
+      "item_id": "umbrella",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-60.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "umbrella-video",
+      "item_id": "umbrella",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-61.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "betta-image",
+      "item_id": "betta",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-62.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "betta-video",
+      "item_id": "betta",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-63.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "beans-image",
+      "item_id": "beans",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-64.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "beans-video",
+      "item_id": "beans",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-65.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "dike-image",
+      "item_id": "dike",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-66.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "dike-video",
+      "item_id": "dike",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-67.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "helpbaby-image",
+      "item_id": "helpbaby",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-68.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "helpbaby-video",
+      "item_id": "helpbaby",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-69.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "d-image",
+      "item_id": "d",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-70.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "d-video",
+      "item_id": "d",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-71.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "dd-image",
+      "item_id": "dd",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-72.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "dd-video",
+      "item_id": "dd",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-73.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "oo-image",
+      "item_id": "oo",
+      "role": "illustration",
+      "media_type": "image",
+      "url": "/g2-test-media/asset-74.svg",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "oo-video",
+      "item_id": "oo",
+      "role": "sign_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-75.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "A-alternate_angle",
+      "item_id": "A",
+      "role": "alternate_angle",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-76.webm",
+      "technical_sample": true
+    },
+    {
+      "asset_id": "A-annotated_video",
+      "item_id": "A",
+      "role": "annotated_video",
+      "media_type": "video",
+      "url": "/g2-test-media/asset-77.webm",
+      "technical_sample": true
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "flashcards",
+      "title": "Technical fixture 1",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.01.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 1",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "A",
+              "B",
+              "huyen"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "view",
+              "required_asset_roles": []
+            },
+            "title": "Round 1"
+          },
+          {
+            "round_id": "round-2",
+            "item_ids": [
+              "ba",
+              "ba3",
+              "baba"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "mixed",
+              "response_kind": "view",
+              "required_asset_roles": [],
+              "show_quantity": true
+            },
+            "title": "Round 2"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "viewed_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "matching",
+      "title": "Technical fixture 2",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.02.T02",
+        "activity_level": "T",
+        "game_type": "LineMatchingGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 2",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "ca",
+              "eggplant",
+              "fish",
+              "raft",
+              "baby",
+              "carrybaby",
+              "carry"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "illustration",
+              "required_asset_roles": [],
+              "max_pairs": 5
+            },
+            "pairs": [
+              {
+                "pair_id": "ca",
+                "left_item_id": "ca",
+                "right_item_id": "ca",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "eggplant",
+                "left_item_id": "eggplant",
+                "right_item_id": "eggplant",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "fish",
+                "left_item_id": "fish",
+                "right_item_id": "fish",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "raft",
+                "left_item_id": "raft",
+                "right_item_id": "raft",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "baby",
+                "left_item_id": "baby",
+                "right_item_id": "baby",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "carrybaby",
+                "left_item_id": "carrybaby",
+                "right_item_id": "carrybaby",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "carry",
+                "left_item_id": "carry",
+                "right_item_id": "carry",
+                "left_role": "text",
+                "right_role": "illustration"
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "quiz",
+      "title": "Technical fixture 3",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.02.T03",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 3",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "ca",
+              "eggplant",
+              "fish",
+              "raft",
+              "baby",
+              "carrybaby",
+              "carry"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "illustration",
+              "response_kind": "text",
+              "required_asset_roles": []
+            },
+            "questions": [
+              {
+                "question_id": "q1",
+                "prompt_item_id": "ca",
+                "options": [
+                  {
+                    "option_id": "q1-ca",
+                    "item_id": "ca"
+                  },
+                  {
+                    "option_id": "q1-eggplant",
+                    "item_id": "eggplant"
+                  },
+                  {
+                    "option_id": "q1-fish",
+                    "item_id": "fish"
+                  }
+                ],
+                "server_correct_option_id": "q1-ca"
+              },
+              {
+                "question_id": "q2",
+                "prompt_item_id": "eggplant",
+                "options": [
+                  {
+                    "option_id": "q2-eggplant",
+                    "item_id": "eggplant"
+                  },
+                  {
+                    "option_id": "q2-fish",
+                    "item_id": "fish"
+                  }
+                ],
+                "server_correct_option_id": "q2-eggplant"
+              },
+              {
+                "question_id": "q3",
+                "prompt_item_id": "fish",
+                "options": [
+                  {
+                    "option_id": "q3-fish",
+                    "item_id": "fish"
+                  },
+                  {
+                    "option_id": "q3-raft",
+                    "item_id": "raft"
+                  },
+                  {
+                    "option_id": "q3-baby",
+                    "item_id": "baby"
+                  }
+                ],
+                "server_correct_option_id": "q3-fish"
+              },
+              {
+                "question_id": "q4",
+                "prompt_item_id": "raft",
+                "options": [
+                  {
+                    "option_id": "q4-raft",
+                    "item_id": "raft"
+                  },
+                  {
+                    "option_id": "q4-baby",
+                    "item_id": "baby"
+                  }
+                ],
+                "server_correct_option_id": "q4-raft"
+              },
+              {
+                "question_id": "q5",
+                "prompt_item_id": "baby",
+                "options": [
+                  {
+                    "option_id": "q5-baby",
+                    "item_id": "baby"
+                  },
+                  {
+                    "option_id": "q5-carrybaby",
+                    "item_id": "carrybaby"
+                  },
+                  {
+                    "option_id": "q5-carry",
+                    "item_id": "carry"
+                  }
+                ],
+                "server_correct_option_id": "q5-baby"
+              },
+              {
+                "question_id": "q6",
+                "prompt_item_id": "carrybaby",
+                "options": [
+                  {
+                    "option_id": "q6-carrybaby",
+                    "item_id": "carrybaby"
+                  },
+                  {
+                    "option_id": "q6-carry",
+                    "item_id": "carry"
+                  }
+                ],
+                "server_correct_option_id": "q6-carrybaby"
+              },
+              {
+                "question_id": "q7",
+                "prompt_item_id": "carry",
+                "options": [
+                  {
+                    "option_id": "q7-carry",
+                    "item_id": "carry"
+                  },
+                  {
+                    "option_id": "q7-ca",
+                    "item_id": "ca"
+                  },
+                  {
+                    "option_id": "q7-eggplant",
+                    "item_id": "eggplant"
+                  }
+                ],
+                "server_correct_option_id": "q7-carry"
+              },
+              {
+                "question_id": "q8",
+                "prompt_item_id": "ca",
+                "options": [
+                  {
+                    "option_id": "q8-ca",
+                    "item_id": "ca"
+                  },
+                  {
+                    "option_id": "q8-eggplant",
+                    "item_id": "eggplant"
+                  }
+                ],
+                "server_correct_option_id": "q8-ca"
+              },
+              {
+                "question_id": "q9",
+                "prompt_item_id": "eggplant",
+                "options": [
+                  {
+                    "option_id": "q9-eggplant",
+                    "item_id": "eggplant"
+                  },
+                  {
+                    "option_id": "q9-fish",
+                    "item_id": "fish"
+                  },
+                  {
+                    "option_id": "q9-raft",
+                    "item_id": "raft"
+                  }
+                ],
+                "server_correct_option_id": "q9-eggplant"
+              },
+              {
+                "question_id": "q10",
+                "prompt_item_id": "fish",
+                "options": [
+                  {
+                    "option_id": "q10-fish",
+                    "item_id": "fish"
+                  },
+                  {
+                    "option_id": "q10-raft",
+                    "item_id": "raft"
+                  }
+                ],
+                "server_correct_option_id": "q10-fish"
+              },
+              {
+                "question_id": "q11",
+                "prompt_item_id": "raft",
+                "options": [
+                  {
+                    "option_id": "q11-raft",
+                    "item_id": "raft"
+                  },
+                  {
+                    "option_id": "q11-baby",
+                    "item_id": "baby"
+                  },
+                  {
+                    "option_id": "q11-carrybaby",
+                    "item_id": "carrybaby"
+                  }
+                ],
+                "server_correct_option_id": "q11-raft"
+              },
+              {
+                "question_id": "q12",
+                "prompt_item_id": "baby",
+                "options": [
+                  {
+                    "option_id": "q12-baby",
+                    "item_id": "baby"
+                  },
+                  {
+                    "option_id": "q12-carrybaby",
+                    "item_id": "carrybaby"
+                  }
+                ],
+                "server_correct_option_id": "q12-baby"
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": 2,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "count-low",
+      "title": "Technical fixture 4",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.03.T02",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 4",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "n1",
+              "n2",
+              "n3",
+              "n4",
+              "n5"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "counting",
+              "response_kind": "sign_video",
+              "required_asset_roles": [],
+              "tap_to_count": true
+            },
+            "questions": [
+              {
+                "question_id": "count1",
+                "prompt_item_id": "n1",
+                "options": [
+                  {
+                    "option_id": "count1-n1",
+                    "item_id": "n1"
+                  },
+                  {
+                    "option_id": "count1-n2",
+                    "item_id": "n2"
+                  },
+                  {
+                    "option_id": "count1-n3",
+                    "item_id": "n3"
+                  }
+                ],
+                "server_correct_option_id": "count1-n1",
+                "counting": {
+                  "object_count": 1,
+                  "object_item_id": "fish",
+                  "object_rows": 1
+                }
+              },
+              {
+                "question_id": "count2",
+                "prompt_item_id": "n2",
+                "options": [
+                  {
+                    "option_id": "count2-n2",
+                    "item_id": "n2"
+                  },
+                  {
+                    "option_id": "count2-n3",
+                    "item_id": "n3"
+                  },
+                  {
+                    "option_id": "count2-n4",
+                    "item_id": "n4"
+                  }
+                ],
+                "server_correct_option_id": "count2-n2",
+                "counting": {
+                  "object_count": 2,
+                  "object_item_id": "fish",
+                  "object_rows": 1
+                }
+              },
+              {
+                "question_id": "count3",
+                "prompt_item_id": "n3",
+                "options": [
+                  {
+                    "option_id": "count3-n3",
+                    "item_id": "n3"
+                  },
+                  {
+                    "option_id": "count3-n4",
+                    "item_id": "n4"
+                  },
+                  {
+                    "option_id": "count3-n5",
+                    "item_id": "n5"
+                  }
+                ],
+                "server_correct_option_id": "count3-n3",
+                "counting": {
+                  "object_count": 3,
+                  "object_item_id": "fish",
+                  "object_rows": 1
+                }
+              },
+              {
+                "question_id": "count4",
+                "prompt_item_id": "n4",
+                "options": [
+                  {
+                    "option_id": "count4-n4",
+                    "item_id": "n4"
+                  },
+                  {
+                    "option_id": "count4-n5",
+                    "item_id": "n5"
+                  },
+                  {
+                    "option_id": "count4-n1",
+                    "item_id": "n1"
+                  }
+                ],
+                "server_correct_option_id": "count4-n4",
+                "counting": {
+                  "object_count": 4,
+                  "object_item_id": "fish",
+                  "object_rows": 1
+                }
+              },
+              {
+                "question_id": "count5",
+                "prompt_item_id": "n5",
+                "options": [
+                  {
+                    "option_id": "count5-n5",
+                    "item_id": "n5"
+                  },
+                  {
+                    "option_id": "count5-n1",
+                    "item_id": "n1"
+                  },
+                  {
+                    "option_id": "count5-n2",
+                    "item_id": "n2"
+                  }
+                ],
+                "server_correct_option_id": "count5-n5",
+                "counting": {
+                  "object_count": 5,
+                  "object_item_id": "fish",
+                  "object_rows": 1
+                }
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "count-high",
+      "title": "Technical fixture 5",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.04.T03",
+        "activity_level": "T",
+        "game_type": "ChoiceQuizGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 5",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "n6",
+              "n7",
+              "n8",
+              "n9",
+              "n10"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "counting",
+              "response_kind": "sign_video",
+              "required_asset_roles": [],
+              "tap_to_count": true
+            },
+            "questions": [
+              {
+                "question_id": "count6",
+                "prompt_item_id": "n6",
+                "options": [
+                  {
+                    "option_id": "count6-n6",
+                    "item_id": "n6"
+                  },
+                  {
+                    "option_id": "count6-n7",
+                    "item_id": "n7"
+                  },
+                  {
+                    "option_id": "count6-n8",
+                    "item_id": "n8"
+                  }
+                ],
+                "server_correct_option_id": "count6-n6",
+                "counting": {
+                  "object_count": 6,
+                  "object_item_id": "fish",
+                  "object_rows": 2
+                }
+              },
+              {
+                "question_id": "count7",
+                "prompt_item_id": "n7",
+                "options": [
+                  {
+                    "option_id": "count7-n7",
+                    "item_id": "n7"
+                  },
+                  {
+                    "option_id": "count7-n8",
+                    "item_id": "n8"
+                  },
+                  {
+                    "option_id": "count7-n9",
+                    "item_id": "n9"
+                  }
+                ],
+                "server_correct_option_id": "count7-n7",
+                "counting": {
+                  "object_count": 7,
+                  "object_item_id": "fish",
+                  "object_rows": 2
+                }
+              },
+              {
+                "question_id": "count8",
+                "prompt_item_id": "n8",
+                "options": [
+                  {
+                    "option_id": "count8-n8",
+                    "item_id": "n8"
+                  },
+                  {
+                    "option_id": "count8-n9",
+                    "item_id": "n9"
+                  },
+                  {
+                    "option_id": "count8-n10",
+                    "item_id": "n10"
+                  }
+                ],
+                "server_correct_option_id": "count8-n8",
+                "counting": {
+                  "object_count": 8,
+                  "object_item_id": "fish",
+                  "object_rows": 2
+                }
+              },
+              {
+                "question_id": "count9",
+                "prompt_item_id": "n9",
+                "options": [
+                  {
+                    "option_id": "count9-n9",
+                    "item_id": "n9"
+                  },
+                  {
+                    "option_id": "count9-n10",
+                    "item_id": "n10"
+                  },
+                  {
+                    "option_id": "count9-n6",
+                    "item_id": "n6"
+                  }
+                ],
+                "server_correct_option_id": "count9-n9",
+                "counting": {
+                  "object_count": 9,
+                  "object_item_id": "fish",
+                  "object_rows": 2
+                }
+              },
+              {
+                "question_id": "count10",
+                "prompt_item_id": "n10",
+                "options": [
+                  {
+                    "option_id": "count10-n10",
+                    "item_id": "n10"
+                  },
+                  {
+                    "option_id": "count10-n6",
+                    "item_id": "n6"
+                  },
+                  {
+                    "option_id": "count10-n7",
+                    "item_id": "n7"
+                  }
+                ],
+                "server_correct_option_id": "count10-n10",
+                "counting": {
+                  "object_count": 10,
+                  "object_item_id": "fish",
+                  "object_rows": 2
+                }
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "sequence",
+      "title": "Technical fixture 6",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.04.T04",
+        "activity_level": "T",
+        "game_type": "SequenceOrderGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 6",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "n6",
+              "n7",
+              "n8",
+              "n9",
+              "n10"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "illustration",
+              "response_kind": "ordering",
+              "required_asset_roles": []
+            },
+            "sequences": [
+              {
+                "sequence_id": "tăng",
+                "server_sequence": [
+                  "n6",
+                  "n7",
+                  "n8",
+                  "n9",
+                  "n10"
+                ],
+                "fixed_slots": [
+                  0,
+                  1,
+                  3
+                ],
+                "staircase": true
+              },
+              {
+                "sequence_id": "giảm",
+                "server_sequence": [
+                  "n10",
+                  "n9",
+                  "n8",
+                  "n7",
+                  "n6"
+                ],
+                "fixed_slots": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "sequence_id": "tăng-2",
+                "server_sequence": [
+                  "n6",
+                  "n7",
+                  "n8",
+                  "n9",
+                  "n10"
+                ],
+                "fixed_slots": [
+                  1,
+                  3
+                ]
+              }
+            ],
+            "keep_correct_on_retry": true,
+            "title": "Round 1"
+          },
+          {
+            "round_id": "round-2",
+            "item_ids": [
+              "n1",
+              "n2",
+              "n3",
+              "n4",
+              "n5",
+              "n6",
+              "n7",
+              "n8",
+              "n9",
+              "n10"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "illustration",
+              "response_kind": "ordering",
+              "required_asset_roles": []
+            },
+            "server_sequence": [
+              "n1",
+              "n2",
+              "n3",
+              "n4",
+              "n5",
+              "n6",
+              "n7",
+              "n8",
+              "n9",
+              "n10"
+            ],
+            "unlock_after_round": "round-1",
+            "keep_correct_on_retry": true,
+            "title": "Round 2"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "puzzle",
+      "title": "Technical fixture 7",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.05.T05",
+        "activity_level": "T",
+        "game_type": "JigsawPuzzleGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 7",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "girl",
+              "aquarium",
+              "helpbaby",
+              "cow",
+              "grass",
+              "neck"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "illustration",
+              "response_kind": "text",
+              "required_asset_roles": [],
+              "max_pairs": 5,
+              "atomic_phrase": true
+            },
+            "pairs": [
+              {
+                "pair_id": "girl",
+                "left_item_id": "girl",
+                "right_item_id": "girl",
+                "left_role": "illustration",
+                "right_role": "text"
+              },
+              {
+                "pair_id": "aquarium",
+                "left_item_id": "aquarium",
+                "right_item_id": "aquarium",
+                "left_role": "illustration",
+                "right_role": "text"
+              },
+              {
+                "pair_id": "helpbaby",
+                "left_item_id": "helpbaby",
+                "right_item_id": "helpbaby",
+                "left_role": "illustration",
+                "right_role": "text"
+              },
+              {
+                "pair_id": "cow",
+                "left_item_id": "cow",
+                "right_item_id": "cow",
+                "left_role": "illustration",
+                "right_role": "text"
+              },
+              {
+                "pair_id": "grass",
+                "left_item_id": "grass",
+                "right_item_id": "grass",
+                "left_role": "illustration",
+                "right_role": "text"
+              },
+              {
+                "pair_id": "neck",
+                "left_item_id": "neck",
+                "right_item_id": "neck",
+                "left_role": "illustration",
+                "right_role": "text"
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "bucket",
+      "title": "Technical fixture 8",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.05.T06",
+        "activity_level": "T",
+        "game_type": "BucketDropGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 8",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "ca",
+              "eggplant",
+              "fish",
+              "raft",
+              "baby",
+              "carrybaby",
+              "grass",
+              "cow",
+              "ba",
+              "baba",
+              "father",
+              "neck"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "illustration",
+              "response_kind": "bucket",
+              "required_asset_roles": []
+            },
+            "buckets": [
+              {
+                "bucket_id": "none",
+                "label": "Bucket 1"
+              },
+              {
+                "bucket_id": "huyen",
+                "label": "Bucket 2"
+              },
+              {
+                "bucket_id": "sac",
+                "label": "Bucket 3"
+              },
+              {
+                "bucket_id": "hoi",
+                "label": "Bucket 4"
+              }
+            ],
+            "server_bucket_assignments": [
+              {
+                "item_id": "ca",
+                "bucket_id": "none"
+              },
+              {
+                "item_id": "eggplant",
+                "bucket_id": "huyen"
+              },
+              {
+                "item_id": "fish",
+                "bucket_id": "sac"
+              },
+              {
+                "item_id": "raft",
+                "bucket_id": "huyen"
+              },
+              {
+                "item_id": "baby",
+                "bucket_id": "sac"
+              },
+              {
+                "item_id": "carrybaby",
+                "bucket_id": "sac"
+              },
+              {
+                "item_id": "grass",
+                "bucket_id": "hoi"
+              },
+              {
+                "item_id": "cow",
+                "bucket_id": "huyen"
+              },
+              {
+                "item_id": "ba",
+                "bucket_id": "huyen"
+              },
+              {
+                "item_id": "baba",
+                "bucket_id": "none"
+              },
+              {
+                "item_id": "father",
+                "bucket_id": "sac"
+              },
+              {
+                "item_id": "neck",
+                "bucket_id": "hoi"
+              }
+            ],
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "memory",
+      "title": "Technical fixture 9",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.06.T06",
+        "activity_level": "T",
+        "game_type": "MemoryCardGame",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 9",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "cricket",
+              "umbrella",
+              "betta"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "illustration",
+              "required_asset_roles": [],
+              "max_pairs": 3
+            },
+            "pairs": [
+              {
+                "pair_id": "cricket",
+                "left_item_id": "cricket",
+                "right_item_id": "cricket",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "umbrella",
+                "left_item_id": "umbrella",
+                "right_item_id": "umbrella",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "betta",
+                "left_item_id": "betta",
+                "right_item_id": "betta",
+                "left_role": "text",
+                "right_role": "illustration"
+              }
+            ],
+            "title": "Round 1"
+          },
+          {
+            "round_id": "round-2",
+            "item_ids": [
+              "cricket",
+              "umbrella",
+              "betta",
+              "dike"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "illustration",
+              "required_asset_roles": [],
+              "max_pairs": 4
+            },
+            "pairs": [
+              {
+                "pair_id": "cricket",
+                "left_item_id": "cricket",
+                "right_item_id": "cricket",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "umbrella",
+                "left_item_id": "umbrella",
+                "right_item_id": "umbrella",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "betta",
+                "left_item_id": "betta",
+                "right_item_id": "betta",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "dike",
+                "left_item_id": "dike",
+                "right_item_id": "dike",
+                "left_role": "text",
+                "right_role": "illustration"
+              }
+            ],
+            "title": "Round 2"
+          },
+          {
+            "round_id": "round-3",
+            "item_ids": [
+              "cricket",
+              "umbrella",
+              "betta",
+              "dike",
+              "helpbaby"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "illustration",
+              "required_asset_roles": [],
+              "max_pairs": 5
+            },
+            "pairs": [
+              {
+                "pair_id": "cricket",
+                "left_item_id": "cricket",
+                "right_item_id": "cricket",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "umbrella",
+                "left_item_id": "umbrella",
+                "right_item_id": "umbrella",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "betta",
+                "left_item_id": "betta",
+                "right_item_id": "betta",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "dike",
+                "left_item_id": "dike",
+                "right_item_id": "dike",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "helpbaby",
+                "left_item_id": "helpbaby",
+                "right_item_id": "helpbaby",
+                "left_role": "text",
+                "right_role": "illustration"
+              }
+            ],
+            "title": "Round 3"
+          },
+          {
+            "round_id": "round-4",
+            "item_ids": [
+              "cricket",
+              "umbrella",
+              "betta",
+              "dike",
+              "helpbaby",
+              "beans"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "illustration",
+              "required_asset_roles": [],
+              "max_pairs": 6
+            },
+            "pairs": [
+              {
+                "pair_id": "cricket",
+                "left_item_id": "cricket",
+                "right_item_id": "cricket",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "umbrella",
+                "left_item_id": "umbrella",
+                "right_item_id": "umbrella",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "betta",
+                "left_item_id": "betta",
+                "right_item_id": "betta",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "dike",
+                "left_item_id": "dike",
+                "right_item_id": "dike",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "helpbaby",
+                "left_item_id": "helpbaby",
+                "right_item_id": "helpbaby",
+                "left_role": "text",
+                "right_role": "illustration"
+              },
+              {
+                "pair_id": "beans",
+                "left_item_id": "beans",
+                "right_item_id": "beans",
+                "left_role": "text",
+                "right_role": "illustration"
+              }
+            ],
+            "title": "Round 4"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "solved_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "recording",
+      "title": "Technical fixture 10",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.06.T07",
+        "activity_level": "T",
+        "game_type": "VideoPracticeRecorder",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 10",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "d",
+              "dd"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "recording",
+              "required_asset_roles": []
+            },
+            "recording": {
+              "target_item_ids": [
+                "d",
+                "dd"
+              ],
+              "max_seconds": 10,
+              "max_bytes": 2097152,
+              "review_required": true
+            },
+            "title": "Round 1"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "reviewed_all"
+        },
+        "decision_ids": []
+      }
+    },
+    {
+      "id": "missing-media",
+      "title": "Technical fixture 11",
+      "author": {
+        "config_version": 1,
+        "activity_code": "L1.BT.01.T01",
+        "activity_level": "T",
+        "game_type": "FlipCardViewer",
+        "publication_status": "draft",
+        "example_only": true,
+        "fixture_only": true,
+        "title": "Technical fixture 11",
+        "instruction": "Synthetic interaction test",
+        "source_refs": [
+          {
+            "workbook": "synthetic",
+            "sheet": "technical",
+            "range": "A1"
+          }
+        ],
+        "rounds": [
+          {
+            "round_id": "round-1",
+            "item_ids": [
+              "A",
+              "B",
+              "huyen"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "text",
+              "response_kind": "view",
+              "required_asset_roles": []
+            },
+            "title": "Round 1"
+          },
+          {
+            "round_id": "round-2",
+            "item_ids": [
+              "ba",
+              "ba3",
+              "baba"
+            ],
+            "source_refs": [
+              {
+                "workbook": "synthetic",
+                "sheet": "technical",
+                "range": "A1"
+              }
+            ],
+            "shuffle": true,
+            "presentation": {
+              "prompt_kind": "mixed",
+              "response_kind": "view",
+              "required_asset_roles": [],
+              "show_quantity": true
+            },
+            "title": "Round 2"
+          }
+        ],
+        "policy": {
+          "status": "requires_D05",
+          "no_penalty": true,
+          "countdown": false,
+          "max_retries": null,
+          "retry_count_definition": "additional_tries",
+          "stars_policy_id": "g2-technical-only",
+          "completion_basis": "viewed_all"
+        },
+        "decision_ids": []
+      }
+    }
+  ]
+}

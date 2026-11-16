@@ -42,7 +42,8 @@ async function assertAssets(conn, config) {
     if (assets.length !== new Set(config.asset_ids).size || assets.some(a => a.verification_status !== 'verified' || a.approval_status !== 'approved' || !a.playable_url))
         c.fail('Học liệu chưa được xác minh');
     const urls = new Set(assets.map(a => a.playable_url));
-    const presentations = config.tasks.flatMap(t=>[t.prompt,...(t.options||[]).map(o=>o.presentation)]);
+    if(config.icon&&!urls.has(config.icon))c.fail('Icon is not an approved asset');
+    const presentations = config.runtime_version===2 ? require('./curriculumRounds.service').presentations(config) : config.tasks.flatMap(t=>[t.prompt,...(t.options||[]).map(o=>o.presentation)]);
     for (const p of presentations)
             if (['image','video'].includes(p.type) && !urls.has(p.content))
                 c.fail('Học liệu không thuộc asset đã duyệt');
@@ -101,7 +102,7 @@ async function get(userId, id) { const a = await owned(db, userId, id); return r
 async function answer(userId, id, payload) {
     key(payload.eventId);
     // Canonical payload excludes claimed score, correctness and client target text.
-    const input = { taskId: payload.taskId, ...(payload.choiceIds ? { choiceIds: payload.choiceIds } : {}), ...(payload.action ? { action: payload.action } : {}), ...(payload.uploadId ? { uploadId: payload.uploadId } : {}) };
+    const input = { taskId: payload.taskId, ...(payload.choiceIds ? { choiceIds: payload.choiceIds } : {}), ...(payload.action ? { action: payload.action } : {}), ...(payload.uploadId ? { uploadId: payload.uploadId } : {}), ...(payload.objectId ? {objectId:payload.objectId}:{}), ...(payload.cardId ? {cardId:payload.cardId}:{}) };
     return transaction(async (conn) => {
         const a = await owned(conn, userId, id, true);
         const answers = await rowsAnswers(conn, id);

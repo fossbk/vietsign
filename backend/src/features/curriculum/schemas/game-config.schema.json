@@ -1,0 +1,681 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:vietsign:curriculum:game-config:1",
+  "title": "Curriculum author config v1, G2 rounds",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "config_version",
+    "activity_code",
+    "activity_level",
+    "game_type",
+    "publication_status",
+    "source_refs",
+    "rounds",
+    "policy"
+  ],
+  "properties": {
+    "config_version": {
+      "const": 1
+    },
+    "activity_code": {
+      "type": "string",
+      "pattern": "^L[1-5]\\.[^.]+\\.[0-9]{2}\\.[TCH][0-9]{2}$"
+    },
+    "activity_level": {
+      "enum": [
+        "T",
+        "C",
+        "H"
+      ]
+    },
+    "game_type": {
+      "enum": [
+        "FlipCardViewer",
+        "LineMatchingGame",
+        "ChoiceQuizGame",
+        "JigsawPuzzleGame",
+        "BucketDropGame",
+        "MemoryCardGame",
+        "SequenceOrderGame",
+        "VideoPracticeRecorder"
+      ]
+    },
+    "publication_status": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "published"
+      ]
+    },
+    "example_only": {
+      "type": "boolean"
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/round"
+      }
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "decision_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "fixture_only": {
+      "type": "boolean"
+    },
+    "title": {
+      "type": "string"
+    },
+    "instruction": {
+      "type": "string"
+    },
+    "icon_asset_id": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workbook",
+        "sheet",
+        "range"
+      ],
+      "properties": {
+        "workbook": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sheet": {
+          "type": "string",
+          "minLength": 1
+        },
+        "range": {
+          "type": "string",
+          "pattern": "^[A-Z]+[1-9][0-9]*(?::[A-Z]+[1-9][0-9]*)?$"
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt_kind",
+        "response_kind",
+        "required_asset_roles"
+      ],
+      "properties": {
+        "prompt_kind": {
+          "enum": [
+            "text",
+            "illustration",
+            "sign_video",
+            "hand_image",
+            "counting",
+            "mixed"
+          ]
+        },
+        "response_kind": {
+          "enum": [
+            "view",
+            "text",
+            "illustration",
+            "sign_video",
+            "hand_image",
+            "recording",
+            "ordering",
+            "pairing",
+            "bucket"
+          ]
+        },
+        "required_asset_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "illustration",
+              "sign_video",
+              "hand_image",
+              "alternate_angle",
+              "annotated_video",
+              "counting_prompt",
+              "quantity_dots"
+            ]
+          }
+        },
+        "show_quantity": {
+          "type": "boolean"
+        },
+        "max_cards": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "max_pairs": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "object_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "object_item_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "object_rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tap_to_count": {
+          "type": "boolean"
+        },
+        "atomic_phrase": {
+          "type": "boolean"
+        },
+        "replay_speed": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "quantity_source": {
+          "enum": [
+            "generated",
+            "asset"
+          ]
+        },
+        "show_sample": {
+          "type": "boolean"
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question_id",
+        "prompt_item_id",
+        "options",
+        "server_correct_option_id"
+      ],
+      "properties": {
+        "question_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_item_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "option_id",
+              "item_id"
+            ],
+            "properties": {
+              "option_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "item_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "presentation_kind": {
+                "enum": [
+                  "text",
+                  "illustration",
+                  "sign_video",
+                  "hand_image",
+                  "mixed",
+                  "counting"
+                ]
+              }
+            }
+          }
+        },
+        "server_correct_option_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "counting": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_count",
+            "object_item_id",
+            "object_rows"
+          ],
+          "properties": {
+            "object_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "object_item_id": {
+              "type": "string"
+            },
+            "object_rows": {
+              "enum": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        "prompt_kind": {
+          "enum": [
+            "text",
+            "illustration",
+            "sign_video",
+            "hand_image",
+            "mixed",
+            "counting"
+          ]
+        }
+      }
+    },
+    "round": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "round_id",
+        "item_ids",
+        "source_refs",
+        "presentation",
+        "shuffle"
+      ],
+      "properties": {
+        "round_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "item_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "presentation": {
+          "$ref": "#/$defs/presentation"
+        },
+        "shuffle": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/question"
+          }
+        },
+        "fixed_slots": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "server_sequence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pairs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pair_id",
+              "left_item_id",
+              "right_item_id",
+              "left_role",
+              "right_role"
+            ],
+            "properties": {
+              "pair_id": {
+                "type": "string"
+              },
+              "left_item_id": {
+                "type": "string"
+              },
+              "right_item_id": {
+                "type": "string"
+              },
+              "left_role": {
+                "enum": [
+                  "text",
+                  "illustration",
+                  "sign_video",
+                  "hand_image",
+                  "mixed",
+                  "counting"
+                ]
+              },
+              "right_role": {
+                "enum": [
+                  "text",
+                  "illustration",
+                  "sign_video",
+                  "hand_image",
+                  "mixed",
+                  "counting"
+                ]
+              }
+            }
+          }
+        },
+        "buckets": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bucket_id",
+              "label"
+            ],
+            "properties": {
+              "bucket_id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "icon_asset_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "server_bucket_assignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "item_id",
+              "bucket_id"
+            ],
+            "properties": {
+              "item_id": {
+                "type": "string"
+              },
+              "bucket_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "recording": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target_item_ids",
+            "max_seconds",
+            "max_bytes",
+            "review_required"
+          ],
+          "properties": {
+            "target_item_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "max_seconds": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "max_bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "review_required": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        },
+        "keep_correct_on_retry": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "unlock_after_round": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sequences": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence_id",
+              "server_sequence"
+            ],
+            "properties": {
+              "sequence_id": {
+                "type": "string"
+              },
+              "server_sequence": {
+                "type": "array",
+                "minItems": 2,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "fixed_slots": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "staircase": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "unassigned_item_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "no_penalty",
+        "countdown",
+        "max_retries",
+        "retry_count_definition",
+        "stars_policy_id",
+        "completion_basis"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "requires_D05",
+            "approved"
+          ]
+        },
+        "no_penalty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "countdown": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "max_retries": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "retry_count_definition": {
+          "enum": [
+            null,
+            "additional_tries",
+            "total_selections"
+          ]
+        },
+        "stars_policy_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "completion_basis": {
+          "enum": [
+            null,
+            "viewed_all",
+            "solved_all",
+            "reviewed_all"
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "game_type": {
+            "const": "ChoiceQuizGame"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "rounds": {
+            "items": {
+              "required": [
+                "questions"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "publication_status": {
+            "const": "published"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "example_only": {
+            "const": false
+          },
+          "policy": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            }
+          },
+          "decision_ids": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

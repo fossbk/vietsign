@@ -161,5 +161,22 @@ test('M1: isolated MySQL migration, scoring, concurrency, access and compatibili
     const [[stored]]=await db.execute('SELECT * FROM curriculum_upload WHERE upload_id=?',[uploaded.data.uploadId]);assert.equal(stored.user_id,3);assert.equal(stored.task_id,task.id);
    }finally{await new Promise(resolve=>server.close(resolve));}
   });
+  await t.test('G2 v2 persists count/retry events and restores old v1 snapshots without another migration',async()=>{
+   const v2={runtime_version:2,game_type:'ChoiceQuizGame',source_refs:[{sheet:'integration',cell:'A1'}],asset_ids:[1],rounds:[{id:'round',title:'Count'}],
+    policy:{status:'approved',completion:'all_correct',pass_score:null,star_thresholds:[50,80,100],max_retries:1},
+    tasks:[{id:'count-v2',roundId:'round',kind:'choice',requireCount:true,prompt:{type:'counting',count:2,rows:1,objects:[1,2].map(n=>({id:`o${n}`,presentation:{type:'image',content:'/fixture/ca.webp'}}))},options:[{id:'two',presentation:{type:'text',content:'2'}},{id:'three',presentation:{type:'text',content:'3'}}],correct:['two']}]};
+   await db.execute("INSERT INTO curriculum_activity_version(activity_id,version_number,content_hash,publication_status,config) VALUES(1,4,?,'published',?)",[content.hash(v2),JSON.stringify(v2)]);
+   const a=await attempt.start(1,1,{requestId:'g2-count'}),task=a.config.tasks[0];
+   const correct=task.options.find(o=>o.presentation.content==='2').id,wrong=task.options.find(o=>o.id!==correct).id;
+   await assert.rejects(()=>attempt.answer(1,a.attemptId,{eventId:'premature',taskId:task.id,choiceIds:[correct]}),e=>e.status===409);
+   for(const id of ['o1','o1','o2'])await attempt.answer(1,a.attemptId,{eventId:require('node:crypto').randomUUID(),taskId:task.id,action:'count',objectId:id});
+   assert.deepEqual((await attempt.get(1,a.attemptId)).answers.at(-1).countedIds,['o1','o2']);
+   const wrongResult=await attempt.answer(1,a.attemptId,{eventId:'wrong-v2',taskId:task.id,choiceIds:[wrong]});assert.equal(wrongResult.terminal,false);
+   await assert.rejects(()=>attempt.submit(1,a.attemptId,{idempotencyKey:'too-soon'}),e=>e.status===409);
+   await attempt.answer(1,a.attemptId,{eventId:'correct-v2',taskId:task.id,choiceIds:[correct]});
+   const result=await attempt.submit(1,a.attemptId,{idempotencyKey:'done-v2'});assert.equal(result.score,100);assert.equal(result.firstCorrect,0);assert.equal(result.isCompleted,1);
+   const restored=await attempt.get(1,a.attemptId);assert.equal(restored.answers.length,5);assert.equal(restored.config.runtime_version,2);assert.deepEqual(restored.result,result);
+   const old=await attempt.start(1,1,{requestId:'same'});assert.equal(old.config.runtime_version,1);
+  });
  }finally{await db.query(`DROP DATABASE \`${fixtureDb}\``);await db.end();}
 });
