@@ -90,21 +90,10 @@ const normalizeText = (value) => {
     return "";
   }
 
-  return String(value)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\b(chu|dau|ky hieu)\b/g, " ")
-    .replace(/[^a-z0-9]+/g, " ")
+  return require('../../../utils/signIdentity').normalizeSignIdentity(value)
+    .replace(/^(?:chữ|ký hiệu)\s+/u, "")
     .trim()
     .replace(/\s+/g, " ");
-};
-
-const toNullableBoolean = (value) => {
-  if (typeof value === "boolean") return value;
-  if (value === 1 || value === "1") return true;
-  if (value === 0 || value === "0") return false;
-  return null;
 };
 
 const toNullableNumber = (value) => {
@@ -160,9 +149,9 @@ const normalizeModelPayload = (payload, targetText, mode) => {
     toNullableNumber(source?.probability);
 
   const normalizedTarget = normalizeText(targetText);
-  const normalizedPredicted = normalizeText(actionName || predictedLabel);
+  const normalizedPredicted = normalizeText(actionName);
 
-  let isMatch = toNullableBoolean(source?.is_match);
+  let isMatch = normalizedTarget && normalizedPredicted ? normalizedTarget === normalizedPredicted : null;
   if (isMatch === null && normalizedTarget && normalizedPredicted) {
     isMatch = normalizedTarget === normalizedPredicted;
   } else if (isMatch === null && (mode === "match" || mode === "spell")) {
@@ -356,6 +345,10 @@ const predictAndSave = async ({
     }
 
     const resolvedActionName = resolvedLabelName || normalized.actionName;
+    const normalizedTarget = normalizeText(targetText);
+    const normalizedPredicted = normalizeText(resolvedActionName);
+    normalized.isMatch = normalizedTarget && normalizedPredicted
+      ? normalizedTarget === normalizedPredicted : null;
 
     const attemptId = await insertAttempt({
       userId,
@@ -421,7 +414,7 @@ const saveModel3Attempt = async ({
   const actionName = result?.label_name || top1?.label || result?.action_name || null;
   const predictedLabel = result?.label_id ?? top1?.class_id ?? null;
   const normalizedTarget = normalizeText(targetText);
-  const normalizedPredicted = normalizeText(actionName || predictedLabel);
+  const normalizedPredicted = normalizeText(actionName);
   const isMatch =
     normalizedTarget && normalizedPredicted
       ? normalizedTarget === normalizedPredicted
