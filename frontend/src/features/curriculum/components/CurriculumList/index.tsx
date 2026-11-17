@@ -69,7 +69,11 @@ export function CurriculumList() {
   const [lessonDetails, setLessonDetails] = useState<Record<string, CurriculumLesson>>({});
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
 
+  const detailRequests = React.useRef(new Set<string>());
+
   const fetchLessonDetail = useCallback((code: string) => {
+    if (detailRequests.current.has(code)) return;
+    detailRequests.current.add(code);
     setDetailErrors(prev=>({...prev,[code]:''}));
     setLoadingDetails((prev) => ({ ...prev, [code]: true }));
     CurriculumModel.getLessonByCode(code)
@@ -83,6 +87,7 @@ export function CurriculumList() {
         console.error("Failed to load lesson detail", err);
       })
       .finally(() => {
+        detailRequests.current.delete(code);
         if(!mounted.current)return;
         setLoadingDetails((prev) => ({ ...prev, [code]: false }));
       });

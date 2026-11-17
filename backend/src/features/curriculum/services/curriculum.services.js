@@ -30,7 +30,7 @@ async function activityStates(userId, lessonId,includeGroups=false) {
         return { ...a, draft_version_id:preview?a.draft_version_id:null, readiness: ready ? 'ready' : 'drafting', can_preview: preview };
     }));
 }
-async function getLessons({ level, topic, userId }) {
+async function getLessons({ level, topic, userId, lessonCode, includeActivities = false }) {
     const params = [userId];
     let filter = '';
     if (level) {
@@ -42,17 +42,22 @@ async function getLessons({ level, topic, userId }) {
         params.push(topic);
     }
 
+    if (lessonCode) {
+        filter += ' AND l.lesson_code=?';
+        params.push(lessonCode);
+    }
     const [rows] = await db.execute(`SELECT l.*,COUNT(a.activity_id) total_activities,
  SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL,1,0)) published_activities,
  SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL AND s.is_completed=1,1,0)) completed_activities
  FROM curriculum_lesson l LEFT JOIN curriculum_activity a ON a.lesson_id=l.lesson_id AND a.is_active=1 AND a.activity_level='T'
  LEFT JOIN (SELECT activity_id,MAX(version_id) version_id FROM curriculum_activity_version WHERE publication_status='published' GROUP BY activity_id) v ON v.activity_id=a.activity_id
  ${verifiedSummary} WHERE l.is_active=1 ${filter} GROUP BY l.lesson_id ORDER BY l.display_order`, params);
-    const states = await activityStates(userId);
+    if (!rows.length) return [];
+    const states = await activityStates(userId, lessonCode ? rows[0].lesson_id : undefined);
     return rows.map(l => {
         const activities = states.filter(a => a.lesson_id === l.lesson_id);
         const ready = activities.filter(a => a.readiness === 'ready');
-        return { ...l, total_activities: activities.length, published_activities: ready.length, completed_activities: ready.filter(a => a.is_completed).length, readiness: activities.length > 0 && ready.length === activities.length ? 'ready' : 'drafting' };
+        return { ...l, total_activities: activities.length, published_activities: ready.length, completed_activities: ready.filter(a => a.is_completed).length, readiness: activities.length > 0 && ready.length === activities.length ? 'ready' : 'drafting', ...(includeActivities ? { activities } : {}) };
     });
 }
 async function getCatalog(userId) {
@@ -60,11 +65,10 @@ async function getCatalog(userId) {
     return ['L1', 'L2', 'L3', 'L4', 'L5'].map(code => ({ code, totalLessons: lessons.filter(l => l.level_code === code).length, availableLessons: lessons.filter(l => l.level_code === code && l.readiness === 'ready').length }));
 }
 async function getLessonByCode(code, userId) {
-    const lesson = (await getLessons({ userId })).find(l => l.lesson_code === code);
-    if (!lesson)
-        return null;
-    const activities = await activityStates(userId, lesson.lesson_id);
-    return { ...lesson, activities };
+    if (typeof code !== 'string' || !code) return null;
+    const [lesson] = await getLessons({ userId, lessonCode: code, includeActivities: true });
+    // Preserve exact-code lookup even on case-insensitive or space-padding collations.
+    return lesson?.lesson_code === code ? lesson : null;
 }
 async function getActivityByCode(code, userId) {
     const [rows] = await db.execute(`SELECT a.*,l.lesson_code,l.title lesson_title,l.content_status,l.is_active lesson_active FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id WHERE a.activity_code=? AND a.is_active=1 AND l.is_active=1`, [code]);
