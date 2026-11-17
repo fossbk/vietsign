@@ -8,3 +8,6 @@ export {CurriculumMediaPlayer} from './components/AttemptGame/CurriculumMediaPla
 export {button as curriculumButton} from './components/AttemptGame/GameViews';
 
 export {errorMessage as curriculumErrorMessage} from './components/AttemptGame/useCurriculumAttempt';
+
+export {CompoundLearning} from './components/AttemptGame/CompoundLearning';
+export {GroupLearningList,GroupLearningDetail} from './components/GroupLearning';

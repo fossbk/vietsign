@@ -98,6 +98,9 @@ class CurriculumModelClass extends Base {
   };
 
 
+  getGroups = async():Promise<CurriculumGroup[]> => unwrapResponse(await this.apiGet('/groups'));
+  getGroup = async(code:string):Promise<CurriculumGroupDetail> => unwrapResponse(await this.apiGet(`/groups/${encodeURIComponent(code)}`));
+
   /** GET /curriculum/lessons — danh sách bài học theo level/topic */
   getLessons = async (params?: { level?: string; topic?: string }): Promise<CurriculumLesson[]> => {
     const res = await this.apiGet("/lessons", params);
@@ -158,7 +161,11 @@ export interface AttemptFeedback {correct:boolean|null;terminal?:boolean;exhaust
 export interface AttemptResult {score:number;stars:number;practiceStars?:number;isCompleted:number;isPreview:boolean;reviewStatus:string;progressId:number;answered:number;required:number;firstCorrect?:number;moves?:number}
 export interface AttemptRound {id:string;title:string;available:boolean;complete:boolean;solved:boolean;unlockAfterRound?:string;unlockCondition?:string}
 export interface FixtureDescription {id:string;title:string;activityCode:string;gameType:string;rounds:number}
-export interface CurriculumAttempt {attemptId:string;activityId:number;versionId:number;isPreview:boolean;status:'open'|'finalized';recording?:RecordingProgress;review?:AttemptReview;config:{runtime_version:number;game_type:string;title?:string;icon?:string;instruction?:string;rounds?:AttemptRound[];tasks:AttemptTask[];policy:{max_retries:number|null;no_penalty?:boolean;completion?:string}};answers:Array<AttemptFeedback & {eventId:string;taskId:string}>;result:AttemptResult|null}
+export interface CurriculumAttempt {attemptId:string;activityId:number;versionId:number;isPreview:boolean;status:'open'|'finalized';recording?:RecordingProgress;review?:AttemptReview;config:{compound?:CompoundContent;runtime_version:number;game_type:string;title?:string;icon?:string;instruction?:string;rounds?:AttemptRound[];tasks:AttemptTask[];policy:{max_retries:number|null;no_penalty?:boolean;completion?:string}};answers:Array<AttemptFeedback & {eventId:string;taskId:string}>;result:AttemptResult|null}
 
 export interface RecordingSubmission {taskId:string;label:string;roundId?:string;status:'not_submitted'|'submitted'|'pending_review';uploadId:string|null;revision:number;history:Array<{eventId:string;uploadId:string;revision:number;submittedAt:string|null}>}
 export interface RecordingProgress {required:number;submitted:number;missingTaskIds:string[];status:'in_progress'|'pending_review';aiStatus:'not_requested';items:RecordingSubmission[]}
+
+export interface CompoundContent {kind:'sentence'|'dialogue';groupCode:string;variantCode:string;sourceColumn:string;editorialStatus:string;practiceSpeaker?:string|null;speakers:string[];units:Array<{id:string;order:number;text:string;speaker:string|null;blockedReason?:string|null}>;model:TaskPresentation;sourceRaw?:string;notes?:Array<{sourceLine:number;text:string}>}
+export interface CurriculumGroup {group_code:string;title:string;lesson_codes:string[];publication_status:string;variants:number;can_preview:boolean}
+export interface CurriculumGroupDetail {group_code:string;title:string;lesson_codes:string[];variants:Array<{activityId:number;activityCode:string;title:string;level:string;variantCode:string;sourceColumn:string;versionId:number;assignable:boolean;source:CompoundContent}>}

@@ -97,7 +97,7 @@ async function start(userId, activityId, payload, classContext=null) {
         }
         if (config.game_type !== activity.game_type)
             c.fail('Game type không khớp phiên bản');
-        const a = { attempt_id: randomUUID(), activity_id: activityId, version_id: v.version_id, is_preview: Number(preview), status: 'open', snapshot: c.snapshot(config), result: null };
+        const a = { attempt_id: randomUUID(), activity_id: activityId, version_id: v.version_id, is_preview: Number(preview), status: 'open', snapshot: c.snapshot(classPractice?await require('./curriculumGroup.service').scopedConfig(conn,classPractice.practice_id,config):config), result: null };
         await conn.execute('INSERT INTO curriculum_attempt(attempt_id,user_id,activity_id,version_id,request_id,is_preview,snapshot) VALUES(?,?,?,?,?,?,?)', [a.attempt_id, userId, activityId, a.version_id, payload.requestId, a.is_preview, JSON.stringify(a.snapshot)]);
         a.user_id=userId;
         if(classPractice)await conn.execute('INSERT INTO curriculum_attempt_class(attempt_id,practice_id) VALUES(?,?)',[a.attempt_id,classPractice.practice_id]);

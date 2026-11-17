@@ -9,5 +9,5 @@ export function ClassPracticeList(){
  if(loading)return <p role="status">Đang tải bài thực hành trong lớp…</p>;
  if(error)return <div role="alert"><p>{error}</p><button type="button" onClick={()=>{setLoading(true);setReload(n=>n+1);}}>Thử lại bài trong lớp</button></div>;
  if(!items.length)return null;
- return <section aria-label="Bài thực hành trong lớp" className="mb-6 rounded-2xl border bg-white p-5"><h2 className="mb-3 text-lg font-bold">Bài thực hành trong lớp</h2><ul className="space-y-3">{items.map(item=><li key={item.practice_id}><Link className="text-emerald-700 underline" href={`/curriculum/class-practice/${item.practice_id}`}>{item.title} · {item.class_name}</Link><p className="text-sm text-gray-600">{item.lesson_code} · Phiên bản {item.version_id}</p></li>)}</ul></section>;
+ return <section aria-label="Bài thực hành trong lớp" className="mb-6 rounded-2xl border bg-white p-5"><h2 className="mb-3 text-lg font-bold">Bài thực hành trong lớp</h2><ul className="space-y-3">{items.map(item=><li key={item.practice_id}><Link className="text-emerald-700 underline" href={`/curriculum/class-practice/${item.practice_id}`}>{item.title} · {item.class_name}</Link><p className="text-sm text-gray-600">{item.group_code||item.lesson_code}{item.practice_speaker?` · Vai ${item.practice_speaker}`:''} · Phiên bản {item.version_id}</p></li>)}</ul></section>;
 }

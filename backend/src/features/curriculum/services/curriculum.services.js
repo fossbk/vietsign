@@ -3,13 +3,13 @@ const c = require('./curriculumContent.service');
 const access = require('./curriculumAccess.service');
 const attempts = require('./curriculumAttempt.service');
 const verifiedSummary = `LEFT JOIN (SELECT activity_id,user_id,version_id,MAX(score) best_score,MAX(stars) best_stars,MAX(is_completed) is_completed,COUNT(*) total_attempts,MAX(played_at) last_played_at FROM curriculum_game_progress WHERE result_source='server' GROUP BY activity_id,user_id,version_id) s ON s.activity_id=a.activity_id AND s.version_id=v.version_id AND s.user_id=?`;
-async function activityStates(userId, lessonId) {
+async function activityStates(userId, lessonId,includeGroups=false) {
     const [rows] = await db.execute(`SELECT a.activity_id,a.lesson_id,a.activity_code,a.activity_level,a.game_type,a.title,a.instruction,a.display_order,
  l.content_status,v.version_id,v.config,v.content_hash,d.version_id draft_version_id,s.best_score,s.best_stars,s.is_completed,s.total_attempts,s.last_played_at
  FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id
  LEFT JOIN curriculum_activity_version v ON v.activity_id=a.activity_id AND v.publication_status='published' AND v.version_number=(SELECT MAX(v2.version_number) FROM curriculum_activity_version v2 WHERE v2.activity_id=a.activity_id AND v2.publication_status='published')
  LEFT JOIN curriculum_activity_version d ON d.activity_id=a.activity_id AND d.publication_status='draft' AND d.version_number=(SELECT MAX(d2.version_number) FROM curriculum_activity_version d2 WHERE d2.activity_id=a.activity_id AND d2.publication_status='draft')
- ${verifiedSummary} WHERE a.is_active=1 AND l.is_active=1  ${lessonId ? 'AND a.lesson_id=?' : ''} ORDER BY a.display_order`, lessonId ? [userId, lessonId] : [userId]);
+ ${verifiedSummary} WHERE a.is_active=1 AND l.is_active=1 ${includeGroups?'':"AND a.activity_level='T'"} ${lessonId ? 'AND a.lesson_id=?' : ''} ORDER BY a.display_order`, lessonId ? [userId, lessonId] : [userId]);
     const preview = await access.canPreview(userId);
     return Promise.all(rows.map(async (row) => {
         const { config, content_hash, content_status, ...a } = row;
@@ -45,7 +45,7 @@ async function getLessons({ level, topic, userId }) {
     const [rows] = await db.execute(`SELECT l.*,COUNT(a.activity_id) total_activities,
  SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL,1,0)) published_activities,
  SUM(IF(l.content_status='ready' AND v.version_id IS NOT NULL AND s.is_completed=1,1,0)) completed_activities
- FROM curriculum_lesson l LEFT JOIN curriculum_activity a ON a.lesson_id=l.lesson_id AND a.is_active=1
+ FROM curriculum_lesson l LEFT JOIN curriculum_activity a ON a.lesson_id=l.lesson_id AND a.is_active=1 AND a.activity_level='T'
  LEFT JOIN (SELECT activity_id,MAX(version_id) version_id FROM curriculum_activity_version WHERE publication_status='published' GROUP BY activity_id) v ON v.activity_id=a.activity_id
  ${verifiedSummary} WHERE l.is_active=1 ${filter} GROUP BY l.lesson_id ORDER BY l.display_order`, params);
     const states = await activityStates(userId);
@@ -71,7 +71,7 @@ async function getActivityByCode(code, userId) {
     if (!rows.length)
         return null;
     const a = rows[0];
-    const state = (await activityStates(userId, a.lesson_id)).find(state => state.activity_id === a.activity_id);
+    const state = (await activityStates(userId, a.lesson_id,true)).find(state => state.activity_id === a.activity_id);
     const ready = state?.readiness === 'ready';
     if (!ready && !(await access.canPreview(userId)))
         c.fail('Hoạt động đang biên soạn, chưa sẵn sàng học', 403);

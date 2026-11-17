@@ -4,10 +4,13 @@ const { authRequired } = require("../../../middleware/auth.middleware");
 
 const router = express.Router();
 const video = require('../services/curriculumVideo.service');
+const groups = require('../services/curriculumGroup.service');
 const review = require('../services/curriculumReview.service');
 const dev = fn => async(req,res)=>{try{res.json({success:true,data:await fn(req)});}catch(e){res.status(e.status||500).json({success:false,message:e.message});}};
+router.get('/groups',authRequired,dev(req=>groups.list(req.user.user_id)));
+router.get('/groups/:groupCode',authRequired,dev(req=>groups.detail(req.user.user_id,req.params.groupCode)));
 router.get('/reviews/classes',authRequired,dev(req=>review.classes(req.user.user_id)));
-router.get('/reviews/activities',authRequired,dev(async req=>{await review.classes(req.user.user_id);const [rows]=await require('../../../db').query("SELECT a.activity_id,a.activity_code,a.title,l.lesson_code FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id WHERE a.game_type='VideoPracticeRecorder' AND a.is_active=1 AND l.is_active=1 AND a.activity_code REGEXP '^L1[.]BT[.](0[1-9]|10)[.]T[0-9][0-9]$' ORDER BY l.display_order");return rows;}));
+router.get('/reviews/activities',authRequired,dev(async req=>{await review.classes(req.user.user_id);const [rows]=await require('../../../db').query("SELECT a.activity_id,a.activity_code,a.title,l.lesson_code FROM curriculum_activity a JOIN curriculum_lesson l ON l.lesson_id=a.lesson_id WHERE a.game_type='VideoPracticeRecorder' AND a.is_active=1 AND l.is_active=1 AND a.activity_code REGEXP '^L1[.]BT[.](0[1-9]|10)[.]T[0-9][0-9]$' ORDER BY l.display_order");return rows.concat(await groups.assignable());}));
 router.get('/reviews/submissions',authRequired,dev(req=>review.queue(req.user.user_id,req.query)));
 router.get('/reviews/submissions/:attemptId',authRequired,dev(req=>review.getDetail(req.user.user_id,req.params.attemptId)));
 router.post('/reviews/submissions/:attemptId/items',authRequired,dev(req=>review.write(req.user.user_id,req.params.attemptId,req.body)));

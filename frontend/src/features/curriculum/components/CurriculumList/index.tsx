@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import CurriculumModel, { CurriculumLesson } from "@/domain/entities/Curriculum";
 
+import {GroupLearningList} from '../GroupLearning';
 import {ClassPracticeList} from '../ClassPracticeList';
 
 const LEVELS = [
@@ -122,6 +123,7 @@ export function CurriculumList() {
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8">
       <ClassPracticeList />
+      <GroupLearningList />
       {/* Header Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-800 rounded-3xl p-8 md:p-12 text-white shadow-xl">
         <div className="relative z-10 max-w-2xl space-y-3">

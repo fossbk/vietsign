@@ -86,6 +86,16 @@ function validate(config, published=false) {
         if(published&&[task.prompt,task.sample,...(task.options||[]).map(o=>o.presentation),...(task.pairs||[]).flatMap(p=>[p.left,p.right])].filter(Boolean).some(hasMissing))fail('Chưa có đủ học liệu');
     }
     const p=config.policy;
+    if(config.compound){const compound=config.compound;
+        if(config.game_type!=='VideoPracticeRecorder'||!['sentence','dialogue'].includes(compound.kind)||!Array.isArray(compound.units)||!compound.units.length||new Set(compound.units.map(u=>u.id)).size!==compound.units.length)fail('Nội dung câu/hội thoại không hợp lệ');
+        compound.units.forEach((u,i)=>{if(typeof u.text!=='string'||!u.text.trim()||u.order!==i+1||typeof u.id!=='string'||!u.id||(compound.kind==='dialogue'&&(u.speaker!==null&&(typeof u.speaker!=='string'||!u.speaker.trim())||u.speaker===null&&!u.blockedReason)))fail('Lời hoặc thứ tự hội thoại không hợp lệ');});
+        const speakers=[...new Set(compound.units.map(u=>u.speaker).filter(Boolean))];
+        if(!Array.isArray(compound.speakers)||new Set(compound.speakers).size!==compound.speakers.length||speakers.length!==compound.speakers.length||speakers.some(s=>!compound.speakers.includes(s)))fail('Danh sách vai không khớp lời thoại');
+        if(compound.practiceSpeaker&&!compound.speakers.includes(compound.practiceSpeaker))fail('Vai thực hành không thuộc hội thoại');
+        for(const task of config.tasks){const unit=compound.units.find(u=>u.id===task.id);if(!unit||task.prompt.type!=='text'||task.prompt.content!==unit.text||(task.blockedReason||null)!==(unit.blockedReason||null))fail('Mục quay không khớp câu/lượt nguồn');if(compound.practiceSpeaker&&unit.speaker!==compound.practiceSpeaker)fail('Mục không thuộc vai được giao');}
+        validatePresentation(compound.model);
+        if(published&&(compound.editorialStatus!=='approved'||compound.units.some(u=>u.blockedReason)||hasMissing(compound.model)))fail('Câu/hội thoại chưa được duyệt hoặc thiếu mẫu');
+    }
     if(!p||!['all_correct','viewed_all','score','review'].includes(p.completion)||!(p.max_retries===null||Number.isInteger(p.max_retries)&&p.max_retries>=0))fail('Chính sách kết quả không hợp lệ');
     if(p.completion==='score'&&(!Number.isFinite(p.pass_score)||p.pass_score<0||p.pass_score>100))fail('Ngưỡng điểm không hợp lệ');
     if(p.star_thresholds!==null&&(!Array.isArray(p.star_thresholds)||p.star_thresholds.length!==3||p.star_thresholds.some((n,i,a)=>!Number.isFinite(n)||n<0||n>100||(i>0&&n<a[i-1]))))fail('Ngưỡng sao không hợp lệ');
@@ -95,7 +105,7 @@ function validate(config, published=false) {
     return config;
 }
 function hasMissing(p){return !!p.missing || (p.parts||[]).some(hasMissing) || (p.objects||[]).some(o=>hasMissing(o.presentation)) || (p.angles||[]).some(hasMissing) || !!(p.background&&hasMissing(p.background)) || !!(p.highlightVideo&&hasMissing(p.highlightVideo));}
-function presentations(config){const result=[];function collect(p){if(!p)return;result.push(p);(p.parts||[]).forEach(collect);(p.objects||[]).forEach(o=>collect(o.presentation));(p.angles||[]).forEach(collect);collect(p.background);collect(p.highlightVideo);}
+function presentations(config){const result=[];function collect(p){if(!p)return;result.push(p);(p.parts||[]).forEach(collect);(p.objects||[]).forEach(o=>collect(o.presentation));(p.angles||[]).forEach(collect);collect(p.background);collect(p.highlightVideo);}collect(config.compound?.model);
     config.tasks.forEach(t=>{collect(t.prompt);collect(t.sample);(t.options||[]).forEach(o=>collect(o.presentation));(t.pairs||[]).forEach(p=>{collect(p.left);collect(p.right);});});return result;
 }
 function snapshot(config) {
@@ -110,6 +120,7 @@ function snapshot(config) {
 }
 function publicConfig(config,answers=[]){return {
     runtime_version:2,game_type:config.game_type,icon:config.icon,title:config.title,instruction:config.instruction,
+    compound:config.compound?{kind:config.compound.kind,groupCode:config.compound.groupCode,variantCode:config.compound.variantCode,sourceColumn:config.compound.sourceColumn,editorialStatus:config.compound.editorialStatus,practiceSpeaker:config.compound.practiceSpeaker,speakers:config.compound.speakers,units:config.compound.units.map(({id,order,text,speaker,blockedReason})=>({id,order,text,speaker,blockedReason})),model:config.compound.model}:undefined,
     policy:{max_retries:config.policy.max_retries,no_penalty:!!config.policy.no_penalty,completion:config.policy.completion},
     rounds:config.rounds.map(r=>({id:r.id,title:r.title,unlockAfterRound:r.unlockAfterRound,unlockCondition:r.unlockCondition,...roundState(config,answers).find(s=>s.id===r.id)})),
     tasks:config.tasks.map(t=>({id:t.id,roundId:t.roundId,kind:t.kind,...(['view','recording'].includes(t.kind)?{label:t.label}:{}),prompt:t.prompt,sample:t.sample,blockedReason:t.blockedReason,options:t.options?.map(o=>({id:o.id,presentation:o.presentation})),
