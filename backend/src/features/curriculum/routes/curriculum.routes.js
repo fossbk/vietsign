@@ -7,6 +7,11 @@ const video = require('../services/curriculumVideo.service');
 const groups = require('../services/curriculumGroup.service');
 const review = require('../services/curriculumReview.service');
 const dev = fn => async(req,res)=>{try{res.json({success:true,data:await fn(req)});}catch(e){res.status(e.status||500).json({success:false,message:e.message});}};
+const editor=require('../services/curriculumEditor.service');
+router.get('/editor',authRequired,dev(req=>editor.list(req.user.user_id)));
+router.get('/editor/activities/:activityId',authRequired,dev(req=>editor.detail(req.user.user_id,req.params.activityId,req.query.versionId)));
+router.post('/editor/activities/:activityId/review',authRequired,dev(req=>editor.review(req.user.user_id,req.params.activityId,req.body)));
+router.post('/editor/activities/:activityId/versions',authRequired,dev(req=>editor.save(req.user.user_id,req.params.activityId,req.body)));
 router.get('/learning-overview',authRequired,dev(req=>require('../services/curriculumLearning.service').overview(req.user.user_id)));
 router.get('/activities/:activityId/current-attempt',authRequired,dev(async req=>{
  const data=await require('../services/curriculumLearning.service').overview(req.user.user_id),activity=data.activities.find(a=>a.activityId===Number(req.params.activityId));

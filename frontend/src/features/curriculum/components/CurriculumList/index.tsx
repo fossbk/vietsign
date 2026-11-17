@@ -149,6 +149,7 @@ export function CurriculumList() {
 
       {/* Level Tabs (Lớp 1 - 5) */}
       <LearningOverviewPanel {...overview}/>
+      {overview.data&&!overview.error&&['teacher','admin','super_admin'].includes(overview.data.role)&&<Link href="/curriculum/editor" className="inline-block min-h-11 py-3 font-bold underline">Biên tập chương trình nháp</Link>}
       {overview.data&&!overview.error&&<><ClassPracticeList items={overview.data.practices} student={overview.data.role==='student'}/><GroupLearningList groups={overview.data.groups}/></>}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {LEVELS.map((lvl) => {

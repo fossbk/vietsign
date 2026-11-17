@@ -1,0 +1,28 @@
+-- G5B: append-only draft editing ledger. Existing tables and versions are not altered.
+CREATE TABLE IF NOT EXISTS curriculum_editor_change (
+ change_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+ activity_id BIGINT NOT NULL,
+ base_version_id BIGINT NOT NULL,
+ new_version_id BIGINT NOT NULL UNIQUE,
+ restored_from_version_id BIGINT NULL,
+ actor_id BIGINT NOT NULL,
+ actor_name VARCHAR(255) NOT NULL,
+ actor_role VARCHAR(30) NOT NULL,
+ request_id VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ input_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ review_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ base_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ content_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ action VARCHAR(20) NOT NULL,
+ reason VARCHAR(1000) NOT NULL,
+ diff JSON NOT NULL,
+ validation JSON NOT NULL,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uk_editor_request(actor_id,request_id),
+ KEY idx_editor_activity(activity_id,change_id),
+ FOREIGN KEY(activity_id) REFERENCES curriculum_activity(activity_id),
+ FOREIGN KEY(base_version_id) REFERENCES curriculum_activity_version(version_id),
+ FOREIGN KEY(new_version_id) REFERENCES curriculum_activity_version(version_id),
+ FOREIGN KEY(restored_from_version_id) REFERENCES curriculum_activity_version(version_id),
+ FOREIGN KEY(actor_id) REFERENCES user(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

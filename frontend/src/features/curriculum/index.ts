@@ -11,3 +11,5 @@ export {errorMessage as curriculumErrorMessage} from './components/AttemptGame/u
 
 export {CompoundLearning} from './components/AttemptGame/CompoundLearning';
 export {GroupLearningList,GroupLearningDetail} from './components/GroupLearning';
+
+export {CurriculumEditorList,CurriculumEditorDetail} from './components/CurriculumEditor';
