@@ -3,7 +3,8 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import Model,{AttemptEvent,AttemptFeedback,AttemptTask,CurriculumActivity,CurriculumAttempt} from '@/domain/entities/Curriculum';
 
 import ReviewModel from '@/domain/entities/CurriculumReview';
-import {readDraft} from './recordingDrafts';
+import LearningModel from '@/domain/entities/CurriculumLearning';
+import {readDraft,hasLocalRecordingDraft} from './recordingDrafts';
 
 interface Saved {requestId:string;attemptId?:string;pending?:AttemptEvent;finalize?:string}
 function read(key:string):Saved|null {try {const s=JSON.parse(sessionStorage.getItem(key)||'null');return s&&typeof s.requestId==='string'?s:null;}catch{return null;}}
@@ -20,6 +21,7 @@ async function assertNoRecordingDrafts(attempt:CurriculumAttempt){
 }
 export function useCurriculumAttempt({activityCode,activity,classPracticeId,initialAttemptId,onComplete}:{activityCode:string;activity?:CurriculumActivity;classPracticeId?:string;initialAttemptId?:string;onComplete?:()=>void}){
  const [attempt,setAttempt]=useState<CurriculumAttempt|null>(null),[title,setTitle]=useState(''),[busy,setBusy]=useState(true),[error,setError]=useState('');
+ const [latestVersion,setLatestVersion]=useState<number|null>(null);
  const generation=useRef(0),lock=useRef(false),key=useRef(''),user=useRef('');
  const canonical=(account:string,id:string)=>`curriculum:g1:${account}:attempt-${id}`;
  const currentState=()=>{const s=read(key.current);return s?.attemptId?read(canonical(user.current,s.attemptId))||s:s;};
@@ -32,16 +34,25 @@ export function useCurriculumAttempt({activityCode,activity,classPracticeId,init
    const storageKey=`curriculum:g1:${account}:${initialAttemptId?'attempt-'+initialAttemptId:classPracticeId?'class-'+classPracticeId:meta!.activity_id}`;key.current=storageKey;
    let previous=read(storageKey);const id=initialAttemptId||previous?.attemptId;
    if(id){const saved=read(canonical(account,id));if(saved)previous=saved;else for(const k of Object.keys(sessionStorage).filter(k=>k.startsWith(`curriculum:g1:${account}:`))){const old=read(k);if(old?.attemptId===id&&(old.pending||old.finalize)){previous=old;break;}}}
-   const state:Saved=(!fresh&&previous)||{requestId:crypto.randomUUID(),...(initialAttemptId?{attemptId:initialAttemptId}:{})};
+   let state:Saved=(!fresh&&previous)||{requestId:crypto.randomUUID(),...(initialAttemptId?{attemptId:initialAttemptId}:{})};
    const save=()=>{sessionStorage.setItem(storageKey,JSON.stringify(state));if(state.attemptId)sessionStorage.setItem(canonical(account,state.attemptId),JSON.stringify(state));};save();
-   let next=state.attemptId?await Model.getAttempt(state.attemptId):classPracticeId?await ReviewModel.startPractice(classPracticeId,state.requestId):await Model.startAttempt(meta!.activity_id,state.requestId);
+   let known:CurriculumAttempt|null=null;
+   if(!fresh&&!initialAttemptId&&!state.pending&&!state.finalize){
+    if(state.attemptId)known=await Model.getAttempt(state.attemptId);
+    const practice=classPracticeId||known?.review?.practiceId;
+    const keep=known&&(!practice||await hasLocalRecordingDraft(known));
+    const resumed=keep?known:practice?await LearningModel.currentPractice(practice):await Model.getCurrentAttempt(meta!.activity_id);
+    if(run!==generation.current)return;
+    if(resumed){known=resumed;state=read(canonical(account,resumed.attemptId))||{requestId:state.requestId,attemptId:resumed.attemptId};save();}
+   }
+   let next=known&&known.attemptId===state.attemptId?known:state.attemptId?await Model.getAttempt(state.attemptId):classPracticeId?await ReviewModel.startPractice(classPracticeId,state.requestId):await Model.startAttempt(meta!.activity_id,state.requestId);
    state.attemptId=next.attemptId;save();if(run!==generation.current)return;
    try{
     if(state.pending){await Model.answerAttempt(next.attemptId,state.pending);delete state.pending;save();next=await Model.getAttempt(next.attemptId);}
     if(run!==generation.current)return;
     if(state.finalize){await Model.submitAttempt(next.attemptId,state.finalize);delete state.finalize;save();next=await Model.getAttempt(next.attemptId);}
    }catch(e){if(permanent(e)){delete state.pending;delete state.finalize;save();}throw e;}
-   if(run===generation.current){setAttempt(next);setTitle(next.config.title||meta?.title||'Thực hành ký hiệu');}
+   if(run===generation.current){setAttempt(next);setLatestVersion(meta?.preview_version_id||null);setTitle(next.config.title||meta?.title||'Thực hành ký hiệu');}
   }catch(e){if(run===generation.current)setError(errorMessage(e));}
   finally{if(run===generation.current)setBusy(false);}
  },[activity,activityCode,classPracticeId,initialAttemptId]);
@@ -65,5 +76,5 @@ export function useCurriculumAttempt({activityCode,activity,classPracticeId,init
  });
  const submit=()=>operate(async(state,save)=>{await assertNoRecordingDrafts(attempt!);state.finalize=`submit_${attempt!.attemptId}`;save();const result=await Model.submitAttempt(attempt!.attemptId,state.finalize);delete state.finalize;save();return result;});
  const restart=async()=>{if(initialAttemptId)return;const state=currentState();if(lock.current||state?.pending||state?.finalize){setError('Có thao tác chưa lưu xong. Hãy chọn Thử lại thao tác.');return;}try{if(attempt)await assertNoRecordingDrafts(attempt);await load(true);}catch(e){setError(errorMessage(e));}};
- return {attempt,title,busy,error,send,submit,retry:()=>load(),reload:load,restart,canRestart:!initialAttemptId,pendingOperation:!!(currentState()?.pending||currentState()?.finalize)};
+ return {attempt,title,busy,error,send,submit,retry:()=>load(),reload:load,restart,canRestart:!initialAttemptId,updateAvailable:!!(!classPracticeId&&!initialAttemptId&&latestVersion&&attempt&&attempt.versionId!==latestVersion),pendingOperation:!!(currentState()?.pending||currentState()?.finalize)};
 }

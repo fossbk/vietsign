@@ -13,9 +13,10 @@ import {
   Layers,
 } from "lucide-react";
 import CurriculumModel, { CurriculumLesson } from "@/domain/entities/Curriculum";
-
 import {GroupLearningList} from '../GroupLearning';
 import {ClassPracticeList} from '../ClassPracticeList';
+import {LearningOverviewPanel,LearningState,LearningCount,useLearningOverview} from '../LearningOverview';
+import {useCatalogMemory} from './catalogMemory';
 
 const LEVELS = [
   { code: "L1", label: "Lớp 1", active: true },
@@ -45,9 +46,10 @@ const GAME_TYPE_LABELS: Record<string, { label: string; icon: string; color: str
 };
 
 export function CurriculumList() {
-  const [selectedLevel,setSelectedLevel]=useState('L1');
-  const [selectedTopic,setSelectedTopic]=useState('ALL');
-  const [expandedLessonCode,setExpandedLessonCode]=useState<string|null>(null);
+  const catalogMemory=useCatalogMemory(),overview=useLearningOverview();
+  const selectedLevel=catalogMemory.memory?.level||'L1',selectedTopic=catalogMemory.memory?.topic||'ALL';
+  const memoryReady=!!catalogMemory.memory;
+  const setSelectedLevel=catalogMemory.setLevel,setSelectedTopic=catalogMemory.setTopic;
   const [lessons, setLessons] = useState<CurriculumLesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,6 +59,9 @@ export function CurriculumList() {
   useEffect(()=>{CurriculumModel.getCatalog().then(setCatalog).catch(()=>{});},[]);
 
   // Map of expanded lesson codes to show activity lists
+  const desiredExpanded=catalogMemory.view?.expanded||null;
+  const expandedLessonCode=lessons.some(l=>l.lesson_code===desiredExpanded)?desiredExpanded:null;
+  const setExpandedLessonCode=catalogMemory.setExpanded;
   const [loadedFilter,setLoadedFilter]=useState('');
   const filterKey=selectedLevel+':'+selectedTopic;
   const mounted=React.useRef(true);
@@ -94,6 +99,7 @@ export function CurriculumList() {
 
   // Fetch lessons
   useEffect(() => {
+    if(!memoryReady)return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError('');
@@ -116,14 +122,13 @@ export function CurriculumList() {
       })
       .finally(() => {if(active)setLoading(false);});
     return ()=>{active=false;};
-  }, [selectedLevel, selectedTopic, reload, filterKey]);
+  }, [memoryReady, selectedLevel, selectedTopic, reload, filterKey]);
 
   useEffect(()=>{let active=true;queueMicrotask(()=>{if(active&&!loading&&loadedFilter===filterKey&&expandedLessonCode&&!lessonDetails[expandedLessonCode]&&!loadingDetails[expandedLessonCode]&&!detailErrors[expandedLessonCode])fetchLessonDetail(expandedLessonCode);});return()=>{active=false;};},[loading,loadedFilter,filterKey,expandedLessonCode,lessonDetails,loadingDetails,detailErrors,fetchLessonDetail]);
+  useEffect(()=>catalogMemory.restore(!loading&&loadedFilter===filterKey&&!overview.loading&&(!expandedLessonCode||!!lessonDetails[expandedLessonCode]||!!detailErrors[expandedLessonCode])),[catalogMemory,loading,loadedFilter,filterKey,overview.loading,expandedLessonCode,lessonDetails,detailErrors]);
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8">
-      <ClassPracticeList />
-      <GroupLearningList />
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8" onClickCapture={event=>{const link=(event.target as HTMLElement).closest('a[href]');if(link&&link.getAttribute('href')!=='#'&&link.getAttribute('aria-disabled')!=='true'&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey)catalogMemory.remember();}}>
       {/* Header Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-800 rounded-3xl p-8 md:p-12 text-white shadow-xl">
         <div className="relative z-10 max-w-2xl space-y-3">
@@ -143,6 +148,8 @@ export function CurriculumList() {
       </div>
 
       {/* Level Tabs (Lớp 1 - 5) */}
+      <LearningOverviewPanel {...overview}/>
+      {overview.data&&!overview.error&&<><ClassPracticeList items={overview.data.practices} student={overview.data.role==='student'}/><GroupLearningList groups={overview.data.groups}/></>}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {LEVELS.map((lvl) => {
           const isSelected = selectedLevel === lvl.code;
@@ -189,7 +196,7 @@ export function CurriculumList() {
       </div>
 
       {/* Lessons List */}
-      {loading||loadedFilter!==filterKey ? (
+      {loading||!catalogMemory.memory||loadedFilter!==filterKey ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <Loader2 className="animate-spin text-primary-600" size={48} />
           <p className="text-gray-500 font-medium">Đang tải danh sách bài học...</p>
@@ -248,6 +255,7 @@ export function CurriculumList() {
                       </div>
                     </div>
 
+                    {overview.data?.lessons.find(p=>p.lessonCode===lesson.lesson_code)&&<LearningCount value={overview.data.lessons.find(p=>p.lessonCode===lesson.lesson_code)!}/>}
                     <div className="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-600">
                       {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
@@ -277,12 +285,13 @@ export function CurriculumList() {
                             color: "bg-gray-50 text-gray-700 border-gray-200",
                           };
 
+                          const progress=overview.data?.activities.find(a=>a.activityId===act.activity_id)?.progress;
                           return (
                             <Link
                               key={act.activity_code}
-                              href={(act.readiness==='ready'||act.can_preview?`/curriculum/${lesson.lesson_code}/${act.activity_code}`:'#')}
-                              aria-disabled={act.readiness!=='ready'&&!act.can_preview}
-                              onClick={event=>{if(act.readiness!=='ready'&&!act.can_preview)event.preventDefault();}}
+                              href={progress?.href||(act.readiness==='ready'||act.can_preview?`/curriculum/${lesson.lesson_code}/${act.activity_code}`:'#')}
+                              aria-disabled={!progress&&act.readiness!=='ready'&&!act.can_preview}
+                              onClick={event=>{if(!progress&&act.readiness!=='ready'&&!act.can_preview)event.preventDefault();}}
                               className="group p-5 rounded-2xl bg-white border border-gray-200/70 hover:border-primary-500 hover:shadow-lg transition-all flex flex-col justify-between gap-4"
                             >
                               <div className="space-y-2">
@@ -303,12 +312,13 @@ export function CurriculumList() {
                                 </h4>
                               </div>
 
+                              {progress&&<LearningState value={progress}/>}
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <span className="text-xs font-semibold text-gray-500">
                                   {act.is_completed?'Đã đạt':act.readiness==='ready'?'Sẵn sàng':'Đang biên soạn'}
                                 </span>
                                 <span className="inline-flex items-center gap-1 text-sm font-bold text-primary-600 group-hover:translate-x-1 transition-transform">
-                                  {act.readiness==='ready'?'Vào học':act.can_preview?'Xem thử':'Chưa mở'} <Play size={14} className="fill-current" />
+                                  {progress?'Mở lượt đã lưu':act.readiness==='ready'?'Vào học':act.can_preview?'Xem thử':'Chưa mở'} <Play size={14} className="fill-current" />
                                 </span>
                               </div>
                             </Link>

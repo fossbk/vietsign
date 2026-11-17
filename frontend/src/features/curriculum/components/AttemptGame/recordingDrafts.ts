@@ -11,3 +11,5 @@ async function run<T>(mode:IDBTransactionMode,fn:(s:IDBObjectStore)=>IDBRequest<
 export const readDraft=(attemptId:string,taskId:string)=>run<RecordingDraft|undefined>('readonly',s=>s.get(draftKey(attemptId,taskId)));
 export const saveDraft=(draft:RecordingDraft)=>run('readwrite',s=>s.put(draft));
 export const removeDraft=(attemptId:string,taskId:string)=>run('readwrite',s=>s.delete(draftKey(attemptId,taskId)));
+export const draftAttemptIds=async()=>[...new Set((await run<IDBValidKey[]>('readonly',s=>s.getAllKeys())).map(k=>String(k).split(':')[0]))];
+export async function hasLocalRecordingDraft(attempt:import('@/domain/entities/Curriculum').CurriculumAttempt){for(const task of attempt.config.tasks.filter(t=>t.kind==='recording')){const draft=await readDraft(attempt.attemptId,task.id);if(draft&&!attempt.recording?.items.find(i=>i.taskId===task.id)?.history.some(h=>h.uploadId===(draft.uploadedId||draft.uploadRequestId)))return true;}return false;}

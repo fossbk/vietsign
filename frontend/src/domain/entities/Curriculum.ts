@@ -98,6 +98,7 @@ class CurriculumModelClass extends Base {
   };
 
 
+  getCurrentAttempt = async(id:number):Promise<CurriculumAttempt|null> => unwrapResponse(await this.apiGet(`/activities/${id}/current-attempt`));
   getGroups = async():Promise<CurriculumGroup[]> => unwrapResponse(await this.apiGet('/groups'));
   getGroup = async(code:string):Promise<CurriculumGroupDetail> => unwrapResponse(await this.apiGet(`/groups/${encodeURIComponent(code)}`));
 

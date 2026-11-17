@@ -10,6 +10,8 @@ async function fixture(page:Page,student=false){
  await page.route('**/*',async route=>{
   const url=new URL(route.request().url());if(url.origin==='http://127.0.0.1:33131')return route.continue();const p=url.pathname;
   const reply=(data:any,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({success:status===200,data,...(status===403?{message:'Nhóm đang biên soạn; mở bài được giao trong lớp.'}:{})})});
+  if(p.endsWith('/current-attempt'))return reply(null);
+  if(p==='/curriculum/learning-overview')return reply({role:'student',summary:{total:0,attempted:0,officialCompleted:0,statuses:{}},lessons:[],groups:bundle.groups.map((g:any)=>({...g,variants:bundle.activities.filter((a:any)=>a.group_code===g.group_code).length,can_preview:!student,total:bundle.activities.filter((a:any)=>a.group_code===g.group_code).length,attempted:0,officialCompleted:0,statuses:{}})),activities:[],practices:[],resume:null});
   if(route.request().method()==='OPTIONS')return reply({});
   if(p==='/curriculum/groups')return reply(bundle.groups.map((g:any)=>({...g,variants:bundle.activities.filter((a:any)=>a.group_code===g.group_code).length,can_preview:!student})));
   if(p.startsWith('/curriculum/groups/')){if(student)return reply(null,403);const g=bundle.groups.find((g:any)=>g.group_code===decodeURIComponent(p.split('/').at(-1)!));return reply({...g,variants:bundle.activities.filter((a:any)=>a.group_code===g.group_code).map((a:any,i:number)=>({activityId:i+1,activityCode:a.activity_code,title:a.title,level:a.activity_level,variantCode:a.variant_code,sourceColumn:a.source_column,versionId:7,assignable:a.assignable,source:a.config.compound}))});}

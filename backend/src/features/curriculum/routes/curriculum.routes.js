@@ -7,6 +7,16 @@ const video = require('../services/curriculumVideo.service');
 const groups = require('../services/curriculumGroup.service');
 const review = require('../services/curriculumReview.service');
 const dev = fn => async(req,res)=>{try{res.json({success:true,data:await fn(req)});}catch(e){res.status(e.status||500).json({success:false,message:e.message});}};
+router.get('/learning-overview',authRequired,dev(req=>require('../services/curriculumLearning.service').overview(req.user.user_id)));
+router.get('/activities/:activityId/current-attempt',authRequired,dev(async req=>{
+ const data=await require('../services/curriculumLearning.service').overview(req.user.user_id),activity=data.activities.find(a=>a.activityId===Number(req.params.activityId));
+ return activity?.progress?.attemptId?require('../services/curriculumAttempt.service').get(req.user.user_id,activity.progress.attemptId):null;
+}));
+router.get('/class-practices/:practiceId/current-attempt',authRequired,dev(async req=>{
+ const data=await require('../services/curriculumLearning.service').overview(req.user.user_id),practice=data.practices.find(p=>p.practice_id===req.params.practiceId);
+ if(data.role!=='student'||!practice)require('../services/curriculumContent.service').fail('Không có quyền với lượt thực hành này',403);
+ return practice.progress?.attemptId?require('../services/curriculumAttempt.service').get(req.user.user_id,practice.progress.attemptId):null;
+}));
 router.get('/groups',authRequired,dev(req=>groups.list(req.user.user_id)));
 router.get('/groups/:groupCode',authRequired,dev(req=>groups.detail(req.user.user_id,req.params.groupCode)));
 router.get('/reviews/classes',authRequired,dev(req=>review.classes(req.user.user_id)));

@@ -1,0 +1,16 @@
+"use client";
+import {useEffect,useRef,useState} from 'react';
+interface View {expanded?:string|null;y:number}
+interface Memory {level:string;topic:string;views:Record<string,View>}
+const fresh=():Memory=>({level:'L1',topic:'ALL',views:{}}),filter=(m:Memory)=>`${m.level}:${m.topic}`;
+export function useCatalogMemory(){
+ const [memory,setMemory]=useState<Memory|null>(null),key=useRef(''),current=useRef<Memory>(fresh()),restoring=useRef(true),restored=useRef(''),leaving=useRef(false);
+ const write=()=>{if(key.current)try{sessionStorage.setItem(key.current,JSON.stringify(current.current));}catch{/* Browsing remains usable when storage is unavailable. */}};
+ useEffect(()=>{let active=true;queueMicrotask(()=>{if(!active)return;let m=fresh();try{const u=JSON.parse(localStorage.getItem('user')||'null'),id=u?.user_id||u?.id;if(id)key.current=`curriculum:catalog:v1:${id}`;const raw=key.current?JSON.parse(sessionStorage.getItem(key.current)||'null'):null;if(raw&&/^L[1-5]$/.test(raw.level)&&['ALL','BT','GD','TH','TN-ĐN'].includes(raw.topic)){const views:Record<string,View>={};for(const [k,v]of Object.entries(raw.views||{})){const r=v as View;if(/^L[1-5]:/.test(k)&&typeof r.y==='number'&&Number.isFinite(r.y)&&r.y>=0&&(r.expanded===undefined||r.expanded===null||/^L1\.BT\.(0[1-9]|10)$/.test(r.expanded)))views[k]={y:Math.min(r.y,500000),expanded:r.expanded};}m={level:raw.level,topic:raw.topic,views};}}catch{/* Corrupt or unavailable browser memory falls back to the first view. */}current.current=m;setMemory(m);});return()=>{active=false;};},[]);
+ useEffect(()=>{leaving.current=false;let timer:ReturnType<typeof setTimeout>|undefined;const save=()=>{if(!key.current||restoring.current||leaving.current)return;const m=current.current,k=filter(m);m.views[k]={...m.views[k],y:window.scrollY};write();};const scroll=()=>{if(timer)clearTimeout(timer);timer=setTimeout(save,100);};window.addEventListener('scroll',scroll,{passive:true});window.addEventListener('pagehide',save);return()=>{if(timer)clearTimeout(timer);save();window.removeEventListener('scroll',scroll);window.removeEventListener('pagehide',save);};},[]);
+ const update=(patch:Partial<Memory>)=>{const old=current.current,k=filter(old);if(!restoring.current)old.views[k]={...old.views[k],y:window.scrollY};const next={...old,...patch};current.current=next;restoring.current=true;restored.current='';write();setMemory(next);};
+ const expanded=(code:string|null)=>{const m={...current.current,views:{...current.current.views}},k=filter(m);m.views[k]={y:window.scrollY,expanded:code};current.current=m;write();setMemory(m);};
+ const restore=(ready:boolean)=>{if(!memory||!ready)return()=>{};const k=filter(memory);if(restored.current===k)return()=>{};restoring.current=true;let second=0;const first=requestAnimationFrame(()=>{second=requestAnimationFrame(()=>{window.scrollTo({top:memory.views[k]?.y||0,behavior:'instant'});restoring.current=false;restored.current=k;});});return()=>{cancelAnimationFrame(first);cancelAnimationFrame(second);};};
+ const remember=()=>{const m=current.current,k=filter(m);m.views[k]={...m.views[k],y:window.scrollY};write();leaving.current=true;};
+ return {memory,view:memory?.views[filter(memory)],setLevel:(level:string)=>update({level}),setTopic:(topic:string)=>update({topic}),setExpanded:expanded,restore,remember};
+}

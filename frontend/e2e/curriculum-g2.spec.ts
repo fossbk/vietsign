@@ -20,6 +20,8 @@ async function fixture(page:Page,id:string,{lostAnswer=false,lostSubmit=false}={
   if(path.startsWith('/g2-test-media/'))return route.fulfill(path.endsWith('.webm')?{contentType:'video/webm',body:readFileSync(resolve(__dirname,'fixtures/technical-sample.webm'))}:{contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="#d1fae5"/><circle cx="80" cy="80" r="38" fill="#047857"/></svg>'});
   if(url.origin==='http://127.0.0.1:33131')return route.continue();
   const reply=(data:any,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({success:status===200,data,...(status===200?{}:{message:'Synthetic transport failure'})})});
+  if(path.endsWith('/current-attempt'))return reply(null);
+  if(path==='/curriculum/learning-overview')return reply({role:'student',summary:{total:0,attempted:0,officialCompleted:0,statuses:{}},lessons:[],groups:[],activities:[],practices:[],resume:null});
   if(route.request().method()==='OPTIONS')return reply({});
   if(path==='/curriculum/activities/L1.BT.01.T01')return reply({activity_id:991,activity_code:'L1.BT.01.T01',title:source.title,game_type:config.game_type,readiness:'ready'});
   if(path.endsWith('/activities/991/attempts')){starts++;return reply(current());}

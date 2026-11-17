@@ -12,6 +12,8 @@ async function fixture(page:Page,{teacher=false,loseAnswer=false}={}){
  await page.route('**/*',async route=>{
   const url=new URL(route.request().url());if(url.origin==='http://127.0.0.1:33131')return route.continue();
   const p=url.pathname,method=route.request().method();const reply=(data:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({success:status===200,data,...(status!==200?{message:'Synthetic lost response'}:{})})});
+  if(p.endsWith('/current-attempt'))return reply(null);
+  if(p==='/curriculum/learning-overview')return reply({role:teacher?'teacher':'student',summary:{total:1,attempted:0,officialCompleted:0,statuses:{}},lessons:[],groups:[],activities:[],practices:[{practice_id:'practice',class_room_id:1,activity_id:991,version_id:7,class_name:'Synthetic class',title:'Synthetic recording',lesson_code:'L1.BT.01',activity_code:'L1.BT.01.T06',status:'open',progress:null}],resume:null});
   if(method==='OPTIONS')return reply({});
   if(p==='/curriculum/reviews/classes')return reply([{class_room_id:1,content:'Synthetic class'}]);
   if(p==='/curriculum/reviews/activities')return reply([{activity_id:991,activity_code:'L1.BT.01.T06',lesson_code:'L1.BT.01',title:'Synthetic recording'}]);
@@ -42,7 +44,7 @@ test('an existing G1 session migrates pending work to the canonical attempt URL'
  const saved=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('curriculum:g1:991:attempt-g4-browser-attempt')!));expect(saved.requestId).toBe('pre-g4-request');expect(saved.pending).toBeUndefined();expect(f.errors).toEqual([]);
 });
 test('camera draft survives reload; replacement and finalization preserve the same attempt',async({page})=>{
- const f=await fixture(page);await page.goto('/curriculum');await page.getByRole('link',{name:'Synthetic recording · Synthetic class'}).click();await expect(page.getByRole('heading',{name:'Synthetic recording',exact:true})).toBeVisible();await record(page);
+ const f=await fixture(page);await page.goto('/curriculum');await page.getByRole('link',{name:'Mở thực hành lớp'}).click();await expect(page.getByRole('heading',{name:'Synthetic recording',exact:true})).toBeVisible();await record(page);
  await page.getByRole('button',{name:'Bắt đầu lượt làm mới'}).click();await expect(page.getByRole('region',{name:'Hoạt động ký hiệu'}).getByRole('alert')).toContainText('Còn video nháp chưa nộp');expect(f.counts().starts).toBe(1);
  await page.reload();await expect(page.getByText('Có video nháp trên thiết bị, chưa nộp.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Nộp video cho mục này'}).click();await expect(page.getByLabel('Tiến độ hoạt động')).toContainText('Đã làm 1/1 mục');
  await record(page);await page.getByRole('button',{name:'Lưu kết quả hoạt động'}).click();await expect(page.getByRole('region',{name:'Hoạt động ký hiệu'}).getByRole('alert')).toContainText('Còn video nháp chưa nộp');expect(f.counts().submits).toBe(0);

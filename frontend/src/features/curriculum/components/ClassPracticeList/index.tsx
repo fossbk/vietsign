@@ -1,13 +1,6 @@
 "use client";
-import {useEffect,useState} from 'react';
-import Link from 'next/link';
-import ReviewModel,{ClassPractice} from '@/domain/entities/CurriculumReview';
-import {errorMessage} from '../AttemptGame/useCurriculumAttempt';
-export function ClassPracticeList(){
- const [items,setItems]=useState<ClassPractice[]>([]),[error,setError]=useState(''),[loading,setLoading]=useState(true),[reload,setReload]=useState(0);
- useEffect(()=>{let active=true;ReviewModel.practices().then(rows=>{if(active){setItems(rows);setError('');}}).catch(e=>{if(active)setError(errorMessage(e));}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[reload]);
- if(loading)return <p role="status">Đang tải bài thực hành trong lớp…</p>;
- if(error)return <div role="alert"><p>{error}</p><button type="button" onClick={()=>{setLoading(true);setReload(n=>n+1);}}>Thử lại bài trong lớp</button></div>;
+import Link from 'next/link';import type {ClassPractice} from '@/domain/entities/CurriculumReview';import type {LearningProgress} from '@/domain/entities/CurriculumLearning';import {LearningState} from '../LearningOverview';
+export function ClassPracticeList({items,student}:{items:Array<ClassPractice&{progress:LearningProgress|null}>;student:boolean}){
  if(!items.length)return null;
- return <section aria-label="Bài thực hành trong lớp" className="mb-6 rounded-2xl border bg-white p-5"><h2 className="mb-3 text-lg font-bold">Bài thực hành trong lớp</h2><ul className="space-y-3">{items.map(item=><li key={item.practice_id}><Link className="text-emerald-700 underline" href={`/curriculum/class-practice/${item.practice_id}`}>{item.title} · {item.class_name}</Link><p className="text-sm text-gray-600">{item.group_code||item.lesson_code}{item.practice_speaker?` · Vai ${item.practice_speaker}`:''} · Phiên bản {item.version_id}</p></li>)}</ul></section>;
+ return <section aria-label="Thực hành trong lớp" className="space-y-3 rounded-2xl border border-blue-300 bg-blue-50 p-5"><h2 className="text-xl font-bold">Thực hành trong lớp</h2><p>Các lượt nháp do giáo viên giao, được giữ theo phiên bản nội dung.</p>{items.map(p=><article key={p.practice_id} className="space-y-2 rounded-xl border bg-white p-3"><p className="font-bold">{p.class_name}{!p.group_code&&<> · {p.lesson_code}</>}</p><p>{p.title}</p>{p.group_code&&<p>{p.activity_code.includes('.C.')?'Phạm vi thực hành: các câu':`Vai thực hành: ${p.practice_speaker||'Toàn bộ vai'}`}</p>}{p.progress&&<LearningState value={p.progress}/>}<Link className="inline-block min-h-11 py-3 font-bold underline" href={student?p.progress?.href||`/curriculum/class-practice/${p.practice_id}`:'/grading/curriculum'}>{student?p.progress?.attemptId?'Mở lượt đã lưu':'Mở thực hành lớp':'Xem bài chờ nhận xét'}</Link></article>)}</section>;
 }

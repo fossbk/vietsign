@@ -19,6 +19,8 @@ async function fixture(page:Page,game='ChoiceQuizGame',failFirstAnswer=false){
     if(url.origin==='http://127.0.0.1:33131')return route.continue();
     const path=url.pathname,method=route.request().method();
     const reply=(data:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({success:status===200,data,...(status!==200?{message:'Lỗi mạng thử nghiệm'}:{})})});
+  if(path.endsWith('/current-attempt'))return reply(null);
+  if(path==='/curriculum/learning-overview')return reply({role:'student',summary:{total:0,attempted:0,officialCompleted:0,statuses:{}},lessons:[],groups:[],activities:[],practices:[],resume:null});
     if(method==='OPTIONS')return reply({});
     if(path==='/curriculum/catalog')return reply([{code:'L1',availableLessons:1,totalLessons:1}]);
     if(path==='/curriculum/lessons')return reply([lesson]);

@@ -34,6 +34,7 @@ function AttemptSession({runtime,attempt}:{runtime:Runtime;attempt:CurriculumAtt
   <header className="space-y-3 text-center">{attempt.config.icon&&<Image unoptimized width={72} height={72} src={attempt.config.icon} alt="Biểu tượng hoạt động" className="mx-auto h-16 w-16 object-contain"/>}<h2 className="text-2xl font-black">{runtime.title}</h2>{attempt.config.instruction&&<p className="whitespace-pre-line text-sm text-gray-600">{attempt.config.instruction}</p>}</header>
   {attempt.isPreview&&<p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Xem thử nội dung đang biên soạn. Kết quả thử được lưu riêng.</p>}
   {attempt.config.compound&&<CompoundLearning content={attempt.config.compound} taskIds={attempt.config.tasks.map(t=>t.id)}/>}
+  {runtime.updateAvailable&&<div role="status" className="rounded-xl border border-blue-300 bg-blue-50 p-4"><p>Đã có nội dung nháp mới. Lượt đang mở vẫn giữ phiên bản cũ.</p><button type="button" className={`${button} mt-2`} disabled={busy} onClick={()=>void runtime.restart()}>Bắt đầu lượt với nội dung mới</button></div>}
   <FeedbackPanel attempt={attempt} reload={()=>runtime.reload()}/>
   {runtime.error&&<div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800"><p>{runtime.error}</p><button type="button" className={`${button} mt-2`} disabled={busy} onClick={()=>void runtime.retry()}>Thử lại thao tác</button></div>}
   {busy&&<p role="status" className="text-sm">Đang lưu thao tác…</p>}

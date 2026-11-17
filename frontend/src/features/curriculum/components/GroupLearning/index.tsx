@@ -2,11 +2,12 @@
 import {useEffect,useState} from 'react';import Link from 'next/link';
 import Model,{CurriculumGroup,CurriculumGroupDetail} from '@/domain/entities/Curriculum';
 import {CompoundLearning} from '../AttemptGame/CompoundLearning';import {AttemptGame} from '../AttemptGame';import {button} from '../AttemptGame/GameViews';import {errorMessage} from '../AttemptGame/useCurriculumAttempt';
-export function GroupLearningList(){
+import LearningModel,{LearningCounts} from '@/domain/entities/CurriculumLearning';import {LearningCount} from '../LearningOverview';
+export function GroupLearningList({groups:supplied}:{groups?:Array<CurriculumGroup&LearningCounts>}){
  const [groups,setGroups]=useState<CurriculumGroup[]|null>(null),[error,setError]=useState('');
- useEffect(()=>{let active=true;void Model.getGroups().then(r=>{if(active)setGroups(r);}).catch(e=>{if(active)setError(errorMessage(e));});return()=>{active=false;};},[]);
- const visible=groups;
- return <section aria-label="Câu và hội thoại theo nhóm" className="space-y-3 rounded-2xl border bg-white p-4"><h2 className="text-xl font-bold">Câu và hội thoại theo nhóm B1–B10</h2><p>Nội dung đang biên soạn. Học sinh vào lượt thực hành do giáo viên giao trong lớp.</p>{error&&<p role="alert">{error}</p>}{!visible&&!error&&<p role="status">Đang tải nhóm…</p>}<div className="grid gap-3 sm:grid-cols-2">{visible?.map(g=><article key={g.group_code} className="space-y-2 rounded-xl border p-4"><h3 className="font-bold">{g.title}</h3><p>{g.variants} phương án nháp · Chờ duyệt D07</p><p className="text-sm">Các phương án chưa được coi là yêu cầu hoàn thành chính thức.</p>{g.can_preview&&<Link href={`/curriculum/groups/${g.group_code}`} className="inline-block min-h-11 py-3 underline">Đối chiếu {g.title}</Link>}</article>)}</div></section>;
+ useEffect(()=>{if(supplied)return;let active=true;void LearningModel.overview().then(r=>{if(active)setGroups(r.groups);}).catch(e=>{if(active)setError(errorMessage(e));});return()=>{active=false;};},[supplied]);
+ const visible=supplied||groups;
+ return <section aria-label="Câu và hội thoại theo nhóm" className="space-y-3 rounded-2xl border bg-white p-4"><h2 className="text-xl font-bold">Câu và hội thoại theo nhóm B1–B10</h2><p>Nội dung đang biên soạn. Học sinh vào lượt thực hành do giáo viên giao trong lớp.</p>{error&&<p role="alert">{error}</p>}{!visible&&!error&&<p role="status">Đang tải nhóm…</p>}<div className="grid gap-3 sm:grid-cols-2">{visible?.map(g=><article key={g.group_code} className="space-y-2 rounded-xl border p-4"><h3 className="font-bold">{g.title}</h3><p>{g.variants} phương án nháp · Chờ duyệt D07</p>{'statuses' in g&&<LearningCount value={g as CurriculumGroup&LearningCounts}/>}<p className="text-sm">Các phương án chưa được coi là yêu cầu hoàn thành chính thức.</p>{g.can_preview&&<Link href={`/curriculum/groups/${g.group_code}`} className="inline-block min-h-11 py-3 underline">Đối chiếu {g.title}</Link>}</article>)}</div></section>;
 }
 export function GroupLearningDetail({groupCode}:{groupCode:string}){
  const [group,setGroup]=useState<CurriculumGroupDetail|null>(null),[error,setError]=useState(''),[selected,setSelected]=useState(''),[preview,setPreview]=useState(false);
