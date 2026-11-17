@@ -30,6 +30,8 @@ async function uploadVideo(req, res) {
             const t = a.snapshot.tasks.find(t => t.id === req.params.taskId && t.kind === 'recording');
             if (!t)
                 fail('Mục tiêu quay không hợp lệ', 409);
+            if(t.blockedReason)fail(t.blockedReason,422);
+            if(f.size>Math.min(t.recording?.maxBytes||10485760,10485760))fail('Video vượt giới hạn của mục quay',413);
             const [existing]=await conn.execute('SELECT * FROM curriculum_upload WHERE upload_id=?',[uploadId]);
             if(existing[0]){
                 const old=existing[0];if(Number(old.user_id)!==Number(req.user.user_id)||old.attempt_id!==a.attempt_id||old.task_id!==t.id||old.byte_size!==f.size||old.mime_type!==mime)fail('Upload ID đã dùng cho video hoặc mục khác',409);
@@ -38,6 +40,7 @@ async function uploadVideo(req, res) {
                 return;
             }
             if(a.status!=='open')fail('Phiên đã nộp; hãy tạo lượt mới để quay lại.',409);
+            await require('./curriculumReview.service').assertWritable(conn,a);
             const [[count]] = await conn.execute('SELECT COUNT(*) AS total FROM curriculum_upload WHERE attempt_id=?', [a.attempt_id]);
             if (count.total >= 50)
                 fail('Phiên làm bài đã đạt giới hạn 50 video tải lên', 429);
@@ -87,8 +90,34 @@ async function ticket(req, res) {
         res.status(e.status || 500).json({ message: e.message });
     }
 }
-async function submissionAccess(userId, submission) {
-    await access.assertStudentAccess(userId, submission.owner);
+async function submissionAccess(userId,submission){
+    const review=require('./curriculumReview.service');
+    if(submission.attemptId&&await review.available()){const a=await attempts.owned(db,submission.owner,submission.attemptId);await review.canRead(db,userId,a);}
+    else await access.assertStudentAccess(userId,submission.owner);
+}
+async function reviewTicket(req,res){
+    try{await require('./curriculumReview.service').videoRef(req.user.user_id,req.params.attemptId,req.params.taskId,String(req.query.uploadId||''));const token=jwt.sign({purpose:'curriculum-review-video',user_id:req.user.user_id,attemptId:req.params.attemptId,taskId:req.params.taskId,uploadId:req.query.uploadId},process.env.JWT_SECRET,{expiresIn:'5m'});res.setHeader('Cache-Control','no-store');res.json({success:true,data:{url:`/curriculum/review-videos/${req.query.uploadId}?ticket=${token}`}});}catch(e){res.status(e.status||500).json({message:e.message});}
+}
+async function reviewVideo(req,res){
+    try{const token=jwt.verify(String(req.query.ticket||''),process.env.JWT_SECRET);if(token.purpose!=='curriculum-review-video'||token.uploadId!==req.params.uploadId||!await isUserActive(token.user_id))fail('Vé xem không hợp lệ',401);const upload=await require('./curriculumReview.service').videoRef(token.user_id,token.attemptId,token.taskId,token.uploadId);await stream(req,res,upload.object_key,practiceBucketName);}catch(e){if(!res.headersSent)res.status(e.status||401).json({message:'Không có quyền xem video bài lớp'});}
+}
+async function uploadTicket(req,res){
+    try{
+        const a=await attempts.owned(db,req.user.user_id,req.params.attemptId);
+        const [rows]=await db.execute('SELECT upload_id FROM curriculum_upload WHERE upload_id=? AND attempt_id=? AND user_id=?',[req.params.uploadId,a.attempt_id,req.user.user_id]);
+        if(!rows.length)fail('Video không thuộc phiên của bạn',404);
+        const token=jwt.sign({purpose:'curriculum-upload-video',user_id:req.user.user_id,attemptId:a.attempt_id,uploadId:req.params.uploadId},process.env.JWT_SECRET,{expiresIn:'5m'});
+        res.setHeader('Cache-Control','no-store');res.json({success:true,data:{url:`/curriculum/recording-uploads/${req.params.uploadId}/video?ticket=${token}`}});
+    }catch(e){res.status(e.status||500).json({message:e.message});}
+}
+async function uploadVideoStream(req,res){
+    try{
+        const token=jwt.verify(String(req.query.ticket||''),process.env.JWT_SECRET);
+        if(token.purpose!=='curriculum-upload-video'||token.uploadId!==req.params.uploadId||!await isUserActive(token.user_id))fail('Vé xem không hợp lệ',401);
+        await attempts.owned(db,token.user_id,token.attemptId);
+        const [rows]=await db.execute('SELECT object_key FROM curriculum_upload WHERE upload_id=? AND attempt_id=? AND user_id=?',[token.uploadId,token.attemptId,token.user_id]);
+        if(!rows.length)fail('Không tìm thấy video',404);await stream(req,res,rows[0].object_key,practiceBucketName);
+    }catch(e){if(!res.headersSent)res.status(e.status||401).json({message:'Không có quyền xem video'});}
 }
 async function stream(req, res, key, bucket = bucketName) {
     if (!safeKey(key))
@@ -157,4 +186,4 @@ async function guardLegacy(req, res, key) {
         fail('Video chưa được gắn quyền sở hữu', 403);
     await access.assertStudentAccess(req.user.user_id, rows[0].user_id);
 }
-module.exports = { uploadMiddleware, uploadVideo, ticket, video, stream, guardLegacy, safeKey };
+module.exports = { uploadMiddleware, uploadVideo, uploadTicket, uploadVideoStream, reviewTicket,reviewVideo,ticket, video, stream, guardLegacy, safeKey };

@@ -2,6 +2,7 @@ const db = require('../../../db');
 const { randomUUID } = require('node:crypto');
 const c = require('./curriculumContent.service');
 const access = require('./curriculumAccess.service');
+const recording = require('./curriculumRecording.service');
 const key = value => { if (typeof value !== 'string' || !/^[A-Za-z0-9_-]{1,100}$/.test(value))
     c.fail('Request/event/idempotency ID không hợp lệ', 400); return value; };
 async function transaction(fn) {
@@ -32,9 +33,10 @@ async function owned(conn, userId, id, lock = false) {
     a.result = c.parse(a.result);
     return a;
 }
-async function response(a, answers = []) {
+async function response(a, answers = [],conn=db) {
     return { attemptId: a.attempt_id, activityId: a.activity_id, versionId: a.version_id, isPreview: !!a.is_preview, status: a.status,
-        config: c.publicConfig(a.snapshot,answers), answers: answers.map(r => ({ eventId: r.event_id, taskId: r.task_id, ...c.parse(r.response) })), result: a.result };
+        config: c.publicConfig(a.snapshot,answers), answers: answers.map(r => ({ eventId: r.event_id, taskId: r.task_id, ...c.parse(r.response) })), result: a.result,
+        recording: recording.state(a,answers),review:await require('./curriculumReview.service').projection(conn,a) };
 }
 async function assertAssets(conn, config) {
     c.validate(config, true);
@@ -42,13 +44,13 @@ async function assertAssets(conn, config) {
     if (assets.length !== new Set(config.asset_ids).size || assets.some(a => a.verification_status !== 'verified' || a.approval_status !== 'approved' || !a.playable_url))
         c.fail('Học liệu chưa được xác minh');
     const urls = new Set(assets.map(a => a.playable_url));
-    if(config.icon&&!urls.has(config.icon))c.fail('Icon is not an approved asset');
+    if(config.icon&&!urls.has(config.icon))c.fail('Biểu tượng không thuộc asset đã duyệt');
     const presentations = config.runtime_version===2 ? require('./curriculumRounds.service').presentations(config) : config.tasks.flatMap(t=>[t.prompt,...(t.options||[]).map(o=>o.presentation)]);
     for (const p of presentations)
             if (['image','video'].includes(p.type) && !urls.has(p.content))
                 c.fail('Học liệu không thuộc asset đã duyệt');
 }
-async function start(userId, activityId, payload) {
+async function start(userId, activityId, payload, classContext=null) {
     key(payload.requestId);
     return transaction(async (conn) => {
         // Serializes version creation and same-request starts without unique-key races.
@@ -59,14 +61,17 @@ async function start(userId, activityId, payload) {
         const [existing] = await conn.execute('SELECT * FROM curriculum_attempt WHERE user_id=? AND activity_id=? AND request_id=?', [userId, activityId, payload.requestId]);
         if (existing.length) {
             const a = await owned(conn, userId, existing[0].attempt_id);
+            if(classContext){const ctx=await require('./curriculumReview.service').context(conn,a.attempt_id);if(ctx?.practice_id!==classContext.practiceId)c.fail('Request ID đã dùng cho lớp khác',409);}
             return response(a, await rowsAnswers(conn, a.attempt_id),conn);
         }
         const [published] = await conn.execute("SELECT * FROM curriculum_activity_version WHERE activity_id=? AND publication_status='published' ORDER BY version_number DESC LIMIT 1", [activityId]);
         let v = published[0];
         let preview = activity.content_status !== 'ready' || !v;
-        if (preview && !(await access.canPreview(userId, conn)))
+        const classPractice=classContext?await require('./curriculumReview.service').practiceForStart(conn,userId,classContext.practiceId,activityId):null;
+        if(classPractice){const [pinned]=await conn.execute('SELECT * FROM curriculum_activity_version WHERE version_id=? AND activity_id=?',[classPractice.version_id,activityId]);v=pinned[0];if(!v)c.fail('Phiên bản của lớp không tồn tại',409);preview=true;}
+        if (preview && !classPractice && !(await access.canPreview(userId, conn)))
             c.fail('Hoạt động đang biên soạn, chưa sẵn sàng học', 403);
-        if (preview) {
+        if (preview&&!classPractice) {
             const [drafts] = await conn.execute("SELECT * FROM curriculum_activity_version WHERE activity_id=? AND publication_status='draft' ORDER BY version_number DESC LIMIT 1", [activityId]);
             if (drafts[0]) v = drafts[0];
         }
@@ -95,6 +100,7 @@ async function start(userId, activityId, payload) {
         const a = { attempt_id: randomUUID(), activity_id: activityId, version_id: v.version_id, is_preview: Number(preview), status: 'open', snapshot: c.snapshot(config), result: null };
         await conn.execute('INSERT INTO curriculum_attempt(attempt_id,user_id,activity_id,version_id,request_id,is_preview,snapshot) VALUES(?,?,?,?,?,?,?)', [a.attempt_id, userId, activityId, a.version_id, payload.requestId, a.is_preview, JSON.stringify(a.snapshot)]);
         a.user_id=userId;
+        if(classPractice)await conn.execute('INSERT INTO curriculum_attempt_class(attempt_id,practice_id) VALUES(?,?)',[a.attempt_id,classPractice.practice_id]);
         return response(a,[],conn);
     });
 }
@@ -102,7 +108,7 @@ async function get(userId, id) { const a = await owned(db, userId, id); return r
 async function answer(userId, id, payload) {
     key(payload.eventId);
     // Canonical payload excludes claimed score, correctness and client target text.
-    const input = { taskId: payload.taskId, ...(payload.choiceIds ? { choiceIds: payload.choiceIds } : {}), ...(payload.action ? { action: payload.action } : {}), ...(payload.uploadId ? { uploadId: payload.uploadId } : {}), ...(payload.objectId ? {objectId:payload.objectId}:{}), ...(payload.cardId ? {cardId:payload.cardId}:{}) };
+    const input = { taskId: payload.taskId, ...(payload.choiceIds ? { choiceIds: payload.choiceIds } : {}), ...(payload.action ? { action: payload.action } : {}), ...(payload.uploadId ? { uploadId: payload.uploadId } : {}), ...(payload.replacesUploadId ? {replacesUploadId:payload.replacesUploadId}:{}), ...(payload.objectId ? {objectId:payload.objectId}:{}), ...(payload.cardId ? {cardId:payload.cardId}:{}) };
     return transaction(async (conn) => {
         const a = await owned(conn, userId, id, true);
         const answers = await rowsAnswers(conn, id);
@@ -114,6 +120,7 @@ async function answer(userId, id, payload) {
         }
         if (a.status !== 'open')
             c.fail('Phiên làm bài đã kết thúc', 409);
+        await require('./curriculumReview.service').assertWritable(conn,a);
         const task = a.snapshot.tasks.find(t => t.id === input.taskId);
         if (!task)
             c.fail('Mục không thuộc phiên làm bài', 400);
@@ -122,7 +129,7 @@ async function answer(userId, id, payload) {
             if (!uploads.length)
                 c.fail('Video không thuộc người nộp/phiên/mục tiêu', 403);
         }
-        const feedback = c.grade(a.snapshot, task, input, answers);
+        const feedback = task.kind==='recording' ? recording.grade(a.snapshot,task,input,answers) : c.grade(a.snapshot, task, input, answers);
         await conn.execute('INSERT INTO curriculum_attempt_answer(attempt_id,event_id,task_id,payload,response,is_correct) VALUES(?,?,?,?,?,?)', [id, payload.eventId, task.id, JSON.stringify(input), JSON.stringify(feedback), feedback.correct === null ? null : Number(feedback.correct)]);
         return feedback;
     });
@@ -144,6 +151,7 @@ async function submit(userId, id, payload) {
             return a.result;
         }
         const answers = await rowsAnswers(conn, id);
+        await require('./curriculumReview.service').assertWritable(conn,a);
         const result = c.summarize(a.snapshot, answers);
         if (result.answered !== result.required)
             c.fail('Chưa làm đủ các mục bắt buộc', 409);
@@ -159,6 +167,7 @@ async function submit(userId, id, payload) {
    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, [a.activity_id, userId, a.snapshot.game_type, result.score, result.stars, seconds, result.isCompleted, JSON.stringify(result), id, a.version_id, result.resultSource, result.reviewStatus]);
         result.progressId = insert.insertId;
         result.aiStatus = 'not_requested';
+        if(a.snapshot.tasks.some(t=>t.kind==='recording'))result.recording = recording.state({...a,status:'finalized'},answers);
         await conn.execute("UPDATE curriculum_attempt SET status='finalized',submit_key=?,result=?,finalized_at=NOW() WHERE attempt_id=?", [payload.idempotencyKey, JSON.stringify(result), id]);
         if(!a.is_preview)await rebuildSummary(conn, userId, a.activity_id);
         return result;

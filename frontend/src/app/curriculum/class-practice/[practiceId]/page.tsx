@@ -1,0 +1,3 @@
+"use client";
+import {useParams} from 'next/navigation';import Link from 'next/link';import {DashboardLayout} from '@/shared/components/layout';import {AttemptGame} from '@/features/curriculum';
+export default function ClassPracticePage(){const {practiceId}=useParams<{practiceId:string}>();return <DashboardLayout><main className="mx-auto max-w-5xl space-y-4 p-4"><Link href="/curriculum" className="underline">Về chương trình học</Link><p className="rounded-xl bg-amber-50 p-3">Thực hành nháp trong lớp. Nhận xét được lưu theo từng mục; chưa công nhận điểm, sao chính thức.</p><AttemptGame key={practiceId} activityCode={practiceId} classPracticeId={practiceId}/></main></DashboardLayout>;}

@@ -1,3 +1,4 @@
+import type {AttemptReview} from './CurriculumReview';
 import { Base } from "./base";
 
 function unwrapResponse<T>(response: unknown): T {
@@ -96,12 +97,15 @@ class CurriculumModelClass extends Base {
     return unwrapResponse(await this.apiUploadFile(`/attempts/${id}/tasks/${encodeURIComponent(taskId)}/uploads`,form));
   };
 
+
   /** GET /curriculum/lessons — danh sách bài học theo level/topic */
   getLessons = async (params?: { level?: string; topic?: string }): Promise<CurriculumLesson[]> => {
     const res = await this.apiGet("/lessons", params);
     const body = unwrapResponse<unknown>(res);
     return Array.isArray(body) ? body as CurriculumLesson[] : [];
   };
+
+  getRecordingVideoTicket = async(id:string,uploadId:string):Promise<{url:string}> => unwrapResponse(await this.apiGet(`/attempts/${id}/uploads/${uploadId}/video-ticket`));
 
   /** GET /curriculum/lessons/:lessonCode — chi tiết bài học kèm danh sách activity */
   getLessonByCode = async (lessonCode: string): Promise<CurriculumLesson> => {
@@ -149,9 +153,12 @@ export default CurriculumModel;
 
 export interface TaskPresentation {type:'text'|'image'|'video'|'counting'|'mixed';content?:string;label?:string;role?:string;missing?:boolean;technicalSample?:boolean;parts?:TaskPresentation[];angles?:TaskPresentation[];highlightVideo?:TaskPresentation;icon?:string;count?:number;rows?:number;objects?:Array<{id:string;presentation:TaskPresentation;x?:number;y?:number}>;background?:TaskPresentation}
 export interface AttemptTask {id:string;roundId?:string;kind:'view'|'choice'|'pair'|'sequence'|'recording'|'memory';blockedReason?:string;prompt:TaskPresentation;sample?:TaskPresentation;label?:string;options?:Array<{id:string;presentation:TaskPresentation}>;fixedOptions?:Record<number,string>;keepCorrect?:boolean;staircase?:boolean;maxRetries?:number|null;requireCount?:boolean;cards?:Array<{id:string;presentation:TaskPresentation}>;pairCount?:number;recording?:{maxSeconds:number|null;maxBytes:number|null}}
-export interface AttemptEvent {eventId:string;taskId:string;choiceIds?:string[];action?:'view'|'count'|'flip';uploadId?:string;objectId?:string;cardId?:string}
+export interface AttemptEvent {eventId:string;taskId:string;choiceIds?:string[];action?:'view'|'count'|'flip';uploadId?:string;replacesUploadId?:string;objectId?:string;cardId?:string}
 export interface AttemptFeedback {correct:boolean|null;terminal?:boolean;exhausted?:boolean;correctOptionIds?:string[];choiceIds?:string[];reviewStatus?:string;eventKind?:string;countedIds?:string[];lockedOptions?:Record<number,string>;openCardId?:string|null;matchedIds?:string[];revealedIds?:string[];moves?:number;pairMatched?:boolean;tries?:number;remainingTries?:number|null;hint?:{replaySpeed:number;showHighlight:boolean}}
 export interface AttemptResult {score:number;stars:number;practiceStars?:number;isCompleted:number;isPreview:boolean;reviewStatus:string;progressId:number;answered:number;required:number;firstCorrect?:number;moves?:number}
 export interface AttemptRound {id:string;title:string;available:boolean;complete:boolean;solved:boolean;unlockAfterRound?:string;unlockCondition?:string}
 export interface FixtureDescription {id:string;title:string;activityCode:string;gameType:string;rounds:number}
-export interface CurriculumAttempt {attemptId:string;activityId:number;versionId:number;isPreview:boolean;status:'open'|'finalized';config:{runtime_version:number;game_type:string;title?:string;icon?:string;instruction?:string;rounds?:AttemptRound[];tasks:AttemptTask[];policy:{max_retries:number|null;no_penalty?:boolean;completion?:string}};answers:Array<AttemptFeedback & {eventId:string;taskId:string}>;result:AttemptResult|null}
+export interface CurriculumAttempt {attemptId:string;activityId:number;versionId:number;isPreview:boolean;status:'open'|'finalized';recording?:RecordingProgress;review?:AttemptReview;config:{runtime_version:number;game_type:string;title?:string;icon?:string;instruction?:string;rounds?:AttemptRound[];tasks:AttemptTask[];policy:{max_retries:number|null;no_penalty?:boolean;completion?:string}};answers:Array<AttemptFeedback & {eventId:string;taskId:string}>;result:AttemptResult|null}
+
+export interface RecordingSubmission {taskId:string;label:string;roundId?:string;status:'not_submitted'|'submitted'|'pending_review';uploadId:string|null;revision:number;history:Array<{eventId:string;uploadId:string;revision:number;submittedAt:string|null}>}
+export interface RecordingProgress {required:number;submitted:number;missingTaskIds:string[];status:'in_progress'|'pending_review';aiStatus:'not_requested';items:RecordingSubmission[]}
